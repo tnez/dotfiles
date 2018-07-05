@@ -1,0 +1,7 @@
+[user]
+	name = Travis Nesland
+	email = tnesland@gmail.com
+[github]
+	user = tnez
+[alias]
+  hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
