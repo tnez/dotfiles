@@ -29,68 +29,54 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(shell-scripts
+   '(
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     helm
      (auto-completion :variables
                       auto-completion-return-key-behavior 'complete
                       auto-completion-tab-key-behavior 'cycle
                       auto-completion-complete-with-key-sequence nil
                       auto-completion-enable-snippets-in-popup t
-                      auto-completion-enable-help-tooltip t)
-     ;; better-defaults
+                      auto-completion-enable-help-tooltip t
+                      )
      csv
-     dash
      emacs-lisp
-     ;; (geolocation :variables
-     ;;              geolocation-enable-automatic-theme-changer t)
      flow
      (git :variables
           git-magit-status-fullscreen t
           git-enable-github-support t
-          git-gutter-use-fringe t)
-     (github :packages
-             (not magit-gh-pulls)
-             :variables
-             gist-view-gist t)
+          git-gutter-use-fringe t
+          )
      gtags
+     helm
      html
      (imenu-list :variables
-                 imenu-list-position 'left)
+                 imenu-list-position 'left
+                 )
      javascript
      markdown
-     python
-     (org :variables
-          org-bullets-bullet-list '("●"	"▲" "■" "○" "△" "□" "◉" "▣" )
-          org-enable-github-support t
-          org-extend-today-until 3
-          org-modules '(org-collector org-drill org-habit)
-          org-projectile-file "todo.org")
+     org
      osx
      (ranger :variables
-             ranger-cleanup-on-disable nil)
-     ;; react
+             ranger-cleanup-on-disable nil
+             )
      ruby
      ruby-on-rails
      search-engine
      (shell :variables
             shell-default-term-shell "/usr/local/bin/fish"
             shell-default-position 'bottom
-            shell-default-height 40)
-     spacemacs-purpose
+            shell-default-height 40
+            )
+     shell-scripts
      syntax-checking
-     (treemacs :variables
-               treemacs-use-collapsed-directories 0
-               treemacs-use-follow-mode t
-               treemacs-use-filewatch-mode t)
-     ;; themes-megapack
      (version-control :variables
                       version-control-diff-tool 'diff-hl
-                      version-control-global-margin t)
+                      version-control-global-margin t
+                      )
      yaml
      )
    ;; List of additional packages that will be installed without being
@@ -108,11 +94,9 @@ This function should only modify configuration layer settings."
      flatui-theme
      helpful
      nodejs-repl
-     ob-http
      rainbow-mode
      rjsx-mode
      solarized-theme
-     vue-mode
      )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -125,7 +109,8 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-only))
+   dotspacemacs-install-packages 'used-only
+   ))
 
 (defun dotspacemacs/init ()
   "Initialization:
@@ -415,11 +400,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
    ;; evil
    evil-escape-key-sequence "kj"
 
-   ;; location
-   calendar-location-name "Charleston, SC"
-   calendar-latitude 32.7765
-   calendar-longitude 79.9311
-
    ;; js2-mode
    js-indent-level 2
    js2-basic-offset 2
@@ -438,17 +418,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
   ;; some magit stuff
   (setq magit-diff-auto-show nil)
-
-  ;; ;; powerline stuff
-  ;; (setq ns-use-srgb-colorspace nil)
-
-  ;; ;; web-mode hooks
-  ;; (add-hook 'react-mode-hook 'emmet-mode)
-  ;; (with-eval-after-load 'web-mode
-  ;;   (add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
-  ;;   (add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
-  ;;   (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
-  ;;   )
   )
 
 (defun dotspacemacs/user-config ()
@@ -458,11 +427,7 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
   (setq
-   magit-repository-directories '("~/Projects/")
-   spaceline-org-clock-p t)
-
-  ;; ;; prevent `SPC q q' from stoping server (you can use `SPC q Q' for that)
-  ;; (evil-leader/set-key "q q" 'spacemacs/frame-killer)
+   magit-repository-directories '("~/Projects/"))
 
   ;; global text scale bindings
   (global-set-key (kbd "C-M-=") 'default-text-scale-increase)
@@ -472,9 +437,6 @@ before packages are loaded."
   (defadvice load-theme (before theme-dont-propagate activate)
     (mapcar #'disable-theme custom-enabled-themes))
 
-  ;; org-sync-backends
-  ;; (mapc 'load '("org-sync" "org-sync-github"))
-
   ;; javascript
   (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
 
@@ -483,16 +445,6 @@ before packages are loaded."
    ruby-deep-indent-paren nil
    enh-ruby-deep-indent-paren nil
    ruby-use-smie nil)
-  (with-eval-after-load 'ruby-mode
-    (setq-local helm-dash-docsets '("Ruby" "Ruby On Rails")))
-
-  ;; ;; magithub
-  ;; (use-package magithub
-  ;;   :after magit
-  ;;   :config (magithub-feature-autoinject t))
-
-  ;; ;; open jsx.js files in react-mode
-  ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . react-mode))
 
   ;; unless terminal, setup to work with fira code fancy fonts
   (when (window-system)
@@ -524,9 +476,7 @@ before packages are loaded."
                      (119 . ".\\(?:ww\\)")
                      (123 . ".\\(?:-\\)")
                      (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-                     (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-                     )
-                   ))
+                     (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)"))))
         (dolist (char-regexp alist)
           (set-char-table-range composition-function-table (car char-regexp)
                                 `([,(cdr char-regexp) 0 font-shape-gstring]))))))
@@ -538,128 +488,13 @@ before packages are loaded."
   ;; editorconfig
   (editorconfig-mode 1)
 
-  ;; golden-ratio
-  ;; (golden-ratio-mode)
-
   ;; Linting
   (setq-default flycheck-disabled-checkers '(javascript-jshint xml-xmllint))
 
   ;; org
-  (setq
-   org-blank-before-new-entry nil)
-
-  ;; org-agenda
-  ;;;;;;;;;;;;;
-  ;; setup todo keywords / sequence
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
-  ;; setup agenda files
-  (setq
-   org-directory "~/Documents/Personal/Google Drive/org"
-   ;; add all static orgfiles
-   org-agenda-files (delq nil
-                          (mapcar
-                           (lambda (x)
-                             (let ((fpath (concat org-directory x)))
-                               (and (file-exists-p fpath) fpath)))
-                           `("/inbox.org"
-                             "/personal.org"
-                             "/dev.org")))
-   org-default-notes-file (concat org-directory "/inbox.org")
-   org-refile-targets '((org-agenda-files :maxlevel . 4))
-   ;; org-refile-use-outline-path 'file
-   ;; org-outline-path-complete-in-steps nil
-   org-refile-allow-creating-parent-nodes 'confirm
-   )
-  ;; hide future scheduled items from todos
-  (setq
-   org-agenda-todo-ignore-scheduled 'future
-   org-agenda-tags-todo-honor-ignore-options t)
-  ;; prompt me to resolve idle time after 10 mins
-  (setq org-clock-idle-time 10)
-  ;; better shortcut support in evil-mode
-  (setq evil-org-key-theme '(textobjects navigation additional insert todo))
-  ;; custom agenda views
-  (setq org-agenda-custom-commands
-        '(("d" . "Dev Tasks")
-          ("da" "Dev: All" tags-todo "dev")
-          ("db" "Dev: BetaBooks" tags-todo "dev+betabooks")
-          ("dc" "Dev: Canopy" tags-todo "dev+canopy")
-          ("df" "Dev: FarlabHQ" tags-todo "dev+farlabhq")
-          ("ds" "Dev: StickerMule" tags-todo "dev+stickermule")
-          ("dt" "Dev: tnesland" tags-todo "dev+tnesland")
-          ("r" . "Review")
-          ("ri" "Review: Inbox" tags-todo "inbox")
-          ("ru" "Review: Upcoming" agenda ""
-           ((org-agenda-entry-types '(:deadline :scheduled))
-            (org-agenda-span 1)
-            (org-deadline-warning-days 14)
-            (org-agenda-time-grid nil)))
-          ))
-
-  ;; org-babel
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               '(
-                                 (ditaa . t)
-                                 (dot . t)
-                                 (emacs-lisp . t)
-                                 (http . t)
-                                 ;; (R . t)
-                                 (ruby . t)
-                                 (shell . t)
-                                 ))
-
-  ;; ;; web browsing
-  ;; (setq
-  ;;  browse-url-browser-function 'eww-browse-url
-  ;;  engine/browser-function 'eww-browse-url
-  ;;  )
+  (setq org-blank-before-new-entry nil)
 
   ;; setup safevars for dir-locals
   (put 'default-directory 'safe-local-variable #'stringp)
   (put 'flycheck-javascript-eslint-executable 'safe-local-variable #'stringp)
-  (put 'compile-command 'safe-local-variable #'stringp)
-
-  ;; setup window layouts
-  ;; (add-to-list 'purpose-user-mode-purposes '(treemacs-mode . treemacs))
-  ;; (add-to-list 'purpose-user-mode-purposes '(org-mode . planning))
-  ;; (add-to-list 'purpose-user-mode-purposes '(css-mode . edit))
-  ;; (add-to-list 'purpose-user-mode-purposes '(js2-mode . edit))
-  ;; (add-to-list 'purpose-user-mode-purposes '(json-mode . edit))
-  ;; (add-to-list 'purpose-user-mode-purposes '(react-mode . edit))
-  ;; (add-to-list 'purpose-user-mode-purposes '(ruby-mode . edit))
-  ;; (add-to-list 'purpose-user-mode-purposes '(web-mode . edit))
-  ;; (purpose-compile-user-configuration)
-  ;; (defun tnez/load-window-layout ()
-  ;;   "Load my default window layout"
-  ;;   (interactive)
-  ;;   (treemacs-toggle)
-  ;;   (purpose-set-window-layout '(nil
-  ;;                                (0 0 256 75)
-  ;;                                (:purpose treemacs :purpose-dedicated t :width 0.2 :height 0.5)
-  ;;                                (:purpose planning :purpose-dedicated t :width 0.2 :height 0.5)
-  ;;                                (:purpose edit :purpose-dedicated t :width 0.4 :height 0.7)
-  ;;                                (:purpose edit :purpose-dedicated t :width 0.4 :height 0.7)
-  ;;                                (:purpose general :purpose-dedicated t :width 0.8 :height 0.2)
-  ;;                                )))
-  )
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (flatui-theme yasnippet-snippets yapfify yaml-mode xterm-color ws-butler winum which-key web-mode web-beautify vue-mode volatile-highlights vi-tilde-fringe uuidgen use-package treemacs-projectile treemacs-evil toc-org tagedit symon string-inflection spaceline-all-the-icons solarized-theme smeargle slim-mode shell-pop scss-mode sass-mode rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocop rspec-mode robe rjsx-mode reveal-in-osx-finder restart-emacs rbenv ranger rainbow-mode rainbow-delimiters pyvenv pytest pyenv-mode py-isort pug-mode projectile-rails popwin pippel pipenv pip-requirements persp-mode pbcopy password-generator paradox ox-gfm overseer osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file ob-http nodejs-repl nameless multi-term move-text minitest markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode launchctl json-mode js2-refactor js-doc insert-shebang indent-guide importmagic impatient-mode hy-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helpful helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-dash helm-css-scss helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags fuzzy font-lock+ flycheck-pos-tip flycheck-flow flycheck-bashate flx-ido flow-minor-mode fish-mode fill-column-indicator feature-mode fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help engine-mode emmet-mode elisp-slime-nav editorconfig dumb-jump doom-themes diminish diff-hl default-text-scale dash-at-point cython-mode csv-mode counsel-projectile company-web company-tern company-statistics company-shell company-quickhelp company-flow company-anaconda column-enforce-mode coffee-mode clean-aindent-mode chruby centered-cursor-mode bundler browse-at-remote beacon auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-link ace-jump-helm-line ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
+  (put 'compile-command 'safe-local-variable #'stringp))
