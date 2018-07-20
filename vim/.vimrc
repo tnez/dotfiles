@@ -5,6 +5,7 @@ call plug#begin('~/.vim/plugged')
 " Plug 'other/another-thing'
 " ...
 Plug 'altercation/vim-colors-solarized'
+Plug 'tpope/vim-fugitive'
 Plug 'scrooloose/syntastic'
 
 call plug#end()
