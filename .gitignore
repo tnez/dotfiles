@@ -1,3 +1,5 @@
+vim/.vim/plugged
+
 # Ignore existing stuff until I deal with them
 configstore/
 fish/
