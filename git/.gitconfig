@@ -2,6 +2,9 @@
 	name = Travis Nesland
 	email = tnesland@gmail.com
 [github]
-	user = tnez
+  user = tnez
 [alias]
   hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+[core]
+  editor = emacs -nw
+  excludesfile = ~/.gitignore
