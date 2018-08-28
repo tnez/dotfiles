@@ -3,6 +3,9 @@
 vim/.vim/plugged
 vim/.vim/.netrwhist
 
+# Ignore actual secrets file (only commit .secrets.example)
+secrets/.secrets
+
 # Ignore existing stuff until I deal with them
 configstore/
 fish/
