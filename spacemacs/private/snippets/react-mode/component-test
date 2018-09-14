@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+#name : component-test
+#key : component-test
+#contributor : Travis Nesland
+# --
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { shallow } form 'enzyme'
+import  from './Foo'
+
+function setup(overrides = {}) {
+  const props = {
+      ...overrides,
+  }
+  const wrapper = shallow(<Foo {...props} />)
+
+  return {
+    props,
+    wrapper,
+  }
+}
+
+it('should render', () => {
+  const { props } = setup()
+  const root = document.createElement('div')
+
+  ReactDOM.render(<Player {...props} />, root)
+})

@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+#name : test
+#key : test
+#contributor : Travis Nesland
+# --
+require "minitest/autorun"
+require_relative "./$1"
+
+describe "$1" do
+  $0
+end

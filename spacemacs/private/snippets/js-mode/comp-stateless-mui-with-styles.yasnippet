@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+#name : comp-stateless-mui-with-styles
+#key : comp-stateless-mui-with-styles
+#contributor : Travis Nesland
+# --
+import React from 'react'
+import { withStyles } from 'material-ui/styles'
+
+const styles = theme => ({
+  root: {
+    // styles for the outermost div
+  },
+})
+
+const ${1:componentName} = (props) => {
+  const { classes } = props
+
+  return (
+
+  )
+}
+
+export default withStyles(styles)($1)
