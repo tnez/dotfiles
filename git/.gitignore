@@ -1,0 +1,20 @@
+# osx
+.DS_Store
+
+# project management
+/__external
+todo.org
+
+# emacs
+.dir-locals.el
+
+# vscode
+.vscode
+
+# gtags
+GPATH
+GRTAGS
+GTAGS
+
+# ruby config
+.ruby-version
