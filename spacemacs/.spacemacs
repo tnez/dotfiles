@@ -42,6 +42,7 @@ This function should only modify configuration layer settings."
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-enable-help-tooltip t
                       )
+     circadian
      csv
      emacs-lisp
      flow
