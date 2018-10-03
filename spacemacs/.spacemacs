@@ -486,6 +486,8 @@ before packages are loaded."
   ;; general
   (setq mac-command-modifier 'meta)
   (setq mac-option-modifier 'super)
+  (evil-leader/set-key
+    "q q" 'spacemacs/frame-killer)
 
   ;; editorconfig
   (editorconfig-mode 1)
