@@ -428,8 +428,10 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  ;; magit
   (setq
-   magit-repository-directories '("~/Projects/"))
+    magit-repository-directories '("~/Projects/"))
+  (global-git-commit-mode t)
 
   ;; global text scale bindings
   (global-set-key (kbd "C-M-=") 'default-text-scale-increase)
