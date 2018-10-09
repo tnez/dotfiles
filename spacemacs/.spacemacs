@@ -499,6 +499,7 @@ before packages are loaded."
 
   ;; org
   (setq org-blank-before-new-entry nil)
+  (setq evil-org-key-theme '(textobjects navigation additional insert todo))
 
   ;; setup safevars for dir-locals
   (put 'default-directory 'safe-local-variable #'stringp)
