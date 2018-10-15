@@ -74,6 +74,7 @@ This function should only modify configuration layer settings."
             shell-default-height 40
             )
      shell-scripts
+     spacemacs-purpose
      syntax-checking
      (version-control :variables
                       version-control-diff-tool 'diff-hl
