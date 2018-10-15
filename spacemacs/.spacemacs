@@ -61,6 +61,7 @@ This function should only modify configuration layer settings."
      markdown
      org
      osx
+     pdf
      (ranger :variables
              ranger-cleanup-on-disable nil
              )
