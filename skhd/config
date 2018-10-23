@@ -1,5 +1,5 @@
 # launch commands
-cmd - return : /Applications/Kitty.app/Contents/MacOS/kitty --single-instance
+cmd - return : cat $HOME/.cwd | ~/.config/kitty/scripts/new-window.sh
 shift + cmd - b : /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
 shift + cmd - s : /Applications/Slack.app/Contents/MacOS/Slack
 shift + cmd - m : /Applications/Spotify.app/Contents/MacOS/Spotify
