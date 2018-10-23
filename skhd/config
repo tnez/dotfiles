@@ -14,4 +14,6 @@ ctrl - left : chunkc tiling::window --warp west
 ctrl - down : chunkc tiling::window --warp south
 ctrl - up : chunkc tiling::window --warp north
 ctrl - right : chunkc tiling::window --warp east
+ctrl + cmd - right : chunkc tiling::window --send-to-desktop next
+ctrl + cmd - left : chunkc tiling::window --send-to-desktop prev
 
