@@ -31,6 +31,10 @@ end
 
 call plug#begin('~/.vim/plugged')
 
+" System
+Plug 'roxma/nvim-yarp'
+Plug 'roxma/vim-hug-neovim-rpc'
+
 " General
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
@@ -64,6 +68,9 @@ Plug 'mattn/emmet-vim'
 " Testing / Linting
 Plug 'janko-m/vim-test'
 Plug 'w0rp/ale'
+
+" Autocomplete
+Plug 'Shougo/deoplete.nvim'
 
 call plug#end()
 
@@ -210,6 +217,9 @@ set diffopt+=vertical
 " Keybindings
 nnoremap <Space> <Nop>
 inoremap kj <esc>
+
+" Autocomplete
+let g:deoplete#enable_at_startup = 1
 
 " Javascript
 let g:javascript_plugin_flow = 1
