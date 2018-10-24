@@ -18,4 +18,13 @@ ctrl + alt - right : chunkc tiling::window -d next; \
                      chunkc tiling::desktop -f next
 ctrl + alt - left : chunkc tiling::window -d prev; \
                     chunkc tiling::desktop -f prev
+ctrl + cmd - right : chunkc tiling::window --use-temporary-ratio 0.1 \
+                     --adjust-window-edge east
+ctrl + cmd - left : chunkc tiling::window --use-temporary-ratio 0.1 \
+                    --adjust-window-edge west
+ctrl + cmd - down : chunkc tiling::window --use-temporary-ratio 0.1 \
+                    --adjust-window-edge south
+ctrl + cmd - up : chunkc tiling::window --use-temporary-ratio 0.1 \
+                  --adjust-window-edge north
+ctrl + cmd - 0 : chunkc tiling::desktop --equalize
 
