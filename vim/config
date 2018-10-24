@@ -49,6 +49,7 @@ Plug 'tpope/vim-rhubarb'
 " Javascript
 Plug 'pangloss/vim-javascript'
 Plug 'leshill/vim-json'
+Plug 'mxw/vim-jsx'
 
 " Ruby
 Plug 'tpope/vim-bundler'
