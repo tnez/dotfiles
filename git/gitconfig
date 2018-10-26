@@ -1,12 +1,12 @@
 [user]
-	name = Travis Nesland
-	email = tnesland@gmail.com
+  name = Travis Nesland
+  email = tnesland@gmail.com
 [github]
   user = tnez
 [alias]
   hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
 [core]
   editor = vim
-  excludesfile = ~/.gitignore
+  excludesfile = ~/.config/git/gitignore
 [init]
   templatedir = ~/.config/git/git_template
