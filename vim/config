@@ -174,13 +174,6 @@ nnoremap <Right> :echoe "Use l"<CR>
 nnoremap <Up> :echoe "Use k"<CR>
 nnoremap <Down> :echoe "Use j"<CR>
 
-" vim-test mappings
-nnoremap <silent> <Leader>t :TestFile<CR>
-nnoremap <silent> <Leader>s :TestNearest<CR>
-nnoremap <silent> <Leader>l :TestLast<CR>
-nnoremap <silent> <Leader>a :TestSuite<CR>
-nnoremap <silent> <Leader>gt :TestVisit<CR>
-
 " fugitive mappings
 nnoremap <silent> <Leader>gs :Gstatus<CR>
 nnoremap <silent> <Leader>gc :Gcommit<CR>
@@ -242,3 +235,6 @@ endif
 " File navigation
 nnoremap <silent> <Leader>fo :Files<CR>
 nnoremap <silent> <Leader>fs :w<CR>
+
+" File navigation
+nnoremap <leader>t :CtrlPTag<CR>
