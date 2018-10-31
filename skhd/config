@@ -27,4 +27,10 @@ ctrl + cmd - down : chunkc tiling::window --use-temporary-ratio 0.1 \
 ctrl + cmd - up : chunkc tiling::window --use-temporary-ratio 0.1 \
                   --adjust-window-edge north
 ctrl + cmd - 0 : chunkc tiling::desktop --equalize
-
+shift + cmd - n : chunkc tiling::desktop --create;\
+                  set cur_desktop_id (chunkc tiling::query --desktop id);\
+                  set cur_monitor_id (chunkc tiling::query --monitor-for-desktop $cur_desktop_id);\
+                  set cur_desktop_ids (chunkc tiling::query --desktops-for-monitor $cur_monitor_id);\
+                  set last_desktop_id (echo $cur_desktop_ids | rev | cut -d ' ' -f1 | rev);\
+                  chunkc tiling::desktop --focus $last_desktop_id
+shift + cmd - w : chunkc tiling::desktop --annihilate
