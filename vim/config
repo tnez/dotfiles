@@ -238,3 +238,9 @@ nnoremap <silent> <Leader>fs :w<CR>
 
 " File navigation
 nnoremap <leader>t :CtrlPTag<CR>
+
+" Don't auto insert newlines
+set wrap
+set linebreak
+set nolist
+set textwidth=0
