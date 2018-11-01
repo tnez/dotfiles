@@ -243,4 +243,3 @@ nnoremap <leader>t :CtrlPTag<CR>
 set wrap
 set linebreak
 set nolist
-set textwidth=0
