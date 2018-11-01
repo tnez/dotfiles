@@ -44,6 +44,7 @@ Plug 'tpope/vim-surround'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/nerdtree'
+Plug 'airblade/vim-gitgutter'
 
 " Looks
 Plug 'chriskempson/base16-vim'
@@ -172,10 +173,14 @@ nnoremap <Right> :echoe "Use l"<CR>
 nnoremap <Up> :echoe "Use k"<CR>
 nnoremap <Down> :echoe "Use j"<CR>
 
-" fugitive mappings
+" Git mappings
 nnoremap <silent> <Leader>gs :Gstatus<CR>
 nnoremap <silent> <Leader>gc :Gcommit<CR>
 nnoremap <silent> <Leader>gd :Gdiff<CR>
+nnoremap <leader>gn <Plug>GitGutterNextHunk
+nnoremap <leader>gp <Plug>GitGutterPrevHunk
+nnoremap <leader>g. <Plug>GitGutterStageHunk
+nnoremap <leader>g- <Plug>GitGutterUnderHunk
 
 " Run commands that require an interactive shell
 nnoremap <Leader>r :RunInInteractiveShell<Space>
