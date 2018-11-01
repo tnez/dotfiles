@@ -165,9 +165,6 @@ endfunction
 inoremap <Tab> <C-r>=InsertTabWrapper()<CR>
 inoremap <S-Tab> <C-n>
 
-" Switch between the last two files
-nnoremap <Leader> <TAB>
-
 " Get off my lawn
 nnoremap <Left> :echoe "Use h"<CR>
 nnoremap <Right> :echoe "Use l"<CR>
@@ -232,14 +229,20 @@ if filereadable(expand("~/.vimrc_background"))
   source ~/.vimrc_background
 endif
 
-" File navigation
-nnoremap <silent> <Leader>fo :Files<CR>
-nnoremap <silent> <Leader>fs :w<CR>
-
-" File navigation
-nnoremap <leader>t :CtrlPTag<CR>
-
 " Don't auto insert newlines
 set wrap
 set linebreak
 set nolist
+
+" File / Buffer navigation
+nnoremap <leader>fo :CtrlP<CR>
+nnoremap <leader>fs :w<CR>
+nnoremap <leader>fd :bdelete<CR>
+nnoremap <leader>q :bdelete<CR>
+nnoremap <leader>fn :bnext<CR>
+nnoremap <leader><TAB> :bnext<CR>
+nnoremap <leader>fp :bprevious<CR>
+nnoremap <leader><S-TAB> :bprevious<CR>
+nnoremap <leader>ff :CtrlPBuffer<CR>
+nnoremap <leader>ta :CtrlPTag<CR>
+nnoremap <leader>Q :q<CR>
