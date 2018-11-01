@@ -43,6 +43,7 @@ Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-surround'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdtree'
 
 " Looks
 Plug 'chriskempson/base16-vim'
@@ -246,3 +247,9 @@ nnoremap <leader><S-TAB> :bprevious<CR>
 nnoremap <leader>ff :CtrlPBuffer<CR>
 nnoremap <leader>ta :CtrlPTag<CR>
 nnoremap <leader>Q :q<CR>
+
+" NERDTree
+map <leader>ad :NERDTreeToggle<CR>
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
