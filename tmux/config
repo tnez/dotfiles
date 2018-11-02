@@ -50,6 +50,9 @@ bind -n C-\ run "(tmux display-message -p '#{pane_current_command}' | grep -iq v
 
 bind C-l send-keys 'C-l'
 
+# easier session navigation
+bind C-Space choose-tree -w
+
 # ----------------------
 # Status Bar
 # -----------------------
