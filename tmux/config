@@ -62,8 +62,8 @@ set -g status-justify centre           # center window list for clarity
 
 # show session name, window & pane number, date and time on right side of
 # status bar
-set -g status-left ' #[bold]❐ #S#[default] ⣿ #(cd #{pane_current_path}; git rev-parse --abbrev-ref HEAD)'
-set -g status-left-length 32
+set -g status-left ' #[bold]❐ #S#[default] ⣿ #($HOME/bin/git_status_line.sh #{pane_current_path})'
+set -g status-left-length 64
 set -g status-right '#[bold]#(whoami) ● #H#[default] '
 
 # list all paste buffers (default key is '#')
