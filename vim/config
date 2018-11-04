@@ -46,6 +46,7 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-gitgutter'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'jiangmiao/auto-pairs'
 
 " Looks
 Plug 'chriskempson/base16-vim'
