@@ -4,7 +4,28 @@
 [github]
   user = tnez
 [alias]
-  hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+  a = add
+  aa = add .
+  b = checkout -b
+  bd = branch -d
+  c = commit
+  ca = commit --amend
+  cm = commit -m
+  co = checkout
+  d = diff
+  f = fetch --prune
+  ff = pull
+  h = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+  m = merge
+  p = push
+  pu = push -u
+  r = rebase
+  ri = rebase --interactive
+  s = status
+  z = stash
+  zl = stash list
+  zp = stash pop
+  zz = stash save --include-untracked
 [core]
   editor = vim
   excludesfile = ~/.config/git/gitignore
