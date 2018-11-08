@@ -208,10 +208,9 @@ let g:deoplete#enable_at_startup = 1
 inoremap <expr> <C-j> pumvisible() ? "\<C-n>" : "\<C-j>"
 inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
 inoremap <expr> <C-g> pumvisible() ? deoplete#mappings#cancel_popup() : "\<C-g>"
-let g:AutoPairsMapCR=0
 inoremap <expr> <CR> pumvisible() ?
       \ deoplete#mappings#close_popup() :
-      \ "\<CR>\<Plug>AutoPairsReturn"
+      \ "\<CR>"
 
 " Javascript
 let g:javascript_plugin_flow = 1
