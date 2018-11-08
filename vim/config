@@ -10,6 +10,7 @@ set ruler         " show the cursor position all the time
 set showcmd       " display incomplete commands
 set incsearch     " do incremental searching
 set laststatus=2  " Always display the status line
+set autoread      " Re-read buffers when they change on disk
 set autowrite     " Automatically :write before running commands
 
 set shell=/bin/bash
@@ -46,6 +47,7 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-gitgutter'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-speeddating'
 
@@ -261,3 +263,6 @@ if !has('gui_running')
   set t_Co=256
 endif
 let g:lightline = { 'colorscheme': 'base16' }
+
+" Check to see if buffers have changed on disk
+au FocusGained,BufEnter * :checktime

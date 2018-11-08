@@ -119,3 +119,6 @@ set -g default-shell /usr/local/bin/fish
 
 # Use Base16 Color Themes
 source-file ~/.config/tmux/colors.conf
+
+# Send events on focus change
+set -g focus-events on
