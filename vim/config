@@ -47,6 +47,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-gitgutter'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-speeddating'
 
 " Looks
 Plug 'chriskempson/base16-vim'
@@ -61,6 +62,9 @@ Plug 'tpope/vim-rhubarb'
 Plug 'pangloss/vim-javascript'
 Plug 'leshill/vim-json'
 Plug 'mxw/vim-jsx'
+
+" Org
+Plug 'jceb/vim-orgmode'
 
 " Ruby
 Plug 'tpope/vim-bundler'
