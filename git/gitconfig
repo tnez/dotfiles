@@ -31,3 +31,5 @@
   excludesfile = ~/.config/git/gitignore
 [init]
   templatedir = ~/.config/git/git_template
+[ghi]
+	token = !security find-internet-password -a tnez -s github.com -l 'ghi token' -w
