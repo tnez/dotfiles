@@ -15,10 +15,10 @@
   d = diff
   f = fetch --prune
   ff = pull
+  fp = push --force-with-lease
   h = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
   m = merge
-  p = push
-  pu = push -u
+  p = !git_publish.sh
   r = rebase
   ri = rebase --interactive
   s = status
@@ -31,3 +31,5 @@
   excludesfile = ~/.config/git/gitignore
 [init]
   templatedir = ~/.config/git/git_template
+[ghi]
+	token = !security find-internet-password -a tnez -s github.com -l 'ghi token' -w
