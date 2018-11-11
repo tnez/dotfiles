@@ -8,7 +8,6 @@ secrets/.secrets
 
 # Ignore existing stuff until I deal with them
 configstore/
-fish/
 fisherman/
 fnm/
 hub
