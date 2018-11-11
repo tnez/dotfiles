@@ -1,4 +1,5 @@
-completions/
+/completions/
 conf.d/
 fishd.*
-functions/
+/functions/
+private/
