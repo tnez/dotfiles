@@ -23,6 +23,13 @@ export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:"(brew --prefix qt@5.5)"/b
 export TERM=xterm-256color
 export VISUAL="vim"
 
+# install plugin manger (fisher) and any missing plugins
+if not functions -q fisher
+    set -q XDG_CONFIG_HOME; or set XDG_CONFIG_HOME ~/.config
+    curl https://git.io/fisher --create-dirs -sLo $XDG_CONFIG_HOME/fish/functions/fisher.fish
+    fish -c fisher
+end
+
 # setup rbenv
 status --is-interactive; and source (rbenv init -|psub)
 
