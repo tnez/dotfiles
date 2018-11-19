@@ -64,6 +64,7 @@ Plug 'tpope/vim-rhubarb'
 Plug 'pangloss/vim-javascript'
 Plug 'leshill/vim-json'
 Plug 'mxw/vim-jsx'
+Plug 'prettier/vim-prettier'
 
 " Org
 Plug 'jceb/vim-orgmode'
