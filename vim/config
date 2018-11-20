@@ -177,10 +177,6 @@ nnoremap <silent> <Leader>gl :Glog<CR>
 nnoremap <silent> <Leader>gp :Gpush<CR>
 nnoremap <silent> <Leader>gs :Gstatus<CR>
 
-nnoremap <leader>gp <Plug>GitGutterPrevHunk
-nnoremap <leader>g. <Plug>GitGutterStageHunk
-nnoremap <leader>g- <Plug>GitGutterUnderHunk
-
 " Run commands that require an interactive shell
 nnoremap <Leader>r :RunInInteractiveShell<Space>
 
