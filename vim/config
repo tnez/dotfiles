@@ -168,10 +168,15 @@ nnoremap <Up> :echoe "Use k"<CR>
 nnoremap <Down> :echoe "Use j"<CR>
 
 " Git mappings
-nnoremap <silent> <Leader>gs :Gstatus<CR>
 nnoremap <silent> <Leader>gc :Gcommit<CR>
+nnoremap <silent> <Leader>gC :Gcommit --amend<CR>
 nnoremap <silent> <Leader>gd :Gdiff<CR>
-nnoremap <leader>gn <Plug>GitGutterNextHunk
+nnoremap <silent> <Leader>gD :Gdiff HEAD<CR>
+nnoremap <silent> <Leader>gf :Gfetch --prune<CR>
+nnoremap <silent> <Leader>gl :Glog<CR>
+nnoremap <silent> <Leader>gp :Gpush<CR>
+nnoremap <silent> <Leader>gs :Gstatus<CR>
+
 nnoremap <leader>gp <Plug>GitGutterPrevHunk
 nnoremap <leader>g. <Plug>GitGutterStageHunk
 nnoremap <leader>g- <Plug>GitGutterUnderHunk
