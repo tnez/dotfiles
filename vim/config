@@ -230,6 +230,9 @@ let g:user_emmet_settings = {
 \ 'javascript.jsx': { 'extends': 'jsx' }
 \}
 
+" Markdown
+let g:markdown_folding = 1
+
 " Set color theme
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
