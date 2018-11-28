@@ -214,13 +214,13 @@ nnoremap <Space> <Nop>
 inoremap kj <esc>
 
 " Autocomplete
+let g:AutoPairsMapCR = 0
 let g:deoplete#enable_at_startup = 1
+let g:deoplete#enable_smart_case = 1
 inoremap <expr> <C-j> pumvisible() ? "\<C-n>" : "\<C-j>"
 inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
-inoremap <expr> <C-g> pumvisible() ? deoplete#mappings#cancel_popup() : "\<C-g>"
-inoremap <expr> <CR> pumvisible() ?
-      \ deoplete#mappings#close_popup() :
-      \ "\<CR>"
+inoremap <expr> <C-g> pumvisible() ? deoplete#undo_completion() : "\<C-g>"
+inoremap <expr> <CR> pumvisible() ? deoplete#close_popup() : "\<CR>"
 
 " Javascript
 let g:javascript_plugin_flow = 1
