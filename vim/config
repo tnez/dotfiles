@@ -239,11 +239,6 @@ if filereadable(expand("~/.vimrc_background"))
   source ~/.vimrc_background
 endif
 
-" Don't auto insert newlines
-set wrap
-set linebreak
-set nolist
-
 " File / Buffer navigation
 nnoremap <leader>fo :CtrlP<CR>
 nnoremap <leader>fs :w<CR>
