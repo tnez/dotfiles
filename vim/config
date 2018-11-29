@@ -53,8 +53,8 @@ Plug 'tpope/vim-speeddating'
 
 " Looks
 Plug 'chriskempson/base16-vim'
-Plug 'itchyny/lightline.vim'
-Plug 'daviesjamie/vim-base16-lightline'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 
 " Git
 Plug 'tpope/vim-fugitive'
@@ -120,6 +120,7 @@ augroup ale
 
   set updatetime=1000
   let g:ale_lint_on_text_changed = 0
+  let g:airline#extensions#ale#enabled = 1
   autocmd CursorHold * call ale#Lint()
   autocmd CursorHoldI * call ale#Lint()
   autocmd InsertEnter * call ale#Lint()
@@ -261,7 +262,11 @@ autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 if !has('gui_running')
   set t_Co=256
 endif
-let g:lightline = { 'colorscheme': 'base16' }
+let g:airline_theme = 'base16'
+let g:airline_left_sep = "\uE0B0"
+let g:airline_right_sep = "\uE0B2"
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#left_sep = "\uE0B0"
 
 " Check to see if buffers have changed on disk
 au FocusGained,BufEnter * :checktime
