@@ -50,6 +50,7 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-speeddating'
+Plug 'easymotion/vim-easymotion'
 
 " Looks
 Plug 'chriskempson/base16-vim'
