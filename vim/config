@@ -88,6 +88,7 @@ Plug 'w0rp/ale'
 
 " Autocomplete
 Plug 'Shougo/deoplete.nvim'
+Plug 'SirVer/ultisnips'
 
 call plug#end()
 
@@ -213,14 +214,29 @@ set diffopt+=vertical
 nnoremap <Space> <Nop>
 inoremap kj <esc>
 
-" Autocomplete
+" Autocomplete + Snippets
+" =======================
 let g:AutoPairsMapCR = 0
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_smart_case = 1
 inoremap <expr> <C-j> pumvisible() ? "\<C-n>" : "\<C-j>"
 inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
-inoremap <expr> <C-g> pumvisible() ? deoplete#undo_completion() : "\<C-g>"
-inoremap <expr> <CR> pumvisible() ? deoplete#close_popup() : "\<CR>"
+" make CR play nice with completion and snippets
+" taken from: https://github.com/simonweil/dotfiles/blob/master/nvimrc#L29-L85
+let g:ulti_expand_res = 0
+function! Ulti_ExpandOrEnter()
+  call UltiSnips#ExpandSnippet()
+  if g:ulti_expand_res
+    return ''
+  elseif pumvisible()
+    return deoplete#mappings#close_popup()
+  else
+    return "\<return>"
+  endif
+endfunction
+inoremap <return> <C-R>=Ulti_ExpandOrEnter()<CR>
+let g:UltiSnipsJumpForwardTrigger="<TAB>"
+let g:UltiSnipsJumpBackwardTrigger="<S-TAB>"
 
 " Javascript
 let g:javascript_plugin_flow = 1
