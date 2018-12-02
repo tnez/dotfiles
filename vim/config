@@ -237,6 +237,10 @@ endfunction
 inoremap <return> <C-R>=Ulti_ExpandOrEnter()<CR>
 let g:UltiSnipsJumpForwardTrigger="<TAB>"
 let g:UltiSnipsJumpBackwardTrigger="<S-TAB>"
+" Configure snippet creation / storage / search
+let g:UltiSnipsSnippetDirectories=[$HOME.'/.config/tnez-snippets']
+let g:UltiSnipsEditSplit="context"
+nmap <leader>x :UltiSnipsEdit<CR>
 
 " Javascript
 let g:javascript_plugin_flow = 1
