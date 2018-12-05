@@ -51,6 +51,7 @@ Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-speeddating'
 Plug 'easymotion/vim-easymotion'
+Plug 'qpkorr/vim-bufkill'
 
 " Looks
 Plug 'chriskempson/base16-vim'
@@ -239,17 +240,16 @@ if filereadable(expand("~/.vimrc_background"))
 endif
 
 " File / Buffer navigation
-nnoremap <leader>fo :CtrlP<CR>
 nnoremap <leader>fs :w<CR>
-nnoremap <leader>fd :bdelete<CR>
-nnoremap <leader>q :bdelete<CR>
-nnoremap <leader>fn :bnext<CR>
-nnoremap <leader><TAB> :bnext<CR>
-nnoremap <leader>fp :bprevious<CR>
-nnoremap <leader><S-TAB> :bprevious<CR>
-nnoremap <leader>ff :CtrlPBuffer<CR>
-nnoremap <leader>ta :CtrlPTag<CR>
+nnoremap <leader>fo :CtrlP<CR>
+nnoremap <leader>bd :BD<CR>
+nnoremap <leader>q :BD<CR>
+nnoremap <leader><TAB> :BB<CR>
+nnoremap <leader><S-TAB> :BF<CR>
+nnoremap <leader>bb :CtrlPBuffer<CR>
+nnoremap <leader>t :CtrlPTag<CR>
 nnoremap <leader>Q :q<CR>
+nnoremap <leader>wd :close<CR>
 
 " NERDTree
 map <leader>ad :NERDTreeToggle<CR>
