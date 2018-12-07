@@ -17,3 +17,5 @@ function t -d "Attach to a tmux session based on dirname"
 
   tmux switch-client -t "$session_name"
 end
+
+complete -f -c t -a "(tmux list-sessions -F '#{session_name}')" -f
