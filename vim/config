@@ -62,8 +62,10 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
+" All language
+Plug 'sheerun/vim-polyglot'
+
 " Javascript
-Plug 'pangloss/vim-javascript'
 Plug 'leshill/vim-json'
 Plug 'mxw/vim-jsx'
 Plug 'prettier/vim-prettier'
