@@ -28,9 +28,6 @@ if not functions -q fisher
     fish -c fisher
 end
 
-# setup rbenv
-status --is-interactive; and source (rbenv init -|psub)
-
 # emacs ansi-term support
 if test -n "$EMACS"
     set -x TERM eterm-color
