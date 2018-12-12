@@ -20,7 +20,6 @@ set -x LC_ALL en_US.UTF-8
 set -x PAGER less
 set -x TERM xterm-256color
 set -x VISUAL vim
-set PATH $HOME/bin /usr/local/bin /usr/local/sbin (brew --prefix qt@5.5)/bin $PATH
 
 # install plugin manger (fisher) and any missing plugins
 if not functions -q fisher
