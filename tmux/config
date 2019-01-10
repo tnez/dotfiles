@@ -82,11 +82,15 @@ bind-key Q confirm-before kill-window
 # Patch for OS X pbpaste and pbcopy under tmux.
 set-option -g default-command "which reattach-to-user-namespace > /dev/null && reattach-to-user-namespace -l $SHELL || $SHELL"
 
-# Pane resize in all four directions using vi bindings.
-bind-key J resize-pane -D
-bind-key K resize-pane -U
-bind-key H resize-pane -L
-bind-key L resize-pane -R
+# Pane resizing
+bind-key -r J resize-pane -D
+bind-key -r Down resize-pane -D
+bind-key -r K resize-pane -U
+bind-key -r Up resize-pane -U
+bind-key -r H resize-pane -L
+bind-key -r Left resize-pane -L
+bind-key -r L resize-pane -R
+bind-key -r Right resize-pane -R
 
 # easily toggle synchronization (mnemonic: e is for echo)
 # sends input to all panes in a given window.
