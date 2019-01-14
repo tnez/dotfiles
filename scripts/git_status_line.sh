@@ -91,7 +91,7 @@ fi
 
 if (( num_changed == 0 && num_untracked == 0 && num_conflicts == 0 )); then
   if (( num_staged == 0 )); then
-    local_status="-"
+    local_status="✓"
   else
     local_status="+"
   fi
@@ -100,25 +100,13 @@ else
 fi
 
 if (( num_stashed == 0 )); then
-  staged_status="-"
+  staged_status="✓"
 else
   staged_status="$num_stashed"
 fi
 
-
-#printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
-  #"$branch" \
-  #"$remote" \
-  #"$upstream" \
-  #$num_staged \
-  #$num_conflicts \
-  #$num_changed \
-  #$num_untracked \
-  #$num_stashed \
-  #$clean
-
-  printf "%s [l:%s][r:%s][z:%s]" \
-    "$branch" \
-    "$local_status" \
-    "$remote" \
-    "$staged_status"
+printf "%s -- local:(%s|%s) remote:(%s)" \
+  "$branch" \
+  "$local_status" \
+  "$staged_status" \
+  "$remote"
