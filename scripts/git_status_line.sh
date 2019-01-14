@@ -37,14 +37,6 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
   esac
 done <<< "$gitstatus"
 
-num_stashed=0
-stash_file="$( git rev-parse --git-dir )/logs/refs/stash"
-if [[ -e "${stash_file}" ]]; then
-  while IFS='' read -r wcline || [[ -n "$wcline" ]]; do
-    ((num_stashed++))
-  done < "${stash_file}"
-fi
-
 clean=0
 if (( num_changed == 0 && num_staged == 0 && num_untracked == 0 && num_stashed == 0 && num_conflicts == 0 )) ; then
   clean=1
@@ -54,6 +46,12 @@ IFS="^" read -ra branch_fields <<< "${branch_line/\#\# }"
 branch="${branch_fields[0]}"
 remote=
 upstream=
+
+num_stashed=0
+stash_file="$( git rev-parse --git-dir )/logs/refs/stash"
+if [[ -e "${stash_file}" ]]; then
+  num_stashed="$( grep $branch $stash_file | wc -l | tr -d ' ' )"
+fi
 
 if [[ "$branch" == *"Initial commit on"* ]]; then
   IFS=" " read -ra fields <<< "$branch"
@@ -93,13 +91,20 @@ fi
 
 if (( num_changed == 0 && num_untracked == 0 && num_conflicts == 0 )); then
   if (( num_staged == 0 )); then
-    local_status="✔"
+    local_status="-"
   else
     local_status="+"
   fi
 else
-  local_status="#"
+  local_status="~"
 fi
+
+if (( num_stashed == 0 )); then
+  staged_status="-"
+else
+  staged_status="$num_stashed"
+fi
+
 
 #printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
   #"$branch" \
@@ -112,4 +117,8 @@ fi
   #$num_stashed \
   #$clean
 
-printf "%s(%s):%s" "$branch" "$local_status" "$remote"
+  printf "%s [l:%s][r:%s][z:%s]" \
+    "$branch" \
+    "$local_status" \
+    "$remote" \
+    "$staged_status"
