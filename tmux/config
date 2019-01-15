@@ -54,7 +54,7 @@ bind C-l send-keys 'C-l'
 bind C-Space choose-tree -w
 
 # Status Bar
-source-file ~/.config/tmux/status-line.conf
+source-file ~/.config/tmux/status-line/index.conf
 
 # list all paste buffers (default key is '#')
 bind-key b list-buffers
