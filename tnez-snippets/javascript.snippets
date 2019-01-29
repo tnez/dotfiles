@@ -1,3 +1,15 @@
+snippet des "Jest: describe block"
+describe('$1', () => {${VISUAL}$0})
+endsnippet
+
+snippet it "Jest: test"
+it('$1', () => {${VISUAL}$0})
+endsnippet
+
+snippet it.skip "Jest: test (placeholder)"
+it.skip('$1', () => {})${VISUAL}$0
+endsnippet
+
 snippet type "Flow type definition"
 type ${1} = ${VISUAL}$0
 endsnippet
