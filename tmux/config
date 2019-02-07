@@ -70,6 +70,8 @@ bind up resize-pane -U 5
 bind down resize-pane -D 5
 bind left resize-pane -L 5
 bind right resize-pane -R 5
+bind * resize-pane -x 80 # Shift-8 make current pane width  => 80
+bind ) resize-pane -y 20 # Shift-0 make current pane height => 20
 bind tab next-layout
 unbind C-o
 bind r rotate-window
