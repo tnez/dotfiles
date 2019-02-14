@@ -9,6 +9,7 @@ secrets/.secrets
 # Ignore programs that use the config dir, but are not things I want to keep in
 # source control
 htop/
+vscode/
 
 # Ignore existing stuff until I deal with them
 configstore/
