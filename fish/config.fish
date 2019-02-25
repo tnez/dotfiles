@@ -22,7 +22,10 @@ set -x TERM xterm-256color
 set -x VISUAL vim
 
 # path modifications
-set -g fish_user_paths "/usr/local/sbin" $fish_user_paths
+set -g fish_user_paths \
+  "/usr/local/npm_packages" \
+  "/usr/local/sbin" \
+  $fish_user_paths
 
 # install plugin manger (fisher) and any missing plugins
 if not functions -q fisher
