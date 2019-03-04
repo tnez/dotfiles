@@ -23,7 +23,7 @@ set -x VISUAL vim
 
 # path modifications
 set -g fish_user_paths \
-  "/usr/local/npm_packages" \
+  "/usr/local/npm_packages/bin" \
   "/usr/local/sbin" \
   $fish_user_paths
 
@@ -49,4 +49,3 @@ if status --is-interactive
     set BASE16_SHELL $HOME/.config/base16-shell/
     source $BASE16_SHELL/profile_helper.fish
 end
-
