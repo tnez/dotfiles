@@ -1,3 +1,5 @@
+set _TMUX_CONFIG_PATH "$HOME/.config/tmux/config"
+
 function t -d "Attach to a tmux session based on dirname"
   if test "$argv[1]" = "--project"
     set bookmarked_dir (pwd)
@@ -19,13 +21,13 @@ function _open_or_attach_to_session
   end
 
   if not is_running_in_tmux
-    tmux -2 new-session -As "$session_name"
+    tmux -2 -f $_TMUX_CONFIG_PATH new-session -As "$session_name"
     return 0
   end
 
   if not tmux_session_exists "$session_name"
     set TMUX ''
-    tmux -2 new-session -Ad -s "$session_name"
+    tmux -2 -f $_TMUX_CONFIG_PATH new-session -Ad -s "$session_name"
   end
 
   tmux switch-client -t "$session_name"

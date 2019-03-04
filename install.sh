@@ -11,6 +11,8 @@ _link() {
   ln -s "$CONFIG_DIR/$1" "$HOME/$2"
 }
 
+mkdir $HOME/.config # if it does not already exist
+
 _link .editorconfig .editorconfig
 _link .npmrc .npmrc
 _link base16-shell .config/base16-shell
@@ -24,6 +26,6 @@ _link scripts bin
 _link secrets/.secrets .secrets
 _link skhd/config .skhdrc
 _link spacemacs/.spacemacs .spacemacs
-_link tmux/config .tmux.conf
+_link tmux .config/tmux
 _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
