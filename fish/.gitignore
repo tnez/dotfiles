@@ -3,3 +3,4 @@ conf.d/
 fishd.*
 /functions/
 private/
+fish_variables
