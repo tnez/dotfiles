@@ -2,6 +2,12 @@
 
 CONFIG_DIR="$HOME/Projects/tnez--config"
 
+# install brew...
+/usr/bin/ruby -e \
+  "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+# ...and all it's brew buddies
+brew bundle
+
 # symlink from config dir to home dir
 # $1: item to be symlinked (tnez--config/<path>)
 # $2: resulting link ($HOME/<path>)
@@ -29,3 +35,7 @@ _link spacemacs/.spacemacs .spacemacs
 _link tmux .config/tmux
 _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
+
+
+# install node version manager
+npm install -g n
