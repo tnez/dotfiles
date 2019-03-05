@@ -25,6 +25,7 @@ set -x VISUAL vim
 set -g fish_user_paths \
   "$HOME/bin" \
   "/usr/local/npm_packages/bin" \
+  "/usr/local/opt/ruby/bin" \
   "/usr/local/sbin" \
   $fish_user_paths
 
