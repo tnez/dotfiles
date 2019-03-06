@@ -28,8 +28,8 @@
   zz = stash save --include-untracked
 [core]
   editor = vim
-  excludesfile = ~/.config/git/gitignore
+  excludesfile = ~/.gitignore
 [init]
-  templatedir = ~/.config/git/git_template
+  templatedir = ~/.git_template
 [ghi]
 	token = !security find-internet-password -a tnez -s github.com -l 'ghi token' -w

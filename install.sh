@@ -26,6 +26,8 @@ _link chunkwm/config .chunkwmrc
 _link ctags/config .ctags
 _link fish .config/fish
 _link git/gitconfig .gitconfig
+_link git/gitignore .gitignore
+_link git/git_template .git_template
 _link i3 .config/i3
 _link kitty .config/kitty
 _link scripts bin
