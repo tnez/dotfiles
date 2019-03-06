@@ -2,6 +2,8 @@
 alias be="bundle exec"
 alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
+alias d="docker"
+alias dc="docker-compose"
 alias e="vim"
 alias fixcam="sudokillall VDCAssistant; and sudo killall AppleCameraAssistant"
 alias g="git"
