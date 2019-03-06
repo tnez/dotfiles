@@ -18,3 +18,7 @@ GTAGS
 
 # ruby config
 .ruby-version
+
+# todo file
+# (negate in project if needed): !todo*.*
+todo*.*
