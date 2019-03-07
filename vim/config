@@ -257,7 +257,7 @@ let g:user_emmet_settings = {
 \}
 
 " Markdown
-let g:markdown_folding = 1
+let g:vim_markdown_override_foldtext = 0
 
 " Set color theme
 if filereadable(expand("~/.vimrc_background"))
