@@ -29,6 +29,13 @@
 [core]
   editor = vim
   excludesfile = ~/.gitignore
+[diff]
+  tool = vimdiff
+[difftool]
+  prompt = 0
+[merge]
+  tool = vimdiff
+  conflictstyle = diff3
 [init]
   templatedir = ~/.git_template
 [ghi]
