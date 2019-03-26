@@ -13,7 +13,7 @@
   cm = commit -m
   co = checkout
   d = diff
-  f = fetch --prune
+  f = fetch
   ff = pull
   fp = push --force-with-lease
   h = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
@@ -33,6 +33,8 @@
   tool = vimdiff
 [difftool]
   prompt = 0
+[fetch]
+  prune = true
 [merge]
   tool = vimdiff
   conflictstyle = diff3
