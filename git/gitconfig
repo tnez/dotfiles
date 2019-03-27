@@ -16,7 +16,7 @@
   f = fetch
   ff = pull
   fp = push --force-with-lease
-  h = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+  l = log --oneline --graph
   m = merge
   p = !git_publish.sh
   r = rebase
