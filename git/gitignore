@@ -3,7 +3,10 @@
 
 # project management
 /__external
-todo.org
+todo*.md
+todo*.org
+standup*.md
+standup*.org
 
 # emacs
 .dir-locals.el
