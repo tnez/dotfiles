@@ -73,6 +73,10 @@ Plug 'leshill/vim-json'
 Plug 'mxw/vim-jsx'
 Plug 'prettier/vim-prettier'
 
+" Markdown
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown'
+
 " Org
 Plug 'jceb/vim-orgmode'
 
@@ -258,7 +262,7 @@ let g:user_emmet_settings = {
 \}
 
 " Markdown
-let g:vim_markdown_override_foldtext = 0
+let g:vim_markdown_folding_style_pythonic = 1
 
 " Set color theme
 if filereadable(expand("~/.vimrc_background"))
