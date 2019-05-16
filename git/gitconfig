@@ -38,6 +38,8 @@
 [merge]
   tool = vimdiff
   conflictstyle = diff3
+[rebase]
+  autosquash = true
 [init]
   templatedir = ~/.git_template
 [ghi]
