@@ -15,10 +15,10 @@
   d = diff
   f = fetch
   ff = pull
-  fp = push --force-with-lease
   l = log --oneline --graph
   m = merge
   p = !git_publish.sh
+  pf = push --force-with-lease
   r = rebase
   ri = rebase --interactive
   s = status
