@@ -3,6 +3,8 @@
 
 # project management
 /__external
+notes*.md
+notes*.org
 todo*.md
 todo*.org
 standup*.md
