@@ -13,6 +13,9 @@ set laststatus=2  " Always display the status line
 set autoread      " Re-read buffers when they change on disk
 set autowrite     " Automatically :write before running commands
 
+" Use system clipboard by default
+set clipboard=unnamed
+
 set shell=/bin/bash
 
 " Exclude files from Ctrl-P and other indexing/checking/etc
