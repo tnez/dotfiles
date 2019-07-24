@@ -15,7 +15,7 @@ end
 
 function _open_or_attach_to_session
   if [ -z "$argv" ]
-    set session_name (basename (PWD) | tr . -)
+    set session_name (basename (pwd) | tr . -)
   else
     set session_name "$argv[1]"
   end
