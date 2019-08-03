@@ -40,6 +40,7 @@ _link git/gitconfig .gitconfig
 _link git/gitignore .gitignore
 _link git/git_template .git_template
 _link i3 .config/i3
+_link i3-regolith .config/i3-regolith
 _link kitty .config/kitty
 _link scripts bin
 _link secrets/.secrets .secrets
