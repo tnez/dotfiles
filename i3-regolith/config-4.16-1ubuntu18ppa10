@@ -51,15 +51,10 @@ bindsym $mod+Shift+space exec rofi -show run -theme $rofiTheme
 bindsym $mod+space exec rofi -show window -theme $rofiTheme
 
 # change focus
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
-
-bindsym $mod+h focus left
-bindsym $mod+j focus down
-bindsym $mod+k focus up
-bindsym $mod+l focus right
+bindsym --release $mod+h exec --no-startup-id "i3-vim-focus left"
+bindsym --release $mod+j exec --no-startup-id "i3-vim-focus down"
+bindsym --release $mod+k exec --no-startup-id "i3-vim-focus up"
+bindsym --release $mod+l exec --no-startup-id "i3-vim-focus right"
 
 # move windows in workspaces
 bindsym $mod+Shift+Left move left
