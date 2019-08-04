@@ -41,7 +41,7 @@ bindsym $mod+Return exec /usr/bin/st
 bindsym $mod+b exec /usr/bin/sensible-browser
 
 # kill focused window
-bindsym $Mod4+q kill
+bindsym $mod+q kill
 
 set_from_resource $rofiTheme rofi.theme "regolith-theme"
 
@@ -55,6 +55,10 @@ bindsym --release $mod+h exec --no-startup-id "i3-vim-focus left"
 bindsym --release $mod+j exec --no-startup-id "i3-vim-focus down"
 bindsym --release $mod+k exec --no-startup-id "i3-vim-focus up"
 bindsym --release $mod+l exec --no-startup-id "i3-vim-focus right"
+
+# splits
+bindsym $mod+slash split h
+bindsym $mod+minus split v
 
 # move windows in workspaces
 bindsym $mod+Shift+Left move left
@@ -135,25 +139,22 @@ bindsym $mod+Shift+Mod4+7 move container to workspace $ws17
 bindsym $mod+Shift+Mod4+8 move container to workspace $ws18
 bindsym $mod+Shift+Mod4+9 move container to workspace $ws19
 
-bindsym $mod+Shift+grave move container to workspace $ws20
+bindsym Mod4+Shift+grave move container to workspace $ws20
 
 # reload the configuration file
-bindsym $mod+Shift+c reload
+bindsym Mod4+Shift+c reload
 
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r restart
+bindsym Mod4+Shift+r restart
 
 # exit i3
-bindsym $mod+Shift+e exit
+bindsym Mod4+Shift+e exit
 
 # lock the screen
-bindsym $mod+Escape exec gnome-screensaver-command --lock
+bindsym Mod4+Shift+l exec gnome-screensaver-command --lock
 
 # put the system to sleep
-bindsym $mod+Shift+s exec systemctl suspend
-
-# shortcuts for common system configuration tasks
-bindsym Mod4+c exec gnome-control-center
+bindsym Mod4+Shift+s exec systemctl suspend
 
 # resize window (you can also use the mouse for that)
 mode "Resize Mode" {
