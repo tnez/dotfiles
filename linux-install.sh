@@ -16,6 +16,15 @@ sudo apt install \
   tig \
   vim
 
+# install stuff for i3-vim-focus
+VENDOR_DIR="$HOME/Vendor"
+mkdir "$VENDOR_DIR"
+git clone https://github.com/jwilm/i3-vim-focus.git "$VENDOR_DIR/i3-vim-focus"
+curl https://sh.rustup.rs -sSf | sh
+cd "$VENDOR_DIR/i3-vim-focus/i3-vim-focus"
+cargo build --release
+cp target/release/i3-vim-focus "$HOME/.cargo/bin"
+
 # install node (and via n version manager)
 curl -L https://git.io/n-install | bash
 source $HOME/.bashrc
