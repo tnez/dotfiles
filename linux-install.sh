@@ -39,6 +39,7 @@ _link() {
 
 mkdir $HOME/.config # if it does not already exist
 
+_link .profile .profile
 _link .editorconfig .editorconfig
 _link .npmrc .npmrc
 _link base16-shell .config/base16-shell
