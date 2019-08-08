@@ -81,9 +81,6 @@ bindsym Mod4+f fullscreen toggle
 bindsym Mod4+minus gaps inner current minus 6
 bindsym Mod4+plus gaps inner current plus 6
 
-# show/hide keybindings
-bindsym Mod4+Shift+question exec --no-startup-id /usr/bin/conky-toggle.sh
-
 # toggle tiling / floating
 bindsym Mod4+Shift+f floating toggle
 
@@ -282,9 +279,6 @@ bar {
 
 # Composite manager
 exec --no-startup-id compton -f --config /etc/xdg/compton.conf
-
-# Launch the shortcut Conky window on first login
-exec --no-startup-id /usr/bin/regolith-ftue.sh
 
 # Hide the mouse pointer if unused for a duration
 exec --no-startup-id /usr/bin/unclutter -b
