@@ -59,3 +59,6 @@ _link spacemacs/.spacemacs .spacemacs
 _link tmux .config/tmux
 _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
+
+# links that require sudo
+sudo ln -s compton/compton.conf /etc/xdg/compton.conf
