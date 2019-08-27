@@ -122,7 +122,9 @@ augroup vimrcEx
     \ endif
 
   " Set syntax highlighting for specific file types
-  autocmd BufRead,BufNewFile *.md,GHI_* set filetype=markdown
+  autocmd BufRead,BufNewFile *.md set filetype=markdown
+  autocmd BufRead,BufNewFile *.md,gitcommit setlocal spell
+  autocmd FileType gitcommit setlocal textwidth=0
   autocmd BufRead,BufNewFile .{jscs,jshint,eslint}rc set filetype=json
   autocmd BufRead,BufNewFile aliases.local,zshrc.local,*/zsh/configs/* set filetype=sh
   autocmd BufRead,BufNewFile gitconfig.local set filetype=gitconfig
