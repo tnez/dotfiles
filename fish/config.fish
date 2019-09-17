@@ -1,11 +1,9 @@
 # aliases
-alias be="bundle exec"
 alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
 alias d="docker"
 alias dc="docker-compose"
 alias e="vim"
-alias fixcam="sudokillall VDCAssistant; and sudo killall AppleCameraAssistant"
 alias g="git"
 alias gh="hub"
 alias ghp="hub pull-request"
@@ -13,7 +11,6 @@ alias ghs="hub ci-status"
 alias gs="git status"
 alias la="ls -a"
 alias ll="ls -al"
-alias tmux="tmux -2"
 
 # set variables
 set -x EDITOR vim
