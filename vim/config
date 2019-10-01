@@ -78,6 +78,9 @@ Plug 'leshill/vim-json'
 Plug 'mxw/vim-jsx'
 Plug 'prettier/vim-prettier'
 
+" LookML
+Plug 'thalesmello/lkml.vim'
+
 " Markdown
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
