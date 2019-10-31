@@ -1,0 +1,1 @@
+bind generic x !@sh -c "git rev-parse --short %(commit) | tr -d '\n' | xclip -sel clip"

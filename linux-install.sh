@@ -50,6 +50,7 @@ _link git/git_template .git_template
 _link regolith .config/regolith
 _link scripts bin
 _link secrets/.secrets .secrets
+_link tig/tigrc .tigrc
 _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
 
