@@ -102,7 +102,7 @@ Plug 'janko-m/vim-test'
 Plug 'w0rp/ale'
 
 " Autocomplete + Snippets
-Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'SirVer/ultisnips'
 
 call plug#end()
