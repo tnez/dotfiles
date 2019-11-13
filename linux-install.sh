@@ -48,6 +48,7 @@ _link fish .config/fish
 _link git/gitconfig .gitconfig
 _link git/gitignore .gitignore
 _link git/git_template .git_template
+_link kitty .config/kitty
 _link regolith .config/regolith
 _link scripts bin
 _link secrets/.secrets .secrets
@@ -58,3 +59,6 @@ _link nvim .config/nvim
 
 # links that require sudo
 sudo ln -s compton/compton.conf /etc/xdg/compton.conf
+
+# install kitty
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
