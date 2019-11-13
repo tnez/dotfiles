@@ -35,7 +35,7 @@ floating_modifier $mod
 hide_edge_borders smart
 
 # start a terminal
-bindsym $mod+Return exec /usr/bin/st
+bindsym $mod+Return exec gnome-terminal
 
 # start a web browser
 bindsym $mod+b exec /usr/bin/sensible-browser
@@ -51,10 +51,10 @@ bindsym $mod+Shift+space exec rofi -show run -theme $rofiTheme
 bindsym $mod+space exec rofi -show window -theme $rofiTheme
 
 # change focus
-bindsym --release $mod+h exec --no-startup-id "i3-vim-focus left"
-bindsym --release $mod+j exec --no-startup-id "i3-vim-focus down"
-bindsym --release $mod+k exec --no-startup-id "i3-vim-focus up"
-bindsym --release $mod+l exec --no-startup-id "i3-vim-focus right"
+bindsym --release $mod+h exec --no-startup-id "i3-vim-nav left"
+bindsym --release $mod+j exec --no-startup-id "i3-vim-nav down"
+bindsym --release $mod+k exec --no-startup-id "i3-vim-nav up"
+bindsym --release $mod+l exec --no-startup-id "i3-vim-nav right"
 
 # splits
 bindsym $mod+slash split h
