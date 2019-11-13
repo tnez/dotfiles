@@ -13,6 +13,7 @@ set laststatus=2  " Always display the status line
 set autoread      " Re-read buffers when they change on disk
 set autowrite     " Automatically :write before running commands
 set title         " Set title so that i3-vim-nav works as expected
+execute "set titleold=".hostname()
 
 " Use system clipboard by default
 set clipboard=unnamed
@@ -53,7 +54,7 @@ Plug 'editorconfig/editorconfig-vim'
 Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-gitgutter'
-Plug 'jwilm/i3-vim-focus'
+Plug 'termhn/i3-vim-nav'
 Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-speeddating'
@@ -206,11 +207,11 @@ set splitbelow
 set splitright
 
 " Split navigation that works with i3 by using
-" https://github.com/jwilm/i3-vim-focus
-nnoremap gwl :call Focus('right', 'l')<CR>
-nnoremap gwh :call Focus('left', 'h')<CR>
-nnoremap gwk :call Focus('up', 'k')<CR>
-nnoremap gwj :call Focus('down', 'j')<CR>
+" https://github.com/termhn/i3-vim-nav
+nnoremap <silent> <c-right> :call Focus('right', 'l')<CR>
+nnoremap <silent> <c-left> :call Focus('left', 'h')<CR>
+nnoremap <silent> <c-up> :call Focus('up', 'k')<CR>
+nnoremap <silent> <c-down> :call Focus('down', 'j')<CR>
 
 " Move between linting errors
 nnoremap ]r :ALENextWrap<CR>

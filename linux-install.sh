@@ -14,7 +14,8 @@ sudo apt install \
   htop \
   silversearcher-ag \
   tig \
-  vim
+  vim \
+  neovim
 
 # install stuff for i3-vim-focus
 VENDOR_DIR="$HOME/Vendor"
@@ -53,6 +54,7 @@ _link secrets/.secrets .secrets
 _link tig/tigrc .tigrc
 _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
+_link nvim .config/nvim
 
 # links that require sudo
 sudo ln -s compton/compton.conf /etc/xdg/compton.conf
