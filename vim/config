@@ -241,6 +241,11 @@ if filereadable(expand("~/.vimrc_background"))
   source ~/.vimrc_background
 endif
 
+" Font stuff
+highlight Comment cterm=italic
+highlight htmlArg cterm=italic
+highlight Type cterm=italic
+
 " File / Buffer navigation
 nnoremap <leader>fs :w<CR>
 nnoremap <leader>fo :CtrlP<CR>
