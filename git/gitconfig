@@ -12,9 +12,8 @@
   ca = commit --amend
   cm = commit -m
   co = checkout
+  copr = pr checkout
   d = diff
-  f = fetch
-  ff = pull
   l = log --oneline --graph
   m = merge
   p = !git_publish.sh
