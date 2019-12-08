@@ -17,14 +17,22 @@ sudo apt install \
   vim \
   neovim
 
-# install stuff for i3-vim-focus
+# handle software required to be built from recent source code
 VENDOR_DIR="$HOME/Vendor"
 mkdir "$VENDOR_DIR"
+
+# i3-vim-focus
 git clone https://github.com/jwilm/i3-vim-focus.git "$VENDOR_DIR/i3-vim-focus"
 curl https://sh.rustup.rs -sSf | sh
 cd "$VENDOR_DIR/i3-vim-focus/i3-vim-focus"
 cargo build --release
 cp target/release/i3-vim-focus "$HOME/.cargo/bin"
+
+# qutebrowser
+git clone https://github.com/qutebrowser/qutebrowser.git
+"$VENDOR_DIR/qutebrowser"
+cd "$VENDOR_DIR/qutebrowser"
+tox -e mkvenv-pypi
 
 # install node (and via n version manager)
 curl -L https://git.io/n-install | bash

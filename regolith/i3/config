@@ -38,7 +38,7 @@ hide_edge_borders smart
 bindsym $mod+Return exec ~/.local/kitty.app/bin/kitty
 
 # start a web browser
-bindsym $mod+b exec /usr/bin/sensible-browser
+bindsym $mod+b exec qutebrowser
 
 # kill focused window
 bindsym $mod+q kill
