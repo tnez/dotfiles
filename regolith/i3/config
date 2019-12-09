@@ -40,6 +40,9 @@ bindsym $mod+Return exec ~/.local/kitty.app/bin/kitty
 # start a web browser
 bindsym $mod+b exec qutebrowser
 
+# launch password manager
+bindsym $mod+Shift+i exec bwmenu
+
 # kill focused window
 bindsym $mod+q kill
 
