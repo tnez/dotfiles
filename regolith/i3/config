@@ -190,11 +190,12 @@ new_window pixel 1
 new_float pixel 1
 
 # Gaps (i3-gaps)
-gaps inner 5
-gaps outer 0
+gaps horizontal 240
+gaps vertical 80
+gaps inner 20
 
 # Only enable gaps on a workspace when there is at least one container
-smart_gaps on
+smart_gaps inverse_outer
 
 set_from_resource $focused.color.border i3-wm.client.focused.color.border "#002b36"
 set_from_resource $focused.color.background i3-wm.client.focused.color.background "#586e75"
