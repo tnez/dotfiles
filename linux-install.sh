@@ -12,6 +12,7 @@ sudo apt install \
   fonts-firacode \
   ghi \
   htop \
+  kitty \
   silversearcher-ag \
   tig \
   vim \
@@ -69,6 +70,3 @@ _link Xresources .Xresources.d
 
 # links that require sudo
 sudo ln -s compton/compton.conf /etc/xdg/compton.conf
-
-# install kitty
-curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
