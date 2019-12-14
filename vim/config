@@ -62,7 +62,7 @@ Plug 'easymotion/vim-easymotion'
 Plug 'qpkorr/vim-bufkill'
 
 " Looks
-Plug 'danielwe/base16-vim'
+Plug 'dylanaraps/wal.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -236,10 +236,7 @@ let g:user_emmet_settings = {
 let g:vim_markdown_folding_disabled = 1
 
 " Set color theme
-if filereadable(expand("~/.vimrc_background"))
-  let base16colorspace=256
-  source ~/.vimrc_background
-endif
+colorscheme wal
 
 " Font stuff
 highlight Comment cterm=italic
