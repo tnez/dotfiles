@@ -40,6 +40,9 @@ curl -L https://git.io/n-install | bash
 source $HOME/.bashrc
 n lts
 
+# install pywal
+sudo pip3 install pywal
+
 # symlink stuff
 _link() {
   echo "sym-linking $CONFIG_DIR/$1 as $HOME/$2"
@@ -51,7 +54,6 @@ mkdir $HOME/.config # if it does not already exist
 
 _link .profile .profile
 _link .editorconfig .editorconfig
-_link base16-shell .config/base16-shell
 _link ctags/config .ctags
 _link fish .config/fish
 _link git/gitconfig .gitconfig
@@ -59,6 +61,7 @@ _link git/gitignore .gitignore
 _link git/git_template .git_template
 _link i3 .config/i3
 _link kitty .config/kitty
+_link rofi .config/rofi
 _link scripts bin
 _link secrets/.secrets .secrets
 _link tig/tigrc .tigrc
