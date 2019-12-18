@@ -142,6 +142,18 @@ mode "Resize Mode" {
 }
 bindsym $mod+r mode "Resize Mode"
 
+# toggle themes and such
+mode "Theme Mode" {
+  bindsym d exec --no-startup-id wal --theme base16-oceanicnext
+  bindsym l exec --no-startup-id wal --theme base16-solarized -l
+  bindsym r exec --no-startup-id wal --theme random_dark
+  bindsym Shift+r exec --no-startup-id wal --theme random_light
+
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+}
+bindsym $mod+Shift+t mode "Theme Mode"
+
 # Disable titlebar
 new_window pixel 1
 new_float pixel 1
