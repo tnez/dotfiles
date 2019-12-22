@@ -42,6 +42,7 @@ n lts
 
 # install pywal
 sudo pip3 install pywal
+ln -s ~/.cache/wal/colors.Xresources ~/.Xresources
 
 # symlink stuff
 _link() {
@@ -68,8 +69,6 @@ _link tig/tigrc .tigrc
 _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
 _link nvim .config/nvim
-_link Xresources/root .Xresources
-_link Xresources .Xresources.d
 
 # links that require sudo
 sudo ln -s compton/compton.conf /etc/xdg/compton.conf
