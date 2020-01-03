@@ -85,6 +85,7 @@ Plug 'thalesmello/lkml.vim'
 " Markdown
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install' }
 
 " Org
 Plug 'jceb/vim-orgmode'
@@ -234,6 +235,7 @@ let g:user_emmet_settings = {
 
 " Markdown
 let g:vim_markdown_folding_disabled = 1
+nmap <leader>mm <Plug>MarkdownPreviewToggle
 
 " Set color theme
 colorscheme wal
