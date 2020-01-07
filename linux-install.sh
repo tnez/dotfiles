@@ -13,6 +13,7 @@ sudo apt install \
   ghi \
   htop \
   kitty \
+  polybar \
   silversearcher-ag \
   tig \
   vim \
@@ -62,6 +63,7 @@ _link git/gitignore .gitignore
 _link git/git_template .git_template
 _link i3 .config/i3
 _link kitty .config/kitty
+_link polybar .config/polybar
 _link qutebrowser/config.py ./config/qutebrowser/config.py
 _link rofi .config/rofi
 _link scripts bin
