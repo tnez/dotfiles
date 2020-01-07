@@ -1,0 +1,147 @@
+[settings]
+throttle-ms = 50
+throttle-limit = 5
+
+[bar/top]
+monitor = eDP-1
+width = 100%
+height = 27
+offset-y = 5
+
+background = ${xrdb:color0}
+foreground = ${xrdb:color7}
+
+overline-size = 2
+overline-color = ${xrdb:color0}
+underline-size = 2
+underline-color = ${xrdb:color0}
+
+spacing = 1
+padding-right = 2
+module-margin-left = 0
+module-margin-right = 2
+
+font-0 = NotoSans-Regular:size=8;0
+font-1 = FontAwesome:size=8;-2
+font-2 = ypn envypn:size=10;-1
+font-3 = Termsynu:size=8;-1
+font-4 = Unifont:size=6;-3
+
+modules-left = i3
+modules-center = xwindow
+modules-right = cpu memory clock
+
+[module/i3]
+type = internal/i3
+
+format = <label-state> <label-mode>
+format-spacing = 0
+
+label-focused = %index%
+label-focused-padding = 2
+label-focused-margin = 1
+label-focused-font = 3
+label-focused-foreground = ${xrdb:color0}
+label-focused-background = ${xrdb:color2}
+label-focused-overline = ${xrdb:color0}
+label-focused-underline = ${xrdb:color0}
+
+label-unfocused = %index%
+label-unfocused-padding = 2
+label-unfocused-margin = 1
+label-unfocused-background = ${xrdb:color0}
+label-unfocused-foreground = ${xrdb:color7}
+label-unfocused-overline = ${xrdb:color0}
+label-unfocused-underline = ${xrdb:color0}
+label-unfocused-font = 3
+
+label-urgent = %index%
+label-urgent-padding = 2
+label-urgent-margin = 1
+label-urgent-background = ${xrdb:color0}
+label-urgent-foreground = ${xrdb:color1}
+label-urgent-overline = ${xrdb:color0}
+label-urgent-underline = ${xrdb:color0}
+label-urgent-font = 3
+
+label-visible = %index%
+label-visible-padding = 2
+label-visible-margin = 1
+label-visible-font = 3
+
+[module/cpu]
+type = internal/cpu
+interval = 0.5
+
+format = <label> <ramp-coreload>
+format-background = ${xrdb:color0}
+format-foreground = ${xrdb:color7}
+format-underline = ${xrdb:color0}
+format-overline = ${xrdb:color0}
+format-padding = 2
+
+label = cpu
+label-font = 3
+
+ramp-coreload-0 = ▁
+ramp-coreload-0-font = 5
+ramp-coreload-0-foreground = ${xrdb:color7}
+ramp-coreload-1 = ▂
+ramp-coreload-1-font = 5
+ramp-coreload-1-foreground = ${xrdb:color7}
+ramp-coreload-2 = ▃
+ramp-coreload-2-font = 5
+ramp-coreload-2-foreground = ${xrdb:color7}
+ramp-coreload-3 = ▄
+ramp-coreload-3-font = 5
+ramp-coreload-3-foreground = ${xrdb:color7}
+ramp-coreload-4 = ▅
+ramp-coreload-4-font = 5
+ramp-coreload-4-foreground = #ffffff
+ramp-coreload-5 = ▆
+ramp-coreload-5-font = 5
+ramp-coreload-5-foreground = #ffffff
+ramp-coreload-6 = ▇
+ramp-coreload-6-font = 5
+ramp-coreload-6-foreground = #ff3b51
+ramp-coreload-7 = █
+ramp-coreload-7-font = 5
+ramp-coreload-7-foreground = #ff3b51
+
+[module/memory]
+type = internal/memory
+
+format = <label> <bar-used>
+format-padding = 2
+format-background = ${xrdb:color0}
+format-foreground = ${xrdb:color7}
+format-underline = ${xrdb:color0}
+format-overline = ${xrdb:color0}
+
+label = memory
+label-font = 3
+
+bar-used-width = 10
+bar-used-indicator = |
+bar-used-indicator-font = 4
+bar-used-indicator-foreground = #ffaaf5
+bar-used-fill = ─
+bar-used-fill-font = 4
+bar-used-fill-foreground = #ffaaf5
+bar-used-empty = ─
+bar-used-empty-font = 4
+bar-used-empty-foreground = #934e94
+
+[module/clock]
+type = internal/date
+date = %%{T3}%Y-%m-%d %H:%M%%{T-}
+
+format-padding = 2
+format-background = ${xrdb:color0}
+format-foreground = ${xrdb:color7}
+format-underline = ${xrdb:color0}
+format-overline = ${xrdb:color0}
+
+[module/xwindow]
+type = internal/xwindow
+label-font = 3
