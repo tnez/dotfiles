@@ -29,7 +29,7 @@ font-4 = Unifont:size=6;-3
 
 modules-left = i3
 modules-center = xwindow
-modules-right = cpu memory clock
+modules-right = battery cpu memory clock
 
 [module/i3]
 type = internal/i3
@@ -131,6 +131,15 @@ bar-used-fill-foreground = #ffaaf5
 bar-used-empty = ─
 bar-used-empty-font = 4
 bar-used-empty-foreground = #934e94
+
+[module/battery]
+type = internal/battery
+full-at = 95
+battery = BAT0
+adapter = AC
+label-charging = +%percentage%%
+label-discharging = -%percentage%%
+format-padidng = 2
 
 [module/clock]
 type = internal/date
