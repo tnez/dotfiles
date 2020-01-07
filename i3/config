@@ -255,7 +255,7 @@ exec --no-startup-id compton -f --config ~/.config/compton.conf
 exec --no-startup-id /usr/bin/unclutter -b
 
 # Set wallpaper
-exec --no-startup-id feh --bg-fill ~/Pictures/wp.jpg
+exec --no-startup-id feh --bg-fill ~/Pictures/bg-dark-mtn.jpg
 
 # Start polybar
 exec --no-startup-id polybar top
