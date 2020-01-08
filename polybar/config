@@ -28,7 +28,7 @@ font-4 = Unifont:size=6;-3
 
 modules-left = i3
 modules-center = xwindow
-modules-right = battery cpu memory clock
+modules-right = github battery cpu memory clock
 
 [module/i3]
 type = internal/i3
@@ -67,6 +67,13 @@ label-visible = %index%
 label-visible-padding = 2
 label-visible-margin = 1
 label-visible-font = 3
+
+[module/github]
+type = internal/github
+token = ${file:~/.config/polybar/github.token}
+empty-notifications = false
+interval = 60
+label = [GitHub:%notifications%]
 
 [module/cpu]
 type = internal/cpu
