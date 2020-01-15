@@ -16,7 +16,7 @@ set title         " Set title so that i3-vim-nav works as expected
 execute "set titleold=".hostname()
 
 " Use system clipboard by default
-set clipboard=unnamed
+set clipboard=unnamedplus
 
 set shell=/bin/bash
 
