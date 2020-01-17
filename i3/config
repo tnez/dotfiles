@@ -107,7 +107,7 @@ bindsym Mod4+Shift+r restart
 bindsym Mod4+Shift+e exit
 
 # lock the screen
-bindsym Mod4+Shift+l exec gnome-screensaver-command --lock
+bindsym Mod4+Shift+l exec i3lock
 
 # put the system to sleep
 bindsym Mod4+Shift+s exec systemctl suspend
