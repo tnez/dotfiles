@@ -30,6 +30,9 @@ bindsym $mod+b exec qutebrowser
 # launch password manager
 bindsym $mod+Shift+i exec bwmenu
 
+# launch screenshot tool
+bindsym Mod4+Shift+p exec "flameshot gui"
+
 # kill focused window
 bindsym $mod+q kill
 
@@ -259,3 +262,7 @@ exec --no-startup-id feh --bg-fill ~/Pictures/bg-dark-mtn.jpg
 
 # Start polybar
 exec --no-startup-id polybar top
+
+# Start flameshot (screenshot tool)
+exec --no-startup-id flameshot
+

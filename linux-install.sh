@@ -9,6 +9,7 @@ sudo apt install \
   curl \
   file \
   fish \
+  flameshot \
   fonts-firacode \
   ghi \
   htop \
