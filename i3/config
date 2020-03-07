@@ -8,13 +8,21 @@ set $mod Ctrl
 
 # Color values are defined in ~/.Xresources-regolith
 
-# These are the labels which define each i3 workspace.
-set_from_resource $ws1  i3-wm.workspace.01.name "1: Task"
-set_from_resource $ws2  i3-wm.workspace.02.name "2: Work"
-set_from_resource $ws3  i3-wm.workspace.03.name "3: Scratch"
-set_from_resource $ws8  i3-wm.workspace.08.name "8: Inbox"
+# WORKSPACES
+set_from_resource $ws1  i3-wm.workspace.01.name "1: Main"
+assign [class="^kitty$"] $ws1
+
+set_from_resource $ws2  i3-wm.workspace.02.name "2: Scratch"
+
+set_from_resource $ws8  i3-wm.workspace.08.name "8: Tele"
+assign [class="^zoom$"] $ws8
+for_window [class="^zoom$"] floating enable
+
 set_from_resource $ws9  i3-wm.workspace.09.name "9: Media"
+for_window [class="^Spotify$"] move to workspace $ws9
+
 set_from_resource $ws10 i3-wm.workspace.10.name "10: Inbox"
+assign [class="^Slack$"] $ws10
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
