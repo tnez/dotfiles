@@ -23,6 +23,9 @@ for_window [class="^Spotify$"] move to workspace $ws9
 set_from_resource $ws10 i3-wm.workspace.10.name "10: Inbox"
 assign [class="^Slack$"] $ws10
 
+# qutebrowser vim editor should float
+for_window [title="^qutebrowser-editor-"] floating enable
+
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
