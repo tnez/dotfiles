@@ -10,7 +10,6 @@ set $mod Ctrl
 
 # WORKSPACES
 set_from_resource $ws1  i3-wm.workspace.01.name "1: Main"
-assign [class="^kitty$"] $ws1
 
 set_from_resource $ws2  i3-wm.workspace.02.name "2: Scratch"
 
