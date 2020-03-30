@@ -106,6 +106,7 @@ _link tig/tigrc .tigrc
 _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
 _link nvim .config/nvim
+_link xmodmap .config/xmodmap
 
 # links that require sudo
 sudo ln -s compton/compton.conf /etc/xdg/compton.conf
