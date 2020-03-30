@@ -261,6 +261,9 @@ set_from_resource $i3-wm.bar.font i3-wm.bar.font "pango:Source Code Pro Medium 1
 
 # Run programs when i3 starts
 
+# Remap any keys
+exec --no-startup-id xmodmap ~/.config/xmodmap/init
+
 # Composite manager
 exec --no-startup-id compton -f --config ~/.config/compton.conf
 
