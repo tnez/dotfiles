@@ -37,6 +37,7 @@ sudo apt install \
   xdotool
 
 sudo snap install bw
+sudo snap install go --classic
 sudo snap install hub --classic
 sudo snap install slack --classic
 sudo snap install spotify
@@ -57,6 +58,9 @@ git clone https://github.com/deuill/i3-gnome-flashback
 cd "$VENDOR_DIR/i3-gnome-flashback"
 sudo make install
 
+# i3-vim-nav
+go get -u github.com/tnez/i3-vim-nav
+
 # qutebrowser
 git clone https://github.com/qutebrowser/qutebrowser.git
 "$VENDOR_DIR/qutebrowser"
@@ -71,13 +75,6 @@ n lts
 # install pywal
 sudo pip3 install pywal
 ln -s ~/.cache/wal/colors.Xresources ~/.Xresources
-
-# i3-vim-focus
-git clone https://github.com/jwilm/i3-vim-focus.git "$VENDOR_DIR/i3-vim-focus"
-curl https://sh.rustup.rs -sSf | sh
-cd "$VENDOR_DIR/i3-vim-focus/i3-vim-focus"
-cargo build --release
-cp target/release/i3-vim-focus "$HOME/.cargo/bin"
 
 # symlink stuff
 _link() {
