@@ -16,6 +16,7 @@ sudo apt install \
   flameshot \
   fonts-firacode \
   ghi \
+  gnome-flashback \
   htop \
   i3-gaps-wm \
   imagemagick \
@@ -36,6 +37,12 @@ sudo snap install hub --classic
 # handle software required to be built from recent source code
 VENDOR_DIR="$PROJECTS_DIR/vendor"
 mkdir "$VENDOR_DIR"
+
+# i3-gnome-flashback
+git clone https://github.com/deuill/i3-gnome-flashback
+"$VENDOR_DIR/i3-gnome-flashback"
+cd "$VENDOR_DIR/i3-gnome-flashback"
+sudo make install
 
 # qutebrowser
 git clone https://github.com/qutebrowser/qutebrowser.git
