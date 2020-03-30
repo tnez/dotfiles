@@ -108,3 +108,6 @@ _link xmodmap .config/xmodmap
 
 # links that require sudo
 sudo ln -s compton/compton.conf /etc/xdg/compton.conf
+
+# change default shell
+sudo chsh -s /usr/bin/fish
