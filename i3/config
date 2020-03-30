@@ -70,6 +70,8 @@ bindsym $mod+Shift+l move right
 # move workspaces between monitors
 bindsym $mod+Shift+Left move workspace to output left
 bindsym $mod+Shift+Right move workspace to output right
+bindsym $mod+Shift+Up move workspace to output up
+bindsym $mod+Shift+Down move workspace to output down
 
 # toggle split orientation
 bindsym $mod+BackSpace split toggle
@@ -261,18 +263,11 @@ set_from_resource $i3-wm.bar.font i3-wm.bar.font "pango:Source Code Pro Medium 1
 
 # Run programs when i3 starts
 
-# Remap any keys
-exec --no-startup-id xmodmap ~/.config/xmodmap/init
-exec --no-startup-id xmodmap ~/.config/xmodmap/init.local
-
 # Composite manager
 exec --no-startup-id compton -f --config ~/.config/compton.conf
 
 # Hide the mouse pointer if unused for a duration
 exec --no-startup-id /usr/bin/unclutter -b
-
-# Set wallpaper
-exec --no-startup-id feh --bg-fill ~/Pictures/bg-dark-mtn.jpg
 
 # Start polybar
 exec --no-startup-id polybar top
@@ -280,3 +275,10 @@ exec --no-startup-id polybar top
 # Start flameshot (screenshot tool)
 exec --no-startup-id flameshot
 
+# Set wallpaper and theme
+exec --no-startup-id feh --bg-fill ~/Pictures/bg-dark-mtn.jpg
+exec --no-startup-id wal --theme base16-solarized
+
+# Remap any keys
+exec --no-startup-id xmodmap ~/.config/xmodmap/init
+exec --no-startup-id xmodmap ~/.config/xmodmap/init.local
