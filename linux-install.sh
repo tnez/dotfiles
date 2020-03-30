@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 PROJECTS_DIR="$HOME/Projects"
-CONFIG_DIR="$PROJECTS_DIR/tnez--config"
+CONFIG_DIR="$PROJECTS_DIR/tnez/config"
 
 # install required software
 sudo apt install \
@@ -21,7 +21,7 @@ sudo apt install \
   neovim
 
 # handle software required to be built from recent source code
-VENDOR_DIR="$HOME/Vendor"
+VENDOR_DIR="$PROJECTS_DIR/vendor"
 mkdir "$VENDOR_DIR"
 
 # i3-vim-focus
