@@ -4,21 +4,34 @@ PROJECTS_DIR="$HOME/Projects"
 CONFIG_DIR="$PROJECTS_DIR/tnez/config"
 
 # install required software
+sudo add-apt-repository ppa:kgilmer/speed-ricer
+sudo apt update
 sudo apt install \
   build-essential \
+  compton \
   curl \
+  feh \
   file \
   fish \
   flameshot \
   fonts-firacode \
   ghi \
   htop \
+  i3-gaps-wm \
+  imagemagick \
   kitty \
+  libxdo-dev \
+  libxdo3 \
   polybar \
+  python3-pip \
+  rofi \
   silversearcher-ag \
   tig \
+  tox \
   vim \
   neovim
+
+sudo snap install hub --classic
 
 # handle software required to be built from recent source code
 VENDOR_DIR="$PROJECTS_DIR/vendor"
