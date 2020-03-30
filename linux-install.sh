@@ -21,6 +21,7 @@ sudo apt install \
   i3-gaps-wm \
   imagemagick \
   jq \
+  keyutils \
   kitty \
   libxdo-dev \
   libxdo3 \
@@ -35,11 +36,18 @@ sudo apt install \
   xclip \
   xdotool
 
+sudo snap install bw
 sudo snap install hub --classic
 
 # handle software required to be built from recent source code
 VENDOR_DIR="$PROJECTS_DIR/vendor"
 mkdir "$VENDOR_DIR"
+
+# bitwarden-rofi
+git clone https://github.com/mattydebie/bitwarden-rofi.git "$VENDOR_DIR/bitwarden-rofi"
+cd "$VENDOR_DIR/bitwarden-rofi"
+sudo install -D --mode=755 --group=root --owner=root bwmenu /usr/local/bin/bwmenu
+sudo cp lib-bwmenu /usr/local/bin
 
 # i3-gnome-flashback
 git clone https://github.com/deuill/i3-gnome-flashback
