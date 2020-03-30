@@ -20,6 +20,7 @@ sudo apt install \
   htop \
   i3-gaps-wm \
   imagemagick \
+  jq \
   kitty \
   libxdo-dev \
   libxdo3 \
@@ -30,7 +31,9 @@ sudo apt install \
   silversearcher-ag \
   tig \
   vim \
-  neovim
+  neovim \
+  xclip \
+  xdotool
 
 sudo snap install hub --classic
 
