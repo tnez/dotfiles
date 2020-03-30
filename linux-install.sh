@@ -38,6 +38,8 @@ sudo apt install \
 
 sudo snap install bw
 sudo snap install hub --classic
+sudo snap install slack --classic
+sudo snap install spotify
 
 # handle software required to be built from recent source code
 VENDOR_DIR="$PROJECTS_DIR/vendor"
