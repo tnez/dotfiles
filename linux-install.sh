@@ -24,10 +24,10 @@ sudo apt install \
   libxdo3 \
   polybar \
   python3-pip \
+  python3-venv \
   rofi \
   silversearcher-ag \
   tig \
-  tox \
   vim \
   neovim
 
@@ -37,18 +37,11 @@ sudo snap install hub --classic
 VENDOR_DIR="$PROJECTS_DIR/vendor"
 mkdir "$VENDOR_DIR"
 
-# i3-vim-focus
-git clone https://github.com/jwilm/i3-vim-focus.git "$VENDOR_DIR/i3-vim-focus"
-curl https://sh.rustup.rs -sSf | sh
-cd "$VENDOR_DIR/i3-vim-focus/i3-vim-focus"
-cargo build --release
-cp target/release/i3-vim-focus "$HOME/.cargo/bin"
-
 # qutebrowser
 git clone https://github.com/qutebrowser/qutebrowser.git
 "$VENDOR_DIR/qutebrowser"
 cd "$VENDOR_DIR/qutebrowser"
-tox -e mkvenv-pypi
+python3 scripts/mkvenv.py
 
 # install node (and via n version manager)
 curl -L https://git.io/n-install | bash
@@ -58,6 +51,13 @@ n lts
 # install pywal
 sudo pip3 install pywal
 ln -s ~/.cache/wal/colors.Xresources ~/.Xresources
+
+# i3-vim-focus
+git clone https://github.com/jwilm/i3-vim-focus.git "$VENDOR_DIR/i3-vim-focus"
+curl https://sh.rustup.rs -sSf | sh
+cd "$VENDOR_DIR/i3-vim-focus/i3-vim-focus"
+cargo build --release
+cp target/release/i3-vim-focus "$HOME/.cargo/bin"
 
 # symlink stuff
 _link() {
@@ -78,7 +78,7 @@ _link git/git_template .git_template
 _link i3 .config/i3
 _link kitty .config/kitty
 _link polybar .config/polybar
-_link qutebrowser/config.py ./config/qutebrowser/config.py
+_link qutebrowser/config.py .config/qutebrowser/config.py
 _link rofi .config/rofi
 _link scripts bin
 _link secrets/.secrets .secrets
