@@ -88,6 +88,7 @@ mkdir $HOME/.config # if it does not already exist
 
 _link .profile .profile
 _link .editorconfig .editorconfig
+_link compton .config/compton
 _link ctags/config .ctags
 _link fish .config/fish
 _link git/gitconfig .gitconfig
