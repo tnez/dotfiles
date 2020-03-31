@@ -104,6 +104,7 @@ _link tig/tigrc .tigrc
 _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
 _link nvim .config/nvim
+_link wallpapers .config/wallpapers
 _link xmodmap .config/xmodmap
 
 # links that require sudo
