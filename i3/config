@@ -275,8 +275,8 @@ exec --no-startup-id polybar top
 # Start flameshot (screenshot tool)
 exec --no-startup-id flameshot
 
-# Set wallpaper and theme
-exec --no-startup-id feh --bg-fill ~/Pictures/bg-dark-mtn.jpg
+# Set default wallpaper and theme
+exec --no-startup-id feh --bg-fill ~/.config/wallpapers/dark.jpg
 exec --no-startup-id wal --theme base16-solarized
 
 # Remap any keys
