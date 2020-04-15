@@ -174,7 +174,7 @@ new_window pixel 1
 new_float pixel 1
 
 # Gaps (i3-gaps)
-gaps horizontal 40
+gaps horizontal 240
 gaps vertical 20
 gaps inner 20
 smart_gaps inverse_outer
