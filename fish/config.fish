@@ -14,6 +14,7 @@ alias ll="ls -al"
 set -x EDITOR vim
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
+set -x N_PREFIX $HOME/n
 set -x PAGER less
 set -x TERM xterm-256color
 set -x VISUAL vim
