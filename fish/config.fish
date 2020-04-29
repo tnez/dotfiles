@@ -34,6 +34,3 @@ end
 function fish_title
     true
 end
-
-# virtualenv (virtualfish)
-eval (python3 -m virtualfish)
