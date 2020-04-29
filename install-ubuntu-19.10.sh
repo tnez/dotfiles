@@ -77,6 +77,10 @@ n lts
 sudo pip3 install pywal
 ln -s ~/.cache/wal/colors.Xresources ~/.Xresources
 
+# install virtualfish
+pip3 install virtualfish
+vf install
+
 # symlink stuff
 _link() {
   echo "sym-linking $CONFIG_DIR/$1 as $HOME/$2"
