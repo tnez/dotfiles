@@ -77,7 +77,6 @@ Plug 'sheerun/vim-polyglot'
 " Javascript
 Plug 'leshill/vim-json'
 Plug 'mxw/vim-jsx'
-Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
 
 " LookML
 Plug 'thalesmello/lkml.vim'
