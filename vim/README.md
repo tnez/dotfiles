@@ -1,22 +1,11 @@
 # vim
 
-My vim config
+Post-Install Checklist
 
-## wishlist
+## Install **CoC** extensions
 
-- More conenient close window
-- Window navigation with `<cmd> hjkl` to match **skhd**
-- Autoclosing tags, parens, brackets, etc
-- Autocompletion
-- Code exploration setup
-  - nerdtree
-  - jump-to-defs
-  - grep setup
-  - flow annotations
-- Break rc file into grouped chunks
-- Install new plugins on launch
-- Reload configuration
-
-## exercises
-
-- spend some time experimenting with fugitive
+- css: `:CocInstall coc-css`
+- html: `:CocInstall coc-html`
+- json: `:CocInstall coc-json`
+- prettier: `:CocInstall coc-prettier`
+- tsserver: `:CocInstall coc-tsserver`
