@@ -77,7 +77,7 @@ Plug 'sheerun/vim-polyglot'
 " Javascript
 Plug 'leshill/vim-json'
 Plug 'mxw/vim-jsx'
-Plug 'prettier/vim-prettier'
+Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
 
 " LookML
 Plug 'thalesmello/lkml.vim'
@@ -177,12 +177,6 @@ nnoremap <Up> :echoe "Use k"<CR>
 nnoremap <Down> :echoe "Use j"<CR>
 
 " Git mappings
-nnoremap <silent> <Leader>gd :Gdiff<CR>
-nnoremap <silent> <Leader>gD :Gdiff HEAD<CR>
-nnoremap <silent> <Leader>gf :Gfetch --prune<CR>
-nnoremap <silent> <Leader>gl :Glog<CR>
-nnoremap <silent> <Leader>gp :Gpush<CR>
-nnoremap <silent> <Leader>gP :Gpush --force-with-lease<CR>
 nnoremap <silent> <Leader>gs :Gstatus<CR>
 
 " Treat <li> and <p> tags like the block tags they are
@@ -262,6 +256,40 @@ map <leader>ad :NERDTreeToggle<CR>
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 let g:NERDTreeIgnore=['node_modules']
+
+" CoC (Code Completion and IDE Fanciness)
+inoremap <silent><expr> <c-space> coc#refresh()
+nmap <silent> gd <Plug>(coc-defintion)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <silent> gy <Plug>(coc-type-defintion)
+
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+nnoremap <silent> gh :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if &filetype == 'vim'
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+nnoremap <silent> <leader>cR :<C-u>CocRestart<CR>
+nnoremap <silent> <leader>cc :<C-u>CocList commands<CR>
+nnoremap <silent> <leader>cl :<C-u>CocList locationlist<CR>
+nnoremap <silent> <leader>co :<C-u>CocList outline<CR>
+nnoremap <silent> <leader>cs :<C-u>CocList -I symbols<CR>
+nnoremap <silent> <leader>cx :<C-u>CocList extensions<CR>
+
+nmap <leader>cr <Plug>(coc-rename)
+nmap <leader>cf <Plug>(coc-format-selected)
+vmap <leader>cf <Plug>(coc-format-selected)
+
+nmap <leader>ca <Plug>(coc-codeaction-selected)
+vmap <leader>ca <Plug>(coc-codeaction-selected)
 
 " Status Line
 if !has('gui_running')
