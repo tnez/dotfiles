@@ -60,6 +60,7 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-speeddating'
 Plug 'easymotion/vim-easymotion'
 Plug 'qpkorr/vim-bufkill'
+Plug 'liuchengxu/vim-which-key'
 
 " Looks
 Plug 'dylanaraps/wal.vim'
@@ -255,6 +256,13 @@ map <leader>ad :NERDTreeToggle<CR>
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 let g:NERDTreeIgnore=['node_modules']
+
+" vim-which-key
+" TODO: need to define a key map to make results more readable, see:
+" https://github.com/liuchengxu/vim-which-key#miminal-configuration
+set timeoutlen=500
+nnoremap <silent> <leader> :<c-u>WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey ','<CR>
 
 " CoC (Code Completion and IDE Fanciness)
 inoremap <silent><expr> <c-space> coc#refresh()
