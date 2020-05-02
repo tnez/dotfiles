@@ -25,6 +25,8 @@ Follow the instructions to install on a fresh **Ubuntu Server 20.04** installati
     `git clone git@github.com:tnez/config.git ~/Projects/tnez/config`
 1. Run the appropriate install script for your version:
     `~/Projects/tnez/config/install-ubuntu-{version}.sh`
+1. Add the following line to `/etc/default/keyboard`:
+    `XKBOPTIONS="ctrl:swapcaps,altwin:swap_alt_win"`
 1. Reboot machine for all settings to take effect: `sudo shutdown -r now`
 1. Follow the instructions to install any remaining software
     - [Rescuetime](https://www.rescuetime.com/download_linux)
