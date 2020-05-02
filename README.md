@@ -10,7 +10,7 @@ All my configs and dotfiles live in the `~/.config` so I can neatly wrangle ever
 
 ### Install
 
-Follow the instructions to install on a fresh **Ubuntu Desktop** installation.
+Follow the instructions to install on a fresh **Ubuntu Server 20.04** installation.
 
 1. Follow the [instructions](https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to setup an `ssh` key for **GitHub**.
 1. Install git:
