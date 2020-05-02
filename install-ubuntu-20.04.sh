@@ -13,6 +13,7 @@ sudo apt install \
   feh \
   file \
   fish \
+  firefox \
   flameshot \
   fonts-firacode \
   ghi \
