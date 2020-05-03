@@ -7,6 +7,7 @@ CONFIG_DIR="$PROJECTS_DIR/tnez/config"
 sudo add-apt-repository ppa:kgilmer/speed-ricer
 sudo apt update
 sudo apt install \
+  arandr \
   build-essential \
   compton \
   curl \
