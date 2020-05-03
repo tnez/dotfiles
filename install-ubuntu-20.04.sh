@@ -7,6 +7,7 @@ CONFIG_DIR="$PROJECTS_DIR/tnez/config"
 sudo add-apt-repository ppa:kgilmer/speed-ricer
 sudo apt update
 sudo apt install \
+  alsa-utils \
   arandr \
   build-essential \
   compton \
@@ -28,6 +29,7 @@ sudo apt install \
   libxdo-dev \
   libxdo3 \
   polybar \
+  pulseaudio \
   python3-pip \
   python3-venv \
   rofi \
