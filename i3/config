@@ -43,6 +43,11 @@ bindsym $mod+Shift+i exec bwmenu
 # launch screenshot tool
 bindsym Mod4+Shift+p exec "flameshot gui"
 
+# audio controls
+bindsym XF86AudioRaiseVolume exec "amixer set Master 5%+"
+bindsym XF86AudioLowerVolume exec "amixer set Master 5%-"
+bindsym XF86AudioMute exec "amixer set Master toggle"
+
 # kill focused window
 bindsym $mod+q kill
 
