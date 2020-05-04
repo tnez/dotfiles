@@ -116,6 +116,7 @@ _link tnez-snippets .config/tnez-snippets
 _link vim/config .vimrc
 _link nvim .config/nvim
 _link wallpapers .config/wallpapers
+_link xinit/config.sh .xinitrc
 
 # links that require sudo
 sudo ln -s compton/compton.conf /etc/xdg/compton.conf
