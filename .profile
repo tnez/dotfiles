@@ -32,3 +32,8 @@ fi
 if [ -d "$HOME/go/bin" ] ; then
     PATH="$PATH:$HOME/go/bin"
 fi
+
+# set PATH so it includes /snap/bin if it exists
+if [ -d "/snap/bin" ] ; then
+  PATH="$PATH:/snap/bin"
+fi
