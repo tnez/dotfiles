@@ -38,7 +38,9 @@ sudo apt install \
   vim \
   neovim \
   xclip \
-  xdotool
+  xdotool \
+  xdg-utils \
+  xdg-desktop-portal-dtk
 
 sudo snap install bw
 sudo snap install go --classic
