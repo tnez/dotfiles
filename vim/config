@@ -52,7 +52,6 @@ Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-surround'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'scrooloose/nerdcommenter'
-Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-gitgutter'
 Plug 'termhn/i3-vim-nav'
 Plug 'tmux-plugins/vim-tmux-focus-events'
@@ -251,11 +250,9 @@ nnoremap <leader>t :CtrlPTag<CR>
 nnoremap <leader>Q :q<CR>
 nnoremap <leader>wd :close<CR>
 
-" NERDTree
-map <leader>ad :NERDTreeToggle<CR>
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-let g:NERDTreeIgnore=['node_modules']
+" File Explorer
+nnoremap <leader>el :CocCommand explorer<CR>
+nnoremap <leader>ef :CocCommand explorer --preset floating<CR>
 
 " vim-which-key
 " TODO: need to define a key map to make results more readable, see:
