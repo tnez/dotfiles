@@ -1,7 +1,11 @@
 {
+  "explorer.presets": {
+    "floating": {
+      "position": "floating"
+    }
+  },
+  "explorer.previewAction.onHover": false,
   "prettier.requireConfig": true,
-  "tslint.enable": true,
-  "tslint.autoFixOnSave": true,
   "coc.preferences.formatOnSaveFiletypes": [
     "css",
     "markdown",
