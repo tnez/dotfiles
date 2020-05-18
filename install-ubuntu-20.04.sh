@@ -5,6 +5,7 @@ CONFIG_DIR="$PROJECTS_DIR/tnez/config"
 
 # install required software
 sudo add-apt-repository ppa:kgilmer/speed-ricer
+sudo add-apt-respository ppa:lazygit-team/release
 sudo apt update
 sudo apt install \
   alsa-utils \
@@ -26,6 +27,7 @@ sudo apt install \
   jq \
   keyutils \
   kitty \
+  lazygit \
   libxdo-dev \
   libxdo3 \
   polybar \
