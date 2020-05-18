@@ -8,6 +8,7 @@ alias g="hub"
 alias git="hub"
 alias gs="git status"
 alias la="ls -a"
+alias lg="lazygit"
 alias ll="ls -al"
 
 # set variables
