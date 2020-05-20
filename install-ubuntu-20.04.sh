@@ -13,6 +13,7 @@ sudo apt install \
   build-essential \
   compton \
   curl \
+  fd-find \
   feh \
   file \
   fish \
