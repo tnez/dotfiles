@@ -60,6 +60,7 @@ Plug 'tpope/vim-speeddating'
 Plug 'easymotion/vim-easymotion'
 Plug 'qpkorr/vim-bufkill'
 Plug 'liuchengxu/vim-which-key'
+Plug 'voldikss/vim-floaterm'
 
 " Looks
 Plug 'dylanaraps/wal.vim'
@@ -176,7 +177,7 @@ nnoremap <Up> :echoe "Use k"<CR>
 nnoremap <Down> :echoe "Use j"<CR>
 
 " Git mappings
-nnoremap <silent> <Leader>gs :Gstatus<CR>
+nnoremap <Leader>gs :FloatermNew --height=0.8 --width=0.8 lazygit<CR>
 
 " Treat <li> and <p> tags like the block tags they are
 let g:html_indent_tags = 'li\|p'
@@ -240,19 +241,24 @@ highlight Type cterm=italic
 
 " File / Buffer navigation
 nnoremap <leader>fs :w<CR>
-nnoremap <leader>fo :CtrlP<CR>
+nnoremap <leader>fo :FloatermNew fzf<CR>
 nnoremap <leader>bd :BD<CR>
 nnoremap <leader>q :BD<CR>
 nnoremap <leader><TAB> :BB<CR>
 nnoremap <leader><S-TAB> :BF<CR>
-nnoremap <leader>bb :CtrlPBuffer<CR>
-nnoremap <leader>t :CtrlPTag<CR>
 nnoremap <leader>Q :q<CR>
 nnoremap <leader>wd :close<CR>
 
 " File Explorer
 nnoremap <leader>el :CocCommand explorer<CR>
 nnoremap <leader>ef :CocCommand explorer --preset floating<CR>
+
+" Floaterm
+let g:floaterm_shell = '/usr/bin/fish'
+let g:floaterm_autoclose = 1
+nnoremap <leader>tt :FloatermNew<CR>
+nnoremap <leader>tn :FloatermNew node<CR>
+nnoremap <leader>tr :FloatermNew R<CR>
 
 " vim-which-key
 " TODO: need to define a key map to make results more readable, see:
