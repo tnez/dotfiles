@@ -20,6 +20,7 @@ sudo apt install \
   firefox \
   flameshot \
   fonts-firacode \
+  fzf \
   ghi \
   gnome-flashback \
   htop \
