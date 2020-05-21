@@ -36,6 +36,7 @@ sudo apt install \
   pulseaudio \
   python3-pip \
   python3-venv \
+  ripgrep \
   rofi \
   silversearcher-ag \
   tig \
