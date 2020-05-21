@@ -165,6 +165,7 @@ nnoremap <Down> :echoe "Use j"<CR>
 nnoremap <Leader>gb :Gblame<CR>
 nnoremap <Leader>gl :FloatermNew --height=0.8 --width=0.8 tig<CR>
 nnoremap <Leader>gs :FloatermNew --height=0.8 --width=0.8 lazygit<CR>
+nnoremap <Leader>gS :FloatermNew --height=0.8 --width=0.8 hub sync<CR>
 
 " Treat <li> and <p> tags like the block tags they are
 let g:html_indent_tags = 'li\|p'
