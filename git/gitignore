@@ -16,7 +16,8 @@ standup*.org
 # vscode
 .vscode
 
-# gtags
+# tags
+tags
 GPATH
 GRTAGS
 GTAGS

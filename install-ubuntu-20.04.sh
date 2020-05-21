@@ -39,6 +39,7 @@ sudo apt install \
   rofi \
   silversearcher-ag \
   tig \
+  universal-ctags \
   vim \
   neovim \
   xclip \
