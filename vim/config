@@ -162,6 +162,8 @@ nnoremap <Up> :echoe "Use k"<CR>
 nnoremap <Down> :echoe "Use j"<CR>
 
 " Git mappings
+nnoremap <Leader>gb :Gblame<CR>
+nnoremap <Leader>gl :FloatermNew --height=0.8 --width=0.8 tig<CR>
 nnoremap <Leader>gs :FloatermNew --height=0.8 --width=0.8 lazygit<CR>
 
 " Treat <li> and <p> tags like the block tags they are
