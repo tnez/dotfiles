@@ -13,6 +13,7 @@ set laststatus=2  " Always display the status line
 set autoread      " Re-read buffers when they change on disk
 set autowrite     " Automatically :write before running commands
 set title         " Set title so that i3-vim-nav works as expected
+set encoding=UTF-8
 execute "set titleold=".hostname()
 
 " Use system clipboard by default
@@ -64,12 +65,6 @@ Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-rooter'
 
-" Looks
-Plug 'dylanaraps/wal.vim'
-Plug 'junegunn/goyo.vim'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
 " Git
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
@@ -104,6 +99,14 @@ Plug 'mattn/emmet-vim'
 " Autocomplete + Snippets
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'SirVer/ultisnips'
+
+" Looks
+Plug 'dylanaraps/wal.vim'
+Plug 'junegunn/goyo.vim'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+" load this last
+Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
 
