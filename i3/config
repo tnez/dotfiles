@@ -133,34 +133,10 @@ bindsym Mod4+Shift+l exec i3lock
 bindsym Mod4+Shift+s exec systemctl suspend
 
 # resize window (you can also use the mouse for that)
-mode "Resize Mode" {
-        # These bindings trigger as soon as you enter the resize mode
-        bindsym Left resize shrink width 6 px or 6 ppt
-        bindsym Down resize grow height 6 px or 6 ppt
-        bindsym Up resize shrink height 6 px or 6 ppt
-        bindsym Right resize grow width 6 px or 6 ppt
-
-        bindsym Shift+Left resize shrink width 12 px or 12 ppt
-        bindsym Shift+Down resize grow height 12 px or 12 ppt
-        bindsym Shift+Up resize shrink height 12 px or 12 ppt
-        bindsym Shift+Right resize grow width 12 px or 12 ppt
-
-        bindsym h resize shrink width 6 px or 6 ppt
-        bindsym k resize grow height 6 px or 6 ppt
-        bindsym j resize shrink height 6 px or 6 ppt
-        bindsym l resize grow width 6 px or 6 ppt
-
-        bindsym Shift+h resize shrink width 12 px or 12 ppt
-        bindsym Shift+k resize grow height 12 px or 12 ppt
-        bindsym Shift+j resize shrink height 12 px or 12 ppt
-        bindsym Shift+l resize grow width 12 px or 12 ppt
-
-        # back to normal: Enter or Escape
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
-        bindsym $mod+r mode "default"
-}
-bindsym $mod+r mode "Resize Mode"
+bindsym $mod+Mod4+Shift+h resize shrink width 6 px or 6 ppt
+bindsym $mod+Mod4+Shift+k resize grow height 6 px or 6 ppt
+bindsym $mod+Mod4+Shift+j resize shrink height 6 px or 6 ppt
+bindsym $mod+Mod4+Shift+l resize grow width 6 px or 6 ppt
 
 # toggle themes and such
 mode "Theme Mode" {
