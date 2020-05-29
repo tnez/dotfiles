@@ -138,18 +138,6 @@ bindsym $mod+Mod4+Shift+k resize grow height 6 px or 6 ppt
 bindsym $mod+Mod4+Shift+j resize shrink height 6 px or 6 ppt
 bindsym $mod+Mod4+Shift+l resize grow width 6 px or 6 ppt
 
-# toggle themes and such
-mode "Theme Mode" {
-  bindsym d exec --no-startup-id wal --theme base16-oceanicnext
-  bindsym l exec --no-startup-id wal --theme base16-solarized -l
-  bindsym r exec --no-startup-id wal --theme random_dark
-  bindsym Shift+r exec --no-startup-id wal --theme random_light
-
-  bindsym Return mode "default"
-  bindsym Escape mode "default"
-}
-bindsym $mod+Shift+t mode "Theme Mode"
-
 # Disable titlebar
 new_window pixel 1
 new_float pixel 1
