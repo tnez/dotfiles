@@ -64,10 +64,11 @@ Plug 'voldikss/vim-floaterm'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-rooter'
+Plug 'justinmk/vim-sneak'
 
 " Git
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-phubarb'
 
 " All language
 Plug 'sheerun/vim-polyglot'
@@ -229,6 +230,9 @@ colorscheme wal
 highlight Comment cterm=italic
 highlight htmlArg cterm=italic
 highlight Type cterm=italic
+
+" Motion
+let g:sneak#label = 1
 
 " fzf
 nnoremap <leader>of :Files<CR>
