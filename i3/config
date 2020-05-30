@@ -67,16 +67,16 @@ bindsym $mod+slash split h
 bindsym $mod+minus split v
 
 # move windows in workspaces
-bindsym $mod+Shift+Mod4+h move left
-bindsym $mod+Shift+Mod4+j move down
-bindsym $mod+Shift+Mod4+k move up
-bindsym $mod+Shift+Mod4+l move right
+bindsym $mod+Mod4+h move left
+bindsym $mod+Mod4+j move down
+bindsym $mod+Mod4+k move up
+bindsym $mod+Mod4+l move right
 
 # move workspaces between monitors
-bindsym $mod+Shift+Left move workspace to output left
-bindsym $mod+Shift+Right move workspace to output right
-bindsym $mod+Shift+Up move workspace to output up
-bindsym $mod+Shift+Down move workspace to output down
+bindsym $mod+Mod4+Shift+Left move workspace to output left
+bindsym $mod+Mod4+Shift+Right move workspace to output right
+bindsym $mod+Mod4+Shift+Up move workspace to output up
+bindsym $mod+Mod4+Shift+Down move workspace to output down
 
 # toggle split orientation
 bindsym $mod+BackSpace split toggle
@@ -133,10 +133,10 @@ bindsym Mod4+Shift+l exec i3lock
 bindsym Mod4+Shift+s exec systemctl suspend
 
 # resize window (you can also use the mouse for that)
-bindsym $mod+Mod4+h resize shrink width 6 px or 6 ppt
-bindsym $mod+Mod4+k resize grow height 6 px or 6 ppt
-bindsym $mod+Mod4+j resize shrink height 6 px or 6 ppt
-bindsym $mod+Mod4+l resize grow width 6 px or 6 ppt
+bindsym $mod+Shift+h resize shrink width 6 px or 6 ppt
+bindsym $mod+Shift+k resize grow height 6 px or 6 ppt
+bindsym $mod+Shift+j resize shrink height 6 px or 6 ppt
+bindsym $mod+Shift+l resize grow width 6 px or 6 ppt
 
 # Disable titlebar
 new_window pixel 1
