@@ -99,7 +99,7 @@ Plug 'mattn/emmet-vim'
 
 " Autocomplete + Snippets
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 
 " Looks
 Plug 'dylanaraps/wal.vim'
@@ -205,9 +205,12 @@ inoremap kj <esc>
 
 " Snippets
 "
-let g:UltiSnipsSnippetDirectories=[$HOME.'/.config/tnez-snippets']
-let g:UltiSnipsEditSplit="context"
-nmap <leader>x :UltiSnipsEdit<CR>
+imap <C-;> <Plug>(coc-snippets-expand)
+vmap <TAB> <Plug>(coc-snippets-select)
+let g:coc_snippet_next = '<TAB>'
+let g:coc_snippet_prev = '<S-TAB>'
+imap <TAB> <Plug>(coc-snippets-expand-jump)
+nmap <leader>se :CocCommand snippets.editSnippets<CR>
 
 " Javascript
 let g:javascript_plugin_flow = 1
