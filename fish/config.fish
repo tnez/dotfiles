@@ -3,7 +3,7 @@ alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
 alias d="docker"
 alias dc="docker-compose"
-alias e="nvim"
+alias e="edit"
 alias g="hub"
 alias git="hub"
 alias gs="git status"
@@ -13,13 +13,13 @@ alias lg="lazygit"
 alias ll="ls -al"
 
 # set variables
-set -x EDITOR vim
+set -x EDITOR nvim
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x N_PREFIX $HOME/n
 set -x PAGER less
 set -x TERM xterm-256color
-set -x VISUAL vim
+set -x VISUAL nvim
 
 # install plugin manger (fisher) and any missing plugins
 if not functions -q fisher
