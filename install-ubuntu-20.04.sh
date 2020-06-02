@@ -6,8 +6,10 @@ CONFIG_DIR="$PROJECTS_DIR/tnez/config"
 # install required software
 sudo add-apt-repository ppa:kgilmer/speed-ricer
 sudo add-apt-respository ppa:lazygit-team/release
+sudo add-apt-repository ppa:mmstick78/alacritty
 sudo apt update
 sudo apt install \
+  alacritty \
   alsa-utils \
   arandr \
   build-essential \
@@ -28,7 +30,6 @@ sudo apt install \
   imagemagick \
   jq \
   keyutils \
-  kitty \
   lazygit \
   libxdo-dev \
   libxdo3 \
@@ -104,6 +105,7 @@ mkdir $HOME/.config # if it does not already exist
 
 _link .profile .profile
 _link .editorconfig .editorconfig
+_link alacritty .config/alacritty
 _link compton .config/compton
 _link ctags/config .ctags
 _link fish .config/fish
@@ -111,7 +113,6 @@ _link git/gitconfig .gitconfig
 _link git/gitignore .gitignore
 _link git/git_template .git_template
 _link i3 .config/i3
-_link kitty .config/kitty
 _link polybar .config/polybar
 _link qutebrowser/config.py .config/qutebrowser/config.py
 _link rofi .config/rofi
