@@ -5,6 +5,7 @@
 # This defines which key super maps to on your keyboard.
 # Alt key is Mod1, and Windows key is Mod4
 set $mod Ctrl
+set $term --no-startup-id alacritty
 
 # Color values are defined in ~/.Xresources-regolith
 
@@ -32,7 +33,7 @@ floating_modifier $mod
 hide_edge_borders smart
 
 # start a terminal
-bindsym $mod+Return exec kitty
+bindsym $mod+Return exec $term
 
 # start a web browser
 bindsym $mod+b exec qutebrowser
