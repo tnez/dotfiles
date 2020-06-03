@@ -49,5 +49,5 @@ live_config_reload: true
 key_bindings:
   - { key: V, mods: Control|Shift, action: Paste }
   - { key: C, mods: Control|Shift, action: Copy }
-  - { key: Add, mods: Control, action: IncreaseFontSize }
-  - { key: Minus, mods: Control, action: DecreaseFontSize }
+  - { key: Up, mods: Control|Shift, action: IncreaseFontSize }
+  - { key: Down, mods: Control|Shift, action: DecreaseFontSize }
