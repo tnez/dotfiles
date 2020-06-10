@@ -6,6 +6,7 @@
 # Alt key is Mod1, and Windows key is Mod4
 set $mod Ctrl
 set $term --no-startup-id alacritty
+set $backlight intel_backlight
 
 # Color values are defined in ~/.Xresources-regolith
 
@@ -48,6 +49,17 @@ bindsym Mod4+Shift+p exec "flameshot gui"
 bindsym XF86AudioRaiseVolume exec "amixer set Master 5%+"
 bindsym XF86AudioLowerVolume exec "amixer set Master 5%-"
 bindsym XF86AudioMute exec "amixer set Master toggle"
+
+# TODO: for some reason, the keypresses for these buttons seem to be
+# intercepted. See info here:
+#
+# https://wiki.ubuntu.com/Kernel/Debugging/Backlight
+#
+# Will need to debug at a later date.
+#
+# screen brightness
+bindsym XF86MonBrightnessUp exec sudo brightnessctl -d $backlight set +10%
+bindsym XF86MonBrightnessDown exec sudo brightnessctl -d $backlight set 10%-
 
 # kill focused window
 bindsym $mod+q kill

@@ -12,6 +12,7 @@ sudo apt install \
   alacritty \
   alsa-utils \
   arandr \
+  brightnessctl \
   build-essential \
   compton \
   curl \
