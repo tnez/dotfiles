@@ -240,6 +240,7 @@ let g:sneak#label = 1
 " fzf
 nnoremap <leader>of :Files<CR>
 nnoremap <leader>ob :Buffers<CR>
+nnoremap <leader>og :Rg<CR>
 nnoremap <leader>ot :Tags<CR>
 nnoremap <leader>om :Marks<CR>
 
