@@ -50,6 +50,8 @@ sudo apt install \
   xdg-desktop-portal-dtk
 
 sudo snap install bw
+sudo snap install chromium
+sudo snap install chromium-ffmpeg
 sudo snap install go --classic
 sudo snap install hub --classic
 sudo snap install slack --classic
@@ -68,12 +70,6 @@ cd "$HOME"
 
 # i3-vim-nav
 go get -u github.com/tnez/i3-vim-nav
-
-# qutebrowser
-git clone https://github.com/qutebrowser/qutebrowser.git "$VENDOR_DIR/qutebrowser"
-cd "$VENDOR_DIR/qutebrowser"
-python3 scripts/mkvenv.py
-cd "$HOME"
 
 # install node (and via n version manager)
 curl -L https://git.io/n-install | bash
@@ -108,7 +104,6 @@ _link git/gitignore .gitignore
 _link git/git_template .git_template
 _link i3 .config/i3
 _link polybar .config/polybar
-_link qutebrowser/config.py .config/qutebrowser/config.py
 _link rofi .config/rofi
 _link scripts bin
 _link secrets/.secrets .secrets
