@@ -25,7 +25,6 @@ sudo apt install \
   fonts-firacode \
   fzf \
   ghi \
-  gnome-flashback \
   htop \
   i3-gaps-wm \
   imagemagick \
@@ -65,12 +64,6 @@ git clone https://github.com/mattydebie/bitwarden-rofi.git "$VENDOR_DIR/bitwarde
 cd "$VENDOR_DIR/bitwarden-rofi"
 sudo install -D --mode=755 --group=root --owner=root bwmenu /usr/local/bin/bwmenu
 sudo cp lib-bwmenu /usr/local/bin
-cd "$HOME"
-
-# i3-gnome-flashback
-git clone https://github.com/deuill/i3-gnome-flashback "$VENDOR_DIR/i3-gnome-flashback"
-cd "$VENDOR_DIR/i3-gnome-flashback"
-sudo make install
 cd "$HOME"
 
 # i3-vim-nav
