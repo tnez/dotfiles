@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-QUTEBROWSER_DIR=~/Projects/vendor/qutebrowser
-
-${QUTEBROWSER_DIR}/.venv/bin/python3 -m qutebrowser "$@"

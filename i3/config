@@ -6,6 +6,7 @@
 # Alt key is Mod1, and Windows key is Mod4
 set $mod Ctrl
 set $term --no-startup-id alacritty
+set $browser /snap/bin/chromium
 set $backlight intel_backlight
 
 # Color values are defined in ~/.Xresources-regolith
@@ -37,7 +38,7 @@ hide_edge_borders smart
 bindsym $mod+Return exec $term
 
 # start a web browser
-bindsym $mod+b exec qutebrowser
+bindsym $mod+b exec $browser
 
 # launch password manager
 bindsym $mod+Shift+i exec bwmenu
