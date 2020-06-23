@@ -68,7 +68,7 @@ Plug 'justinmk/vim-sneak'
 
 " Git
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-phubarb'
+Plug 'tpope/vim-rhubarb'
 
 " All language
 Plug 'sheerun/vim-polyglot'
