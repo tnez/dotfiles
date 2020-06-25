@@ -28,6 +28,9 @@ if not functions -q fisher
     fish -c fisher
 end
 
+# set completions for GitHub CLI
+eval (gh completion --shell fish)
+
 # emacs ansi-term support
 if test -n "$EMACS"
     set -x TERM eterm-color
