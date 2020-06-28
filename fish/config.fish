@@ -43,3 +43,6 @@ end
 
 # load color theme for new terminals
 cat $HOME/.cache/wal/sequences
+
+# run neofetch
+neofetch
