@@ -46,6 +46,9 @@ bindsym $mod+Shift+i exec bwmenu
 # launch screenshot tool
 bindsym Mod4+Shift+p exec "flameshot gui"
 
+# display controls
+bindsym XF86Display exec $HOME/bin/toggle-display.sh
+
 # audio controls
 bindsym XF86AudioRaiseVolume exec "amixer set Master 5%+"
 bindsym XF86AudioLowerVolume exec "amixer set Master 5%-"
