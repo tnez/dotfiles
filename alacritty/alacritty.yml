@@ -2,6 +2,13 @@ env:
   WINIT_HIDPI_FACTOR: "1.0"
   WINIT_X11_SCALE_FACTOR: "1.0"
 
+shell:
+  program: /usr/bin/fish
+  args:
+    - --login
+    - --init-command
+    - neofetch
+
 font:
   normal:
     family: "Hack Nerd Font"
