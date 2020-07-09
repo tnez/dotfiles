@@ -338,6 +338,8 @@ nnoremap <silent> <localleader> :<c-u>WhichKey ','<CR>
 
 " CoC (Code Completion and IDE Fanciness)
 inoremap <silent><expr> <c-space> coc#refresh()
+vmap <leader>a <Plug>coc-codeaction-selected)
+nmap <leader>a <Plug>coc-codeaction-selected)
 nmap <silent> gd <Plug>(coc-defintion)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
