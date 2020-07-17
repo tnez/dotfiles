@@ -256,7 +256,7 @@ exec --no-startup-id compton
 exec --no-startup-id /usr/bin/unclutter -b
 
 # Start polybar
-exec --no-startup-id polybar top
+exec --no-startup-id polybar -r top
 
 # Start flameshot (screenshot tool)
 exec --no-startup-id flameshot

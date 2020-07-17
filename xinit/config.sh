@@ -6,6 +6,7 @@ xset r rate 210 40
 
 # modify my PATH and such
 . $HOME/.profile
+. $HOME/.secrets
 
 # startup the window manager
 exec i3
