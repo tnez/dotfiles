@@ -66,7 +66,7 @@ Plug 'easymotion/vim-easymotion'
 Plug 'qpkorr/vim-bufkill'
 Plug 'liuchengxu/vim-which-key'
 Plug 'voldikss/vim-floaterm'
-Plug 'junegunn/fzf'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-rooter'
 Plug 'justinmk/vim-sneak'
@@ -244,18 +244,16 @@ highlight Type cterm=italic
 let g:sneak#label = 1
 
 " fzf
-nnoremap <leader>of :Files<CR>
-nnoremap <leader>ob :Buffers<CR>
-nnoremap <leader>og :Rg<CR>
-nnoremap <leader>ot :Tags<CR>
-nnoremap <leader>om :Marks<CR>
+nnoremap <C-o> :GFiles<CR>
+nnoremap <C-t> :Buffers<CR>
+nnoremap <C-s> :Rg<CR>
 
 let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
 let $FZF_DEFAULT_COMMAND="rg --files --hidden"
 
 let g:fzf_action = {
 \ 'ctrl-t': 'tab split',
-\ 'ctrl-x': 'split',
+\ 'ctrl-h': 'split',
 \ 'ctrl-v': 'vsplit'
 \}
 let g:fzf_layout = {
