@@ -25,8 +25,12 @@ offset-x = 0
 offset-y = 0
 overline-size = 0
 radius = 0.0
+tray-padding = 2
+tray-position = right
+tray-scale = 1
 underline-size = 2
 width = 100%
+wm-restack = i3
 
 modules-left = i3 xwindow
 modules-right = github network pulseaudio backlight battery clock
