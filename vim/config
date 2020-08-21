@@ -356,8 +356,6 @@ function! s:show_documentation()
   endif
 endfunction
 
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
 nnoremap <silent> <leader>cR :<C-u>CocRestart<CR>
 nnoremap <silent> <leader>cc :<C-u>CocList commands<CR>
 nnoremap <silent> <leader>cl :<C-u>CocList locationlist<CR>
