@@ -37,6 +37,7 @@
 [merge]
   tool = vimdiff
   conflictstyle = diff3
+  keepBackup = false
 [rebase]
   autosquash = true
 [init]
