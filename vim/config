@@ -73,6 +73,7 @@ Plug 'justinmk/vim-sneak'
 " Git
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
+Plug 'samoshkin/vim-mergetool'
 
 " All language
 Plug 'sheerun/vim-polyglot'
@@ -175,6 +176,13 @@ nnoremap <Leader>gb :Gblame<CR>
 nnoremap <Leader>gl :FloatermNew --height=0.8 --width=0.8 tig<CR>
 nnoremap <Leader>gs :FloatermNew --height=0.8 --width=0.8 lazygit<CR>
 nnoremap <Leader>gS :FloatermNew --height=0.8 --width=0.8 hub sync<CR>
+
+" Git Mergetool configuration
+let g:mergetool_layout = 'mr'
+let g:mergetool_prefer_revision = 'local'
+nmap <leader>mt <plug>(MergetoolToggle)
+nmap <expr> <C-S-Left> &diff? '<Plug>(MergetoolDiffExchangeLeft)': '<C-S-Left>'
+nmap <expr> <C-S-Right> &diff? '<Plug>(MergetoolDiffExchangeRight)': '<C-S-Right>'
 
 " Treat <li> and <p> tags like the block tags they are
 let g:html_indent_tags = 'li\|p'
