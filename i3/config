@@ -43,6 +43,9 @@ bindsym $mod+b exec $browser
 # launch password manager
 bindsym $mod+Shift+i exec bwmenu
 
+# launch clipboard management tool
+bindsym Mod4+Shift+y exec "clipq toggle"
+
 # launch screenshot tool
 bindsym Mod4+Shift+p exec "flameshot gui"
 
@@ -257,6 +260,9 @@ exec --no-startup-id /usr/bin/unclutter -b
 
 # Start polybar
 exec --no-startup-id polybar -r top
+
+# Start clipz
+exec --no-startup-id copyq
 
 # Start flameshot (screenshot tool)
 exec --no-startup-id flameshot
