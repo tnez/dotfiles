@@ -24,7 +24,7 @@
   z = stash
   zl = stash list
   zp = stash pop
-  zz = stash save --all
+  zz = stash push -u -m
 [core]
   editor = vim
   excludesfile = ~/.gitignore
