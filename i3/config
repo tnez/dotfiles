@@ -50,6 +50,7 @@ bindsym Mod4+Shift+y exec "clipq toggle"
 bindsym Mod4+Shift+p exec "flameshot gui"
 
 # display controls
+bindsym F7 exec $HOME/bin/toggle-display.sh
 bindsym XF86Display exec $HOME/bin/toggle-display.sh
 
 # audio controls
