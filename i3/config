@@ -265,6 +265,9 @@ exec --no-startup-id polybar -r top
 # Start clipz
 exec --no-startup-id copyq
 
+# Start bluetooth
+exec --no-startup-id blueman-applet
+
 # Start flameshot (screenshot tool)
 exec --no-startup-id flameshot
 
