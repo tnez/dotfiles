@@ -29,7 +29,9 @@ if not functions -q fisher
 end
 
 # set completions for GitHub CLI
-eval (gh completion --shell fish)
+if not test -e $HOME/.config/fish/completions/gh.fish
+  gh completion -s fish > $HOME/.config/fish/completions/gh.fish
+end
 
 # emacs ansi-term support
 if test -n "$EMACS"
