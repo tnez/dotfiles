@@ -11,16 +11,16 @@ shell:
 
 font:
   normal:
-    family: "Cascadia Code PL"
+    family: "Cascadia Code"
     style: Regular
   bold:
-    family: "Cascadia Code PL"
+    family: "Hack Nerd Font"
     style: Bold
   italic:
-    family: "Cascadia Code PL"
+    family: "Hack Nerd Font"
     style: Italic
   bold_italic:
-    family: "Cascadia Code PL"
+    family: "Hack Nerd Font"
     style: Bold Italic
 
   size: 14.0
