@@ -6,6 +6,7 @@
     }
   },
   "explorer.previewAction.onHover": false,
+  "javascript.suggestionActions.enabled": false,
   "prettier.requireConfig": true,
   "python.jediEnabled": false,
   "snippets.userSnippetsDirectory": "~/.config/tnez-snippets",
@@ -16,6 +17,7 @@
     "javascript",
     "javascriptreact",
     "python",
+    "svelte",
     "typescript",
     "typescriptreact"
   ]

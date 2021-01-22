@@ -78,10 +78,6 @@ Plug 'samoshkin/vim-mergetool'
 " All language
 Plug 'sheerun/vim-polyglot'
 
-" Javascript
-Plug 'leshill/vim-json'
-Plug 'mxw/vim-jsx'
-
 " LookML
 Plug 'thalesmello/lkml.vim'
 

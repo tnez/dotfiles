@@ -6,7 +6,7 @@
 # Alt key is Mod1, and Windows key is Mod4
 set $mod Ctrl
 set $term --no-startup-id alacritty
-set $browser /snap/bin/chromium
+set $browser google-chrome-stable
 set $backlight intel_backlight
 
 # Color values are defined in ~/.Xresources-regolith
@@ -254,7 +254,7 @@ set_from_resource $i3-wm.bar.font i3-wm.bar.font "pango:Source Code Pro Medium 1
 # Run programs when i3 starts
 
 # Composite manager
-exec --no-startup-id compton
+# exec --no-startup-id compton
 
 # Hide the mouse pointer if unused for a duration
 exec --no-startup-id /usr/bin/unclutter -b
