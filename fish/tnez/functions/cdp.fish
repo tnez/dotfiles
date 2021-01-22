@@ -3,5 +3,5 @@ function cdp -a pattern -d "Change into a project directory"
     set pattern .
   end
 
-  cd (fdfind --type d --max-depth 1 $pattern $HOME/Projects/* | fzf)
+  cd (fd --type d --max-depth 1 $pattern $HOME/code/* | fzf)
 end
