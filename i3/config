@@ -254,7 +254,7 @@ set_from_resource $i3-wm.bar.font i3-wm.bar.font "pango:Source Code Pro Medium 1
 # Run programs when i3 starts
 
 # Composite manager
-# exec --no-startup-id compton
+exec --no-startup-id picom
 
 # Hide the mouse pointer if unused for a duration
 exec --no-startup-id /usr/bin/unclutter -b

@@ -96,13 +96,13 @@ mkdir $HOME/.config # if it does not already exist
 _link .profile .profile
 _link .editorconfig .editorconfig
 _link alacritty .config/alacritty
-_link compton .config/compton
 _link ctags/config .ctags
 _link fish .config/fish
 _link git/gitconfig .gitconfig
 _link git/gitignore .gitignore
 _link git/git_template .git_template
 _link i3 .config/i3
+_link picom .config/picom
 _link polybar .config/polybar
 _link rofi .config/rofi
 _link scripts bin
