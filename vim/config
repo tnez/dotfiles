@@ -80,7 +80,7 @@ Plug 'tpope/vim-rhubarb'
 Plug 'samoshkin/vim-mergetool'
 
 " Github
-Plug 'pwntester/octo.nvim'
+" Plug 'pwntester/octo.nvim'
 
 " All language
 Plug 'sheerun/vim-polyglot'
