@@ -75,7 +75,7 @@ bindsym $mod+q kill
 # rofi app and window launchers
 bindsym $mod+Mod4+space exec rofi -show drun
 bindsym $mod+Shift+space exec rofi -show run
-bindsym $mod+space exec rofi -show window
+bindsym $mod+space exec rofi -show windowcd
 
 # change focus
 bindsym --release $mod+h exec --no-startup-id "i3-vim-nav left"
