@@ -35,7 +35,7 @@ if \
 then
   xrandr --output eDP1 --off
 else
-  xrandr --output eDP1 --auto --mode 1920x1080
+  xrandr --output eDP1 --auto --mode 2048x1152
 fi
 
 if is_connected $DP1; then
