@@ -74,14 +74,18 @@ bindsym $mod+q kill
 
 # rofi app and window launchers
 bindsym $mod+Mod4+space exec rofi -show drun
-bindsym $mod+Shift+space exec rofi -show run
-bindsym $mod+space exec rofi -show windowcd
 
 # change focus
-bindsym --release $mod+h exec --no-startup-id "i3-vim-nav left"
-bindsym --release $mod+j exec --no-startup-id "i3-vim-nav down"
-bindsym --release $mod+k exec --no-startup-id "i3-vim-nav up"
-bindsym --release $mod+l exec --no-startup-id "i3-vim-nav right"
+bindsym $mod+space mode "$focus_switcher"
+mode "$focus_switcher" {
+  bindsym j exec i3 focus down
+  bindsym k exec i3 focus up
+  bindsym l exec i3 focus right
+  bindsym h exec i3 focus left
+  bindsym Escape mode "default"
+  bindsym Return mode "default"
+  bindsym space mode "default"
+}
 
 # splits
 bindsym $mod+slash split h
