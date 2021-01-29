@@ -66,8 +66,6 @@ Plug 'easymotion/vim-easymotion'
 Plug 'qpkorr/vim-bufkill'
 Plug 'liuchengxu/vim-which-key'
 Plug 'voldikss/vim-floaterm'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-rooter'
 Plug 'justinmk/vim-sneak'
 Plug 'nvim-lua/popup.nvim'
@@ -253,35 +251,6 @@ highlight Type cterm=italic
 " Motion
 let g:sneak#label = 1
 
-" fzf
-nnoremap <C-o> :Files<CR>
-nnoremap <C-t> :Buffers<CR>
-nnoremap <C-s> :Rg<CR>
-
-let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
-let $FZF_DEFAULT_COMMAND="rg --files --hidden"
-
-let g:fzf_action = {
-\ 'ctrl-t': 'tab split',
-\ 'ctrl-h': 'split',
-\ 'ctrl-v': 'vsplit'
-\}
-let g:fzf_layout = { 'down': '80%' }
-let g:fzf_colors =
-\ { 'fg':      ['fg', 'Normal'],
-  \ 'bg':      ['bg', 'Normal'],
-  \ 'hl':      ['fg', 'Comment'],
-  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-  \ 'hl+':     ['fg', 'Statement'],
-  \ 'info':    ['fg', 'PreProc'],
-  \ 'border':  ['fg', 'Ignore'],
-  \ 'prompt':  ['fg', 'Conditional'],
-  \ 'pointer': ['fg', 'Exception'],
-  \ 'marker':  ['fg', 'Keyword'],
-  \ 'spinner': ['fg', 'Label'],
-  \ 'header':  ['fg', 'Comment'] }
-
 " File / Buffer navigation
 nnoremap <leader>fs :w<CR>
 nnoremap <leader>bd :BD<CR>
@@ -296,10 +265,10 @@ nnoremap <leader>el :CocCommand explorer<CR>
 nnoremap <leader>ef :CocCommand explorer --preset floating<CR>
 
 " Telescope
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <leader>fg <cmd>Telescope live_grep<cr>
-nnoremap <leader>fb <cmd>Telescope buffers<cr>
-nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <C-o> <cmd>Telescope find_files<cr>
+nnoremap <C-g> <cmd>Telescope live_grep<cr>
+nnoremap <C-t> <cmd>Telescope buffers<cr>
+nnoremap <C-h> <cmd>Telescope help_tags<cr>
 
 " Floaterm
 let g:floaterm_shell = '/usr/bin/fish'
