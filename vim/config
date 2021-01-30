@@ -49,25 +49,15 @@ end
 
 call plug#begin('~/.vim/plugged')
 
-" System
-Plug 'roxma/nvim-yarp'
-Plug 'roxma/vim-hug-neovim-rpc'
-
 " General
-Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-surround'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'scrooloose/nerdcommenter'
-Plug 'termhn/i3-vim-nav'
-Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'jiangmiao/auto-pairs'
-Plug 'tpope/vim-speeddating'
-Plug 'easymotion/vim-easymotion'
 Plug 'qpkorr/vim-bufkill'
 Plug 'liuchengxu/vim-which-key'
 Plug 'voldikss/vim-floaterm'
 Plug 'airblade/vim-rooter'
-Plug 'justinmk/vim-sneak'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
@@ -75,31 +65,10 @@ Plug 'mhinz/vim-startify'
 
 " Git
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-rhubarb'
 Plug 'samoshkin/vim-mergetool'
-
-" Github
-" Plug 'pwntester/octo.nvim'
 
 " All language
 Plug 'sheerun/vim-polyglot'
-
-" LookML
-Plug 'thalesmello/lkml.vim'
-
-" Markdown
-Plug 'godlygeek/tabular'
-Plug 'plasticboy/vim-markdown'
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install' }
-
-" Org
-Plug 'jceb/vim-orgmode'
-
-" Ruby
-Plug 'tpope/vim-bundler'
-Plug 'tpope/vim-rails'
-Plug 'tpope/vim-rake'
-Plug 'vim-ruby/vim-ruby'
 
 " Web (General)
 Plug 'mattn/emmet-vim'
