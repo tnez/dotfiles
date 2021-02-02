@@ -194,7 +194,6 @@ vmap <TAB> <Plug>(coc-snippets-select)
 let g:coc_snippet_next = '<TAB>'
 let g:coc_snippet_prev = '<S-TAB>'
 imap <TAB> <Plug>(coc-snippets-expand-jump)
-nmap <leader>se :CocCommand snippets.editSnippets<CR>
 
 " Javascript
 let g:javascript_plugin_flow = 1
@@ -287,6 +286,29 @@ vmap <leader>cf <Plug>(coc-format-selected)
 
 nmap <leader>ca <Plug>(coc-codeaction-selected)
 vmap <leader>ca <Plug>(coc-codeaction-selected)
+
+" Startify
+let g:startify_sessions_dir = '~/.config/nvim/session'
+let g:startify_session_delete_buffers = 1
+let g:startify_session_persistence = 1
+let g:startify_change_to_vcs_root = 1
+let g:startify_enable_special = 0
+let g:startify_lists = [
+      \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
+      \ { 'type': 'sessions',  'header': ['   Sessions']       },
+      \ { 'type': 'dir',       'header': ['   Current Directory '. getcwd()] },
+      \ ]
+let g:startify_bookmarks = [
+      \ { 'a': '~/notes/what-am-i-doing.md' },
+      \ { 'i': '~/notes/inbox.md' },
+      \ { 'd': '~/Downloads' },
+      \ ]
+let g:startify_custom_header = [
+      \ '',
+      \ '   MAKE SOMETING!!!',
+      \]
+nnoremap <leader>ss :SSave<CR>
+nnoremap <leader>sx :SClose<CR>
 
 " Status Line
 if !has('gui_running')
