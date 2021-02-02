@@ -104,6 +104,7 @@ _link git/git_template .git_template
 _link i3 .config/i3
 _link picom .config/picom
 _link polybar .config/polybar
+_link ranger .config/ranger
 _link rofi .config/rofi
 _link scripts bin
 _link secrets/.secrets .secrets
