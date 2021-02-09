@@ -1,7 +1,9 @@
 .DS_Store
 
+# Vim stuff
 vim/.vim/plugged
 vim/.vim/.netrwhist
+Session.vim
 
 # Ignore actual secrets file (only commit .secrets.example)
 secrets/.secrets
