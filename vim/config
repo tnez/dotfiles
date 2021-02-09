@@ -235,10 +235,9 @@ nnoremap <leader>wd :close<CR>
 nnoremap <leader>el :NERDTreeToggle<CR>
 
 " Telescope
-nnoremap <C-o> <cmd>Telescope find_files<cr>
-nnoremap <C-g> <cmd>Telescope live_grep<cr>
-nnoremap <C-t> <cmd>Telescope buffers<cr>
-nnoremap <C-h> <cmd>Telescope help_tags<cr>
+" TODO: I'd like to use <C-p> for everything Telescope and then be able to
+" switch between pickers once I pull up telescope.
+nnoremap <C-p> <cmd>Telescope git_files<cr>
 
 " Floaterm
 let g:floaterm_shell = '/usr/bin/fish'
