@@ -62,6 +62,8 @@ Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'mhinz/vim-startify'
+Plug 'tpope/vim-obsession'
+Plug 'preservim/nerdtree'
 
 " Git
 Plug 'tpope/vim-fugitive'
@@ -230,8 +232,7 @@ nnoremap <leader>Q :q<CR>
 nnoremap <leader>wd :close<CR>
 
 " File Explorer
-nnoremap <leader>el :CocCommand explorer<CR>
-nnoremap <leader>ef :CocCommand explorer --preset floating<CR>
+nnoremap <leader>el :NERDTreeToggle<CR>
 
 " Telescope
 nnoremap <C-o> <cmd>Telescope find_files<cr>
@@ -288,14 +289,14 @@ nmap <leader>ca <Plug>(coc-codeaction-selected)
 vmap <leader>ca <Plug>(coc-codeaction-selected)
 
 " Startify
-let g:startify_sessions_dir = '~/.config/nvim/session'
-let g:startify_session_delete_buffers = 1
-let g:startify_session_persistence = 1
+" let g:startify_sessions_dir = '~/.config/nvim/session'
+" let g:startify_session_delete_buffers = 1
+" let g:startify_session_persistence = 1
+let g:startify_session_autoload = 1
 let g:startify_change_to_vcs_root = 1
 let g:startify_enable_special = 0
 let g:startify_lists = [
       \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
-      \ { 'type': 'sessions',  'header': ['   Sessions']       },
       \ { 'type': 'dir',       'header': ['   Current Directory '. getcwd()] },
       \ ]
 let g:startify_bookmarks = [
@@ -307,8 +308,9 @@ let g:startify_custom_header = [
       \ '',
       \ '   MAKE SOMETING!!!',
       \]
-nnoremap <leader>ss :SSave<CR>
-nnoremap <leader>sx :SClose<CR>
+nnoremap <leader>ss :Obsess<CR>
+nnoremap <leader>x :SClose<CR>
+nnoremap <leader>X :Obsess!<CR>
 
 " Status Line
 if !has('gui_running')
