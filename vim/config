@@ -76,9 +76,25 @@ Plug 'sheerun/vim-polyglot'
 " Web (General)
 Plug 'mattn/emmet-vim'
 
-" Autocomplete + Snippets
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" IDE-like Automagic
 Plug 'honza/vim-snippets'
+Plug 'neovim/nvim-lspconfig'
+"lua << EOF
+"require'lspconfig'.bashls.setup{}
+"require'lspconfig'.diagnosticls.setup{}
+"require'lspconfig'.jsonls.setup {
+    "commands = {
+      "Format = {
+        "function()
+          "vim.lsp.buf.range_formatting({},{0,0},{vim.fn.line("$"),0})
+        "end
+      "}
+    "}
+"}
+"require'lspconfig'.pyright.setup{}
+"require'lspconfig'.tsserver.setup{}
+"require'lspconfig'.yamlls.setup{}
+"EOF
 
 " Looks
 Plug 'dylanaraps/wal.vim'
@@ -253,40 +269,6 @@ nnoremap <leader>tr :FloatermNew R<CR>
 set timeoutlen=500
 nnoremap <silent> <leader> :<c-u>WhichKey '<Space>'<CR>
 nnoremap <silent> <localleader> :<c-u>WhichKey ','<CR>
-
-" CoC (Code Completion and IDE Fanciness)
-inoremap <silent><expr> <c-space> coc#refresh()
-vmap <leader>a <Plug>coc-codeaction-selected)
-nmap <leader>a <Plug>coc-codeaction-selected)
-nmap <silent> gd <Plug>(coc-defintion)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-nmap <silent> gy <Plug>(coc-type-defintion)
-
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-nnoremap <silent> gh :call <SID>show_documentation()<CR>
-
-function! s:show_documentation()
-  if &filetype == 'vim'
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
-endfunction
-
-nnoremap <silent> <leader>cR :<C-u>CocRestart<CR>
-nnoremap <silent> <leader>cc :<C-u>CocList commands<CR>
-nnoremap <silent> <leader>cl :<C-u>CocList locationlist<CR>
-nnoremap <silent> <leader>co :<C-u>CocList outline<CR>
-nnoremap <silent> <leader>cs :<C-u>CocList -I symbols<CR>
-nnoremap <silent> <leader>cx :<C-u>CocList extensions<CR>
-
-nmap <leader>cr <Plug>(coc-rename)
-nmap <leader>cf <Plug>(coc-format-selected)
-vmap <leader>cf <Plug>(coc-format-selected)
-
-nmap <leader>ca <Plug>(coc-codeaction-selected)
-vmap <leader>ca <Plug>(coc-codeaction-selected)
 
 " Startify
 " let g:startify_sessions_dir = '~/.config/nvim/session'
