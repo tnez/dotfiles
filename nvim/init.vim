@@ -15,8 +15,6 @@ set autowrite     " Automatically :write before running commands
 set title         " Set title so that i3-vim-nav works as expected
 set encoding=UTF-8
 set nowrap
-set foldmethod=indent
-set foldlevelstart=99
 execute "set titleold=".hostname()
 
 " Use system clipboard by default
@@ -68,6 +66,7 @@ Plug 'mattn/emmet-vim'
 
 " IDE-like Automagic
 Plug 'honza/vim-snippets'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/completion-nvim'
 Plug 'tjdevries/nlua.nvim'
