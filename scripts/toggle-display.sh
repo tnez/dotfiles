@@ -39,7 +39,10 @@ else
 fi
 
 if is_connected $DP1; then
-  xrandr --output DP1 --auto
+  # Note: applying temporary override while traveling, remove this when back
+  # home.
+  # xrandr --output DP1 --auto
+  xrandr --output DP1 --mode 3200x1800
 else
   xrandr --output DP1 --off
 fi
