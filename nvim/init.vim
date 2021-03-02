@@ -15,6 +15,7 @@ set autowrite     " Automatically :write before running commands
 set title         " Set title so that i3-vim-nav works as expected
 set encoding=UTF-8
 set nowrap
+set nofoldenable
 execute "set titleold=".hostname()
 
 " Use system clipboard by default
