@@ -74,6 +74,7 @@ Plug 'nvim-lua/completion-nvim'
 Plug 'tjdevries/nlua.nvim'
 Plug 'tjdevries/lsp_extensions.nvim'
 Plug 'sbdchd/neoformat'
+Plug 'xojs/vim-xo'
 
 " Looks
 Plug 'dylanaraps/wal.vim'
