@@ -76,16 +76,10 @@ bindsym $mod+q kill
 bindsym $mod+Mod4+space exec rofi -show drun
 
 # change focus
-bindsym $mod+space mode "$focus_switcher"
-mode "$focus_switcher" {
-  bindsym j exec i3 focus down
-  bindsym k exec i3 focus up
-  bindsym l exec i3 focus right
-  bindsym h exec i3 focus left
-  bindsym Escape mode "default"
-  bindsym Return mode "default"
-  bindsym space mode "default"
-}
+bindsym $mod+shift+j exec i3 focus down
+bindsym $mod+shift+k exec i3 focus up
+bindsym $mod+shift+l exec i3 focus right
+bindsym $mod+shift+h exec i3 focus left
 
 # splits
 bindsym $mod+slash split h
@@ -158,10 +152,10 @@ bindsym Mod4+Shift+l exec i3lock
 bindsym Mod4+Shift+s exec systemctl suspend
 
 # resize window (you can also use the mouse for that)
-bindsym $mod+Shift+h resize shrink width 6 px or 6 ppt
-bindsym $mod+Shift+k resize grow height 6 px or 6 ppt
-bindsym $mod+Shift+j resize shrink height 6 px or 6 ppt
-bindsym $mod+Shift+l resize grow width 6 px or 6 ppt
+bindsym $mod+Shift+Mod4+h resize shrink width 6 px or 6 ppt
+bindsym $mod+Shift+Mod4+k resize grow height 6 px or 6 ppt
+bindsym $mod+Shift+Mod4+j resize shrink height 6 px or 6 ppt
+bindsym $mod+Shift+Mod4+l resize grow width 6 px or 6 ppt
 
 # Disable titlebar
 new_window pixel 1
