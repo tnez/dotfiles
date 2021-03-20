@@ -1,1 +1,1 @@
-autocmd BufWritePre *.{css,html,js,json,jsx,md,ts,tsx} Neoformat
+autocmd BufWritePre *.{css,html,js,jsx,md,ts,tsx} Neoformat

@@ -5,21 +5,26 @@ inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 "Quick Information (hover)
-nnoremap K :lua vim.lsp.buf.hover()<CR>
+nnoremap <silent>K :Lspsaga hover_doc<CR>
 
 "Navigation
-nnoremap <leader>gd :lua vim.lsp.buf.definition()<CR>
-nnoremap <leader>gi :lua vim.lsp.buf.implementation()<CR>
+nnoremap <silent>gh :Lspsaga lsp_finder<CR>
+
+"Diagnostics
+nnoremap <silent>cd :Lspsaga show_line_diagnostics<CR>
+nnoremap <silent>[e :Lspsaga diagnostic_jump_prev<CR>
+nnoremap <silent>]e :Lspsaga diagnostic_jump_next<CR>
 
 "Actions
-nnoremap <leader>ar :lua vim.lsp.buf.rename()<CR>
+nnoremap <silent>ca :Lspsaga code_action<CR>
+vnoremap <silent>ca :<C-U>Lspsaga range_code_action<CR>
+nnoremap <silent>cr :Lspsaga rename<CR>
+
+" Smart scroll
+nnoremap <silent><Down> <cmd>lua require('lspsaga.action').smart_scroll_with_saga(1)<CR>
+nnoremap <silent><Up> <cmd>lua require('lspsaga.action').smart_scroll_with_saga(-1)<CR>
 
 " Hacks
 nnoremap <F12> :lua vim.lsp.stop_client(vim.lsp.get_active_clients())<CR>
       \ <bar> :edit<CR>
       \ <bar> :echo "LSP is reloading..."<CR>
-
-" Language Servers
-lua << EOF
-require'lspconfig'.tsserver.setup{ on_attach=require'completion'.on_attach }
-EOF
