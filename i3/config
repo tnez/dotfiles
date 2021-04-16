@@ -39,6 +39,7 @@ bindsym $mod+Return exec $term
 
 # start a web browser
 bindsym $mod+b exec $browser
+bindsym $mod+Shift+b exec $browser --incognito --auto-open-devtools-for-tabs http://localhost:3000
 
 # launch password manager
 bindsym $mod+Shift+i exec bwmenu
