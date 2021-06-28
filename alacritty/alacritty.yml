@@ -14,13 +14,13 @@ font:
     family: "Cascadia Code"
     style: Regular
   bold:
-    family: "Hack Nerd Font"
+    family: "Cascadia Code"
     style: Bold
   italic:
-    family: "Hack Nerd Font"
+    family: "Cascadia Code"
     style: Italic
   bold_italic:
-    family: "Hack Nerd Font"
+    family: "Cascadia Code"
     style: Bold Italic
 
   size: 14.0
