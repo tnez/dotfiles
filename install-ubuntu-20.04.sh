@@ -102,6 +102,11 @@ _link git/gitconfig .gitconfig
 _link git/gitignore .gitignore
 _link git/git_template .git_template
 _link i3 .config/i3
+#######################################################
+# TODO: Need to first install LunarVim, but more likely
+#       a larger refactor around install required.
+#######################################################
+# _link lvim/lv-config.lua .config/lvim/lv-config.lua
 _link picom .config/picom
 _link polybar .config/polybar
 _link ranger .config/ranger
