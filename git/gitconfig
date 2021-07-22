@@ -26,7 +26,7 @@
   zp = stash pop
   zz = stash push -u -m
 [core]
-  editor = nvim
+  editor = lvim
   excludesfile = ~/.gitignore
 [diff]
   tool = vimdiff
