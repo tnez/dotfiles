@@ -13,7 +13,7 @@ an executable
 O.format_on_save = true
 O.lint_on_save = true
 O.completion.autocomplete = true
-O.colorscheme = "spacegray"
+O.colorscheme = "tokyonight"
 O.default_options.wrap = true
 O.default_options.timeoutlen = 100
 -- keymappings
@@ -76,6 +76,8 @@ O.lang.python.analysis.use_library_code_types = true
 -- O.lang.formatter.go.exe = "goimports"
 
 -- javascript
+O.lang.tsserver.formatter = "prettier"
+O.lang.tsserver.autoformat = true
 O.lang.tsserver.linter = nil
 
 -- rust
@@ -109,13 +111,13 @@ O.lang.latex.latexindent.modify_line_breaks = false
 -- O.lang.latex.ignore_errors = { }
 
 -- Additional Plugins
--- O.user_plugins = {
---     {"folke/tokyonight.nvim"}, {
---         "ray-x/lsp_signature.nvim",
---         config = function() require"lsp_signature".on_attach() end,
---         event = "InsertEnter"
---     }
--- }
+O.user_plugins = {
+    {"folke/tokyonight.nvim"}, {
+        "ray-x/lsp_signature.nvim",
+        config = function() require"lsp_signature".on_attach() end,
+        event = "InsertEnter"
+    }
+}
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 -- O.user_autocommands = {{ "BufWinEnter", "*", "echo \"hi again\""}}
