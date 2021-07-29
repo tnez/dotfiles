@@ -13,7 +13,7 @@ an executable
 O.format_on_save = true
 O.lint_on_save = true
 O.completion.autocomplete = true
-O.colorscheme = "tokyonight"
+O.colorscheme = "xresources"
 O.default_options.wrap = true
 O.default_options.timeoutlen = 100
 -- keymappings
@@ -112,7 +112,7 @@ O.lang.latex.latexindent.modify_line_breaks = false
 
 -- Additional Plugins
 O.user_plugins = {
-    {"folke/tokyonight.nvim"}, {
+    {"nekonako/xresources-nvim"}, {
         "ray-x/lsp_signature.nvim",
         config = function() require"lsp_signature".on_attach() end,
         event = "InsertEnter"
