@@ -60,7 +60,8 @@ lvim.plugins = {
     "ray-x/lsp_signature.nvim",
     config = function() require"lsp_signature".on_attach() end,
     event = "InsertEnter"
-  }
+  },
+  {"sotte/presenting.vim"},
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -77,4 +78,8 @@ lvim.builtin.which_key.mappings["t"] = {
   q = { "<cmd>TroubleToggle quickfix<cr>", "quickfix" },
   l = { "<cmd>TroubleToggle loclist<cr>", "loclist" },
   r = { "<cmd>TroubleToggle lsp_references<cr>", "references" },
+}
+
+lvim.builtin.which_key.mappings["P"] = {
+  "<cmd>PresentingStart<cr>", "Present"
 }
