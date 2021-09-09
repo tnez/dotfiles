@@ -64,5 +64,9 @@ lvim.plugins = {
     event = "InsertEnter"
   },
   {"sotte/presenting.vim"},
+  {
+    "tpope/vim-fugitive",
+    cmd = { "Gdiffsplit" },
+  },
   {"xojs/vim-xo"},
 }

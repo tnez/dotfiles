@@ -28,16 +28,14 @@
 [core]
   editor = lvim
   excludesfile = ~/.gitignore
-[diff]
-  tool = vimdiff
-[difftool]
-  prompt = 0
 [fetch]
   prune = true
 [merge]
-  tool = vimdiff
-  conflictstyle = diff3
-  keepBackup = false
+  tool = lvim
+[mergetool]
+  prompt = false
+[mergetool "lvim"]
+  cmd = lvim -f -c \"Gdiffsplit!\" \"$MERGED\"
 [rebase]
   autosquash = true
 [init]
