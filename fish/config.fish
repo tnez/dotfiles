@@ -44,4 +44,4 @@ function fish_title
 end
 
 # load color theme for new terminals
-cat $HOME/.cache/wal/sequences
+# cat $HOME/.cache/wal/sequences
