@@ -5,6 +5,9 @@ vim/.vim/plugged
 vim/.vim/.netrwhist
 Session.vim
 
+# Tmux stuff
+tmux-client-*
+
 # Ignore actual secrets file (only commit .secrets.example)
 secrets/.secrets
 
