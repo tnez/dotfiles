@@ -1,6 +1,9 @@
 # osx
 .DS_Store
 
+# tmux
+tmux-client-*
+
 # project management
 /__external
 notes*.md
