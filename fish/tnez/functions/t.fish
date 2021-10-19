@@ -1,10 +1,8 @@
-set _TMUX_CONFIG_PATH "$HOME/.config/tmux/config"
-
 function t -d "Attach to a tmux session based on dirname"
   if test "$argv[1]" = "--project"
     set bookmarked_dir (pwd)
 
-    cd "$HOME/Projects/$argv[2]"
+    cd "$argv[2]"
     _open_or_attach_to_session "$argv[2]"
 
     cd "$bookmarked_dir"
@@ -14,24 +12,20 @@ function t -d "Attach to a tmux session based on dirname"
 end
 
 function _open_or_attach_to_session
-  if [ -z "$argv" ]
-    set session_name (basename (pwd) | tr . -)
-  else
-    set session_name "$argv[1]"
-  end
+  set session_name (basename (pwd) | tr . -)
 
   if not is_running_in_tmux
-    tmux -2 -f $_TMUX_CONFIG_PATH new-session -As "$session_name"
+    tmux -2 new-session -As "$session_name"
     return 0
   end
 
   if not tmux_session_exists "$session_name"
     set TMUX ''
-    tmux -2 -f $_TMUX_CONFIG_PATH new-session -Ad -s "$session_name"
+    tmux -2 new-session -Ad -s "$session_name"
   end
 
   tmux switch-client -t "$session_name"
 end
 
 complete -x -c t -d 'Connect to existing session' -a "(tmux list-sessions -F '#{session_name}')"
-complete -x -c t -l project -d 'Start/Connect to project session' -a "(ls $HOME/Projects)"
+complete -x -c t -l project -d 'Start/Connect to project session' -a "(ls -d $HOME/Code/*/* | fzf)"
