@@ -3,7 +3,7 @@
 --
 lvim.format_on_save = true
 lvim.lint_on_save = true
-lvim.colorscheme = "xresources"
+lvim.colorscheme = "tokyonight"
 
 --------------
 -- KEYMAPPINGS
@@ -37,13 +37,13 @@ lvim.builtin.treesitter.ensure_installed = "maintained"
 lvim.builtin.treesitter.ignore_install = { "haskell" }
 lvim.lang.javascript.formatters = {
   {
-    exe = 'prettier',
+    exe = "prettier",
     args = {},
   }
 }
 lvim.lang.javascript.linters = {
   {
-    exe = 'xo',
+    exe = "eslint_d",
     args = {},
   }
 }
@@ -52,6 +52,7 @@ lvim.lang.javascript.linters = {
 -- ADDITIONAL PLUGINS
 --
 lvim.plugins = {
+  {"christoomey/vim-tmux-navigator"},
   {"folke/tokyonight.nvim"},
   {
     "folke/trouble.nvim",
@@ -63,6 +64,7 @@ lvim.plugins = {
     config = function() require"lsp_signature".on_attach() end,
     event = "InsertEnter"
   },
+  {"ryanoasis/vim-devicons"},
   {"sotte/presenting.vim"},
   {
     "tpope/vim-fugitive",
