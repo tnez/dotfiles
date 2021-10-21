@@ -45,3 +45,6 @@ end
 
 # load color theme for new terminals
 # cat $HOME/.cache/wal/sequences
+
+test -e {$HOME}/.iterm2_shell_integration.fish ; and source {$HOME}/.iterm2_shell_integration.fish
+
