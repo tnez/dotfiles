@@ -66,9 +66,6 @@ lvim.plugins = {
   },
   {"ryanoasis/vim-devicons"},
   {"sotte/presenting.vim"},
-  {
-    "tpope/vim-fugitive",
-    cmd = { "Gdiffsplit" },
-  },
+  {"sindrets/diffview.nvim"},
   {"xojs/vim-xo"},
 }
