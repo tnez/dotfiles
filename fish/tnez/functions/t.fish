@@ -12,7 +12,11 @@ function t -d "Attach to a tmux session based on dirname"
 end
 
 function _open_or_attach_to_session
-  set session_name (basename (pwd) | tr . -)
+  if [ -z "$argv" ]
+    set session_name (basename (pwd) | tr . -)
+  else
+    set session_name "$argv[1]"
+  end
 
   if not is_running_in_tmux
     tmux -2 new-session -As "$session_name"
