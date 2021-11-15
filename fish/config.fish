@@ -11,6 +11,7 @@ alias la="ls -a"
 alias lg="lazygit"
 alias ll="ls -al"
 alias nvim="lvim"
+alias tp="t --project"
 
 # set variables
 set -x EDITOR lvim
