@@ -35,17 +35,20 @@ lvim.builtin.terminal.active = true
 --
 lvim.builtin.treesitter.ensure_installed = "maintained"
 lvim.builtin.treesitter.ignore_install = { "haskell" }
-lvim.lang.javascript.formatters = {
+local formatters = require "lvim.lsp.null-ls.formatters"
+formatters.setup {
   {
     exe = "prettier",
-    args = {},
-  }
-}
-lvim.lang.javascript.linters = {
-  {
-    exe = "eslint_d",
-    args = {},
-  }
+    filetypes = {
+      "css",
+      "html",
+      "javascript",
+      "javascriptreact",
+      "markdown",
+      "typescript",
+      "typescriptreact",
+    },
+  },
 }
 
 ---------------------
