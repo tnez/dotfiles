@@ -3,7 +3,6 @@
 --
 lvim.format_on_save = true
 lvim.lint_on_save = true
-lvim.colorscheme = "tokyonight"
 
 --------------
 -- KEYMAPPINGS
@@ -56,7 +55,12 @@ formatters.setup {
 --
 lvim.plugins = {
   {"christoomey/vim-tmux-navigator"},
-  {"folke/tokyonight.nvim"},
+  {
+    "chriskempson/base16-vim",
+    config = function()
+      vim.cmd('source ~/.vimrc_background')
+    end,
+  },
   {
     "folke/trouble.nvim",
     cmd = "TroubleToggle",
