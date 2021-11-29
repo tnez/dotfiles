@@ -19,7 +19,6 @@ set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x N_PREFIX $HOME/n
 set -x PAGER less
-set -x TERM xterm-256color
 set -x VISUAL nvim
 
 # install plugin manger (fisher) and any missing plugins
@@ -42,6 +41,12 @@ end
 # this function may be required
 function fish_title
     true
+end
+
+# Base16 Shell
+if status --is-interactive
+  set BASE16_SHELL "$HOME/.config/base16-shell/"
+  source "$BASE16_SHELL/profile_helper.fish"
 end
 
 # load color theme for new terminals
