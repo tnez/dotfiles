@@ -10,11 +10,11 @@ alias gs="git status"
 alias la="ls -a"
 alias lg="lazygit"
 alias ll="ls -al"
-alias nvim="lvim"
+alias nvim="nvim"
 alias tp="t --project"
 
 # set variables
-set -x EDITOR lvim
+set -x EDITOR nvim
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x N_PREFIX $HOME/n

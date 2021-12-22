@@ -26,16 +26,16 @@
   zp = stash pop
   zz = stash push -u -m
 [core]
-  editor = lvim
+  editor = nvim
   excludesfile = ~/.gitignore
 [fetch]
   prune = true
 [merge]
-  tool = lvim
+  tool = nvim
 [mergetool]
   prompt = false
-[mergetool "lvim"]
-  cmd = lvim -f -c \"Gdiffsplit!\" \"$MERGED\"
+[mergetool "nvim"]
+  cmd = nvim -f -c \"Gdiffsplit!\" \"$MERGED\"
 [rebase]
   autosquash = true
 [init]
