@@ -43,14 +43,5 @@ function fish_title
     true
 end
 
-# Base16 Shell
-if status --is-interactive
-  set BASE16_SHELL "$HOME/.config/base16-shell/"
-  source "$BASE16_SHELL/profile_helper.fish"
-end
-
-# load color theme for new terminals
-# cat $HOME/.cache/wal/sequences
-
 test -e {$HOME}/.iterm2_shell_integration.fish ; and source {$HOME}/.iterm2_shell_integration.fish
 
