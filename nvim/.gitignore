@@ -39,5 +39,8 @@ luac.out
 *.x86_64
 *.hex
 
+# Compiled Spell files
+*.spl
+
 
 plugin/packer_compiled.lua
