@@ -1,4 +1,3 @@
--- Avaliable styles are: storm (default), night, day
 vim.g.tokyonight_style = "storm"
 
 local status_ok, _ = pcall(vim.cmd, "colorscheme tokyonight")
