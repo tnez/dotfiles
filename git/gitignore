@@ -16,6 +16,9 @@ standup*.org
 # emacs
 .dir-locals.el
 
+# tmux
+init.tmux
+
 # vscode
 .vscode
 
