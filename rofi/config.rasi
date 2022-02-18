@@ -1,6 +1,0 @@
-configuration {
-  font: "Cascadia Code 16";
-  sidebar-mode: true;
-  show-icons: true;
-  theme: "~/.cache/wal/colors-rofi-light.rasi";
-}
