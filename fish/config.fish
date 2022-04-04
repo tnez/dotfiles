@@ -1,4 +1,5 @@
 # aliases
+alias bat="bat --theme base16-256"
 alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
 alias d="docker"
