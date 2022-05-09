@@ -59,7 +59,7 @@ return packer.startup(function(use)
 	use("antoinemadec/FixCursorHold.nvim") -- This is needed to fix lsp doc highlight
 	use("folke/which-key.nvim")
 	use("christoomey/vim-tmux-navigator")
-	use("blackCauldron7/surround.nvim")
+	use("machakann/vim-sandwich")
 
 	-- Colorschemes
 	use("folke/tokyonight.nvim")
