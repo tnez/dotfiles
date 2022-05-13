@@ -34,6 +34,3 @@ GTAGS
 # todo file
 # (negate in project if needed): !todo*.*
 todo*.*
-
-# npm
-.npmrc
