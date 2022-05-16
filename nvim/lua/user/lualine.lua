@@ -64,6 +64,7 @@ end
 
 lualine.setup({
 	options = {
+		glbalstatus = true,
 		icons_enabled = true,
 		theme = "auto",
 		component_separators = { left = "", right = "" },
