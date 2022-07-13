@@ -19,9 +19,6 @@ standup*.org
 # tmux
 init.tmux
 
-# vscode
-.vscode
-
 # tags
 tags
 GPATH

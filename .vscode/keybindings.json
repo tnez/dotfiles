@@ -1,0 +1,109 @@
+[
+  /**
+   * Toggle Command Palette
+   */
+  {
+    "command": "workbench.action.showCommands",
+    "key": "ctrl+space"
+  },
+  /**
+   * Terminal Behavior
+   */
+  {
+    "command": "workbench.action.terminal.toggleTerminal",
+    "key": "ctrl+;"
+  },
+  /**
+   * Sidebar Behavior
+   */
+  {
+    "command": "workbench.view.explorer",
+    "key": "ctrl+e",
+    "when": "!sideBarVisible"
+  },
+  {
+    "command": "extension.multiCommand.execute",
+    "key": "ctrl+e",
+    "when": "sideBarVisible",
+    "args": {
+      "sequence": [
+        "workbench.action.focusActiveEditorGroup",
+        "workbench.action.closeSidebar"
+      ]
+    }
+  },
+  {
+    "command": "explorer.newFile",
+    "key": "a",
+    "when": "explorerViewletFocus && explorerViewletVisible"
+  },
+  {
+    "command": "deleteFile",
+    "key": "d",
+    "when": "explorerViewletFocus && explorerViewletVisible"
+  },
+  // {
+  //   "command": "workbench.action.navigateRight",
+  //   "key": "ctrl+w l",
+  //   "when": "explorerViewletFocus && explorerViewletVisible && !inputFocus"
+  // },
+  // {
+  //   "command": "workbench.action.navigateLeft",
+  //   "key": "ctrl+w h",
+  //   "when": "explorerViewletFocus && explorerViewletVisible && !inputFocus"
+  // },
+  /**
+   * Toggle Quick-Open
+   */
+  {
+    "command": "workbench.action.quickOpen",
+    "key": "ctrl+o"
+  },
+  /**
+   * Navigate Dropdowns with ctrl+j/k
+   */
+  {
+    "command": "selectNextSuggestion",
+    "key": "ctrl+j",
+    "when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
+  },
+  {
+    "command": "selectPrevSuggestion",
+    "key": "ctrl+k",
+    "when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
+  },
+  /**
+   * Navigate QuickOpen with ctrl+j/k
+   */
+  {
+    "command": "workbench.action.quickOpenSelectNext",
+    "key": "ctrl+j",
+    "when": "inQuickOpen"
+  },
+  {
+    "command": "workbench.action.quickOpenSelectPrevious",
+    "key": "ctrl+k",
+    "when": "inQuickOpen"
+  },
+  /**
+   * Navigate Workbench
+   */
+  {
+    "command": "workbench.action.navigateLeft",
+    "key": "ctrl+h"
+  },
+  {
+    "command": "workbench.action.navigateDown",
+    "key": "ctrl+j",
+    "when": "!suggestWidgetVisible && !inQuickOpen"
+  },
+  {
+    "command": "workbench.action.navigateUp",
+    "key": "ctrl+k",
+    "when": "!suggestWidgetVisible && !inQuickOpen"
+  },
+  {
+    "command": "workbench.action.navigateRight",
+    "key": "ctrl+l"
+  }
+]
