@@ -10,8 +10,15 @@
    * Terminal Behavior
    */
   {
-    "command": "workbench.action.terminal.toggleTerminal",
+    "command": "workbench.action.createTerminalEditor",
     "key": "ctrl+;"
+  },
+  /**
+   * Panel Behavior
+   */
+  {
+    "command": "workbench.action.togglePanel",
+    "key": "ctrl+d"
   },
   /**
    * Sidebar Behavior
@@ -42,16 +49,6 @@
     "key": "d",
     "when": "explorerViewletFocus && explorerViewletVisible"
   },
-  // {
-  //   "command": "workbench.action.navigateRight",
-  //   "key": "ctrl+w l",
-  //   "when": "explorerViewletFocus && explorerViewletVisible && !inputFocus"
-  // },
-  // {
-  //   "command": "workbench.action.navigateLeft",
-  //   "key": "ctrl+w h",
-  //   "when": "explorerViewletFocus && explorerViewletVisible && !inputFocus"
-  // },
   /**
    * Toggle Quick-Open
    */
@@ -86,8 +83,12 @@
     "when": "inQuickOpen"
   },
   /**
-   * Navigate Workbench
+   * Splits - Creation and Naviagation
    */
+  {
+    "command": "workbench.action.splitEditor",
+    "key": "ctrl+/"
+  },
   {
     "command": "workbench.action.navigateLeft",
     "key": "ctrl+h"
@@ -105,5 +106,16 @@
   {
     "command": "workbench.action.navigateRight",
     "key": "ctrl+l"
+  },
+  /**
+   * Tab Navigation
+   */
+  {
+    "command": "workbench.action.nextEditorInGroup",
+    "key": "TAB"
+  },
+  {
+    "command": "workbench.action.previousEditorInGroup",
+    "key": "Shift+TAB"
   }
 ]
