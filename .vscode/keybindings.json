@@ -42,12 +42,30 @@
   {
     "command": "explorer.newFile",
     "key": "a",
-    "when": "explorerViewletFocus && explorerViewletVisible"
+    "when": "filesExplorerFocus && !inputFocus"
   },
   {
     "command": "deleteFile",
     "key": "d",
-    "when": "explorerViewletFocus && explorerViewletVisible"
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "extension.multiCommand.execute",
+    "args": {
+      "sequence": ["list.select", "workbench.action.keepEditor"]
+    },
+    "key": "o",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "explorer.openToSide",
+    "key": "shift+o",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "renameFile",
+    "key": "r",
+    "when": "filesExplorerFocus && !inputFocus"
   },
   /**
    * Toggle Quick-Open
