@@ -12,9 +12,5 @@ cd lazygit
 go install
 cd ${HOME}
 
-# Aliases
-alias cls='clear'
-alias g='git'
-
 # Complete!
 echo "[info] succcess!"
