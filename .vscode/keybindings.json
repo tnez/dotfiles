@@ -14,6 +14,13 @@
     "key": "ctrl+;"
   },
   /**
+   * Browser Behavior
+   */
+  {
+    "key": "ctrl+b",
+    "command": "simpleBrowser.show"
+  },
+  /**
    * Panel Behavior
    */
   {
