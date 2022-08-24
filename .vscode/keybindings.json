@@ -111,11 +111,11 @@
    * Splits - Creation and Naviagation
    */
   {
-    "command": "workbench.action.splitEditor",
+    "command": "workbench.action.newGroupRight",
     "key": "ctrl+/"
   },
   {
-    "command": "workbench.action.splitEditorOrthogonal",
+    "command": "workbench.action.newGroupBelow",
     "key": "ctrl+-"
   },
   {
