@@ -139,5 +139,16 @@
   {
     "command": "workbench.action.previousEditorInGroup",
     "key": "Shift+TAB"
+  },
+  /**
+   * Project Navigation
+   */
+  {
+    "command": "workbench.action.files.openFileFolder",
+    "key": "ctrl+shift+o"
+  },
+  {
+    "command": "workbench.action.closeFolder",
+    "key": "ctrl+shift+c"
   }
 ]
