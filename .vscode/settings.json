@@ -1,5 +1,8 @@
 {
   "diffEditor.ignoreTrimWhitespace": false,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.fontLigatures": true,
   "editor.formatOnSave": true,
@@ -78,8 +81,10 @@
   "workbench.colorTheme": "Tokyo Night Light",
   "workbench.preferredDarkColorTheme": "Tokyo Night Storm",
   "workbench.preferredLightColorTheme": "Tokyo Night Light",
-  "window.zoomLevel": 1,
   "workbench.activityBar.visible": false,
   "editor.fontFamily": "'Cascadia Code', Menlo, Monaco, 'Courier New', monospace",
-  "terminal.integrated.letterSpacing": 1
+  "terminal.integrated.letterSpacing": 1,
+  "githubPullRequests.pullBranch": "never",
+  "window.zoomLevel": 1,
+  "explorer.confirmDragAndDrop": false
 }
