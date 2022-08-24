@@ -108,6 +108,10 @@
     "key": "ctrl+/"
   },
   {
+    "command": "workbench.action.splitEditorOrthogonal",
+    "key": "ctrl+-"
+  },
+  {
     "command": "workbench.action.navigateLeft",
     "key": "ctrl+h"
   },
