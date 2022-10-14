@@ -84,6 +84,30 @@
   "editor.fontFamily": "'Cascadia Code', Menlo, Monaco, 'Courier New', monospace",
   "terminal.integrated.letterSpacing": 1,
   "githubPullRequests.pullBranch": "never",
-  "window.zoomLevel": 1,
-  "explorer.confirmDragAndDrop": false
+  "explorer.confirmDragAndDrop": false,
+  "eslint.probe": [
+    "html",
+    "javascript",
+    "javascriptreact",
+    "markdown",
+    "mdx",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ],
+  "eslint.validate": [
+    "html",
+    "javascript",
+    "javascriptreact",
+    "markdown",
+    "mdx",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ],
+  "eslint.options": {
+    "extensions": [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx"]
+  },
+  "githubPullRequests.pushBranch": "always",
+  "window.zoomLevel": 1
 }
