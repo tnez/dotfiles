@@ -81,7 +81,6 @@
   "workbench.preferredDarkColorTheme": "Default Dark+",
   "workbench.preferredLightColorTheme": "Default Light+",
   "workbench.activityBar.visible": false,
-  "editor.fontFamily": "'Cascadia Code', Menlo, Monaco, 'Courier New', monospace",
   "terminal.integrated.letterSpacing": 1,
   "githubPullRequests.pullBranch": "never",
   "explorer.confirmDragAndDrop": false,
