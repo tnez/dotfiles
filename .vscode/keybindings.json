@@ -142,15 +142,15 @@
     "key": "ctrl+l"
   },
   /**
-   * Tab Navigation
+   * Buffer Navigation
    */
   {
     "command": "workbench.action.nextEditorInGroup",
-    "key": "TAB"
+    "key": "ctrl+]"
   },
   {
     "command": "workbench.action.previousEditorInGroup",
-    "key": "Shift+TAB"
+    "key": "ctrl+["
   },
   /**
    * Project Navigation
