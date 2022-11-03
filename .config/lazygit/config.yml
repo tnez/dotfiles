@@ -1,0 +1,4 @@
+gui:
+	reporting: "off"
+	showRandomTip: false
+	startupPopupVersion: 1
