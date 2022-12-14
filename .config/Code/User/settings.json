@@ -1,112 +1,121 @@
 {
-  "diffEditor.ignoreTrimWhitespace": false,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": false
-  },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.fontLigatures": true,
-  "editor.formatOnSave": true,
-  "editor.minimap.enabled": false,
-  "editor.roundedSelection": false,
-  "editor.scrollBeyondLastLine": false,
-  "editor.suggestSelection": "first",
-  "files.exclude": {
-    "**/build": true,
-    "**/dist": true,
-    "**/node_modules": true
-  },
-  "git.autofetch": true,
-  "git.confirmSync": true,
-  "git.useEditorAsCommitInput": true,
-  "git.mergeEditor": true,
-  "terminal.integrated.commandsToSkipShell": [
-    "workbench.action.navigateRight",
-    "workbench.action.navigateLeft"
-  ],
-  "vim.insertModeKeyBindings": [
-    {
-      "before": ["j", "j"],
-      "after": ["<Esc>"]
-    },
-    {
-      "before": ["k", "k"],
-      "after": ["<Esc>"]
-    },
-    {
-      "before": ["k", "j"],
-      "after": ["<Esc>"]
-    }
-  ],
-  "vim.normalModeKeyBindings": [
-    {
-      "before": ["K"],
-      "commands": ["editor.action.showHover"],
-      "silent": true
-    },
-    {
-      "before": ["H"],
-      "commands": ["workbench.action.previousEditorInGroup"]
-    },
-    {
-      "before": ["L"],
-      "commands": ["workbench.action.nextEditorInGroup"],
-      "silent": true
-    },
-    {
-      "before": ["<leader>", "c"],
-      "commands": [":q"]
-    },
-    {
-      "before": ["<leader>", "f"],
-      "commands": ["workbench.action.quickOpen"]
-    },
-    {
-      "before": ["<leader>", "s"],
-      "commands": [":w"]
-    },
-    {
-      "before": ["<leader>", "t"],
-      "commands": ["workbench.action.createTerminalEditor"]
-    }
-  ],
-  "vim.leader": "<space>",
-  "vim.useCtrlKeys": true,
-  "vim.handleKeys": {
-    "<C-b>": false
-  },
-  "window.commandCenter": true,
-  "workbench.editor.enablePreview": false,
-  "workbench.list.defaultFindMode": "filter",
-  "workbench.colorTheme": "Default Light+",
-  "workbench.preferredDarkColorTheme": "Default Dark+",
-  "workbench.preferredLightColorTheme": "Default Light+",
-  "workbench.activityBar.visible": false,
-  "terminal.integrated.letterSpacing": 1,
-  "githubPullRequests.pullBranch": "never",
-  "explorer.confirmDragAndDrop": false,
-  "eslint.probe": [
-    "html",
-    "javascript",
-    "javascriptreact",
-    "markdown",
-    "mdx",
-    "typescript",
-    "typescriptreact",
-    "vue"
-  ],
-  "eslint.validate": [
-    "html",
-    "javascript",
-    "javascriptreact",
-    "markdown",
-    "mdx",
-    "typescript",
-    "typescriptreact",
-    "vue"
-  ],
-  "eslint.options": {
-    "extensions": [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx"]
-  },
-  "githubPullRequests.pushBranch": "always",
-  "window.zoomLevel": 1
+	"diffEditor.ignoreTrimWhitespace": false,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": false
+	},
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.fontLigatures": true,
+	"editor.formatOnSave": true,
+	"editor.minimap.enabled": false,
+	"editor.roundedSelection": false,
+	"editor.scrollBeyondLastLine": false,
+	"editor.suggestSelection": "first",
+	"files.exclude": {
+		"**/build": true,
+		"**/dist": true,
+		"**/node_modules": true
+	},
+	"git.autofetch": true,
+	"git.confirmSync": true,
+	"git.useEditorAsCommitInput": true,
+	"git.mergeEditor": true,
+	"terminal.integrated.commandsToSkipShell": [
+		"workbench.action.navigateRight",
+		"workbench.action.navigateLeft"
+	],
+	"vim.insertModeKeyBindings": [
+		{
+			"before": ["j", "j"],
+			"after": ["<Esc>"]
+		},
+		{
+			"before": ["k", "k"],
+			"after": ["<Esc>"]
+		},
+		{
+			"before": ["k", "j"],
+			"after": ["<Esc>"]
+		}
+	],
+	"vim.normalModeKeyBindings": [
+		{
+			"before": ["<C-d>"],
+			"after": ["<C-d>", "z", "z"]
+		},
+		{
+			"before": ["<C-u>"],
+			"after": ["<C-u>", "z", "z"]
+		},
+		{
+			"before": ["K"],
+			"commands": ["editor.action.showHover"],
+			"silent": true
+		},
+		{
+			"before": ["H"],
+			"commands": ["workbench.action.previousEditorInGroup"]
+		},
+		{
+			"before": ["L"],
+			"commands": ["workbench.action.nextEditorInGroup"],
+			"silent": true
+		},
+		{
+			"before": ["<leader>", "c"],
+			"commands": [":q"]
+		},
+		{
+			"before": ["<leader>", "f"],
+			"commands": ["workbench.action.quickOpen"]
+		},
+		{
+			"before": ["<leader>", "s"],
+			"commands": [":w"]
+		},
+		{
+			"before": ["<leader>", "t"],
+			"commands": ["workbench.action.createTerminalEditor"]
+		}
+	],
+	"vim.leader": "<space>",
+	"vim.smartRelativeLine": true,
+	"vim.useCtrlKeys": true,
+	"vim.handleKeys": {
+		"<C-b>": false
+	},
+	"window.commandCenter": true,
+	"workbench.editor.enablePreview": false,
+	"workbench.list.defaultFindMode": "filter",
+	"workbench.colorTheme": "Default Light+",
+	"workbench.preferredDarkColorTheme": "Default Dark+",
+	"workbench.preferredLightColorTheme": "Default Light+",
+	"workbench.activityBar.visible": false,
+	"terminal.integrated.letterSpacing": 1,
+	"githubPullRequests.pullBranch": "never",
+	"explorer.confirmDragAndDrop": false,
+	"eslint.probe": [
+		"html",
+		"javascript",
+		"javascriptreact",
+		"markdown",
+		"mdx",
+		"typescript",
+		"typescriptreact",
+		"vue"
+	],
+	"eslint.validate": [
+		"html",
+		"javascript",
+		"javascriptreact",
+		"markdown",
+		"mdx",
+		"typescript",
+		"typescriptreact",
+		"vue"
+	],
+	"eslint.options": {
+		"extensions": [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx"]
+	},
+	"githubPullRequests.pushBranch": "always",
+	"window.zoomLevel": 1
 }
