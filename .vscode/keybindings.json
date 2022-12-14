@@ -1,166 +1,166 @@
 [
-  /**
-   * Toggle Command Palette
-   */
-  {
-    "command": "workbench.action.showCommands",
-    "key": "ctrl+space"
-  },
-  /**
-   * Terminal Behavior
-   */
-  {
-    "command": "workbench.action.createTerminalEditor",
-    "key": "ctrl+;"
-  },
-  /**
-   * Browser Behavior
-   */
-  {
-    "key": "ctrl+b",
-    "command": "simpleBrowser.show"
-  },
-  /**
-   * Panel Behavior
-   */
-  {
-    "command": "workbench.action.togglePanel",
-    "key": "ctrl+d"
-  },
-  /**
-   * Sidebar Behavior
-   */
-  {
-    "command": "workbench.view.explorer",
-    "key": "ctrl+e",
-    "when": "!sideBarVisible"
-  },
-  {
-    "command": "extension.multiCommand.execute",
-    "key": "ctrl+e",
-    "when": "sideBarVisible",
-    "args": {
-      "sequence": [
-        "workbench.action.focusActiveEditorGroup",
-        "workbench.action.closeSidebar"
-      ]
-    }
-  },
-  {
-    "command": "explorer.newFile",
-    "key": "a",
-    "when": "filesExplorerFocus && !inputFocus"
-  },
-  {
-    "command": "explorer.newFolder",
-    "key": "shift+a",
-    "when": "filesExplorerFocus && !inputFocus"
-  },
-  {
-    "command": "deleteFile",
-    "key": "d",
-    "when": "filesExplorerFocus && !inputFocus"
-  },
-  {
-    "command": "extension.multiCommand.execute",
-    "args": {
-      "sequence": ["list.select", "workbench.action.keepEditor"]
-    },
-    "key": "o",
-    "when": "filesExplorerFocus && !inputFocus"
-  },
-  {
-    "command": "explorer.openToSide",
-    "key": "shift+o",
-    "when": "filesExplorerFocus && !inputFocus"
-  },
-  {
-    "command": "renameFile",
-    "key": "r",
-    "when": "filesExplorerFocus && !inputFocus"
-  },
-  /**
-   * Toggle Quick-Open
-   */
-  {
-    "command": "workbench.action.quickOpen",
-    "key": "ctrl+o"
-  },
-  /**
-   * Navigate Dropdowns with ctrl+j/k
-   */
-  {
-    "command": "selectNextSuggestion",
-    "key": "ctrl+j",
-    "when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
-  },
-  {
-    "command": "selectPrevSuggestion",
-    "key": "ctrl+k",
-    "when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
-  },
-  /**
-   * Navigate QuickOpen with ctrl+j/k
-   */
-  {
-    "command": "workbench.action.quickOpenSelectNext",
-    "key": "ctrl+j",
-    "when": "inQuickOpen"
-  },
-  {
-    "command": "workbench.action.quickOpenSelectPrevious",
-    "key": "ctrl+k",
-    "when": "inQuickOpen"
-  },
-  /**
-   * Splits - Creation and Naviagation
-   */
-  {
-    "command": "workbench.action.newGroupRight",
-    "key": "ctrl+/"
-  },
-  {
-    "command": "workbench.action.newGroupBelow",
-    "key": "ctrl+-"
-  },
-  {
-    "command": "workbench.action.navigateLeft",
-    "key": "ctrl+h"
-  },
-  {
-    "command": "workbench.action.navigateDown",
-    "key": "ctrl+j",
-    "when": "!suggestWidgetVisible && !inQuickOpen"
-  },
-  {
-    "command": "workbench.action.navigateUp",
-    "key": "ctrl+k",
-    "when": "!suggestWidgetVisible && !inQuickOpen"
-  },
-  {
-    "command": "workbench.action.navigateRight",
-    "key": "ctrl+l"
-  },
-  /**
-   * Buffer Navigation
-   */
-  {
-    "command": "workbench.action.nextEditorInGroup",
-    "key": "ctrl+]"
-  },
-  {
-    "command": "workbench.action.previousEditorInGroup",
-    "key": "ctrl+["
-  },
-  /**
-   * Project Navigation
-   */
-  {
-    "command": "workbench.action.files.openFileFolder",
-    "key": "ctrl+shift+o"
-  },
-  {
-    "command": "workbench.action.closeFolder",
-    "key": "ctrl+shift+c"
-  }
+	/**
+	 * Toggle Command Palette
+	 */
+	{
+		"command": "workbench.action.showCommands",
+		"key": "ctrl+space"
+	},
+	/**
+	 * Terminal Behavior
+	 */
+	{
+		"command": "workbench.action.createTerminalEditor",
+		"key": "ctrl+shift+;"
+	},
+	/**
+	 * Browser Behavior
+	 */
+	{
+		"key": "ctrl+b",
+		"command": "simpleBrowser.show"
+	},
+	/**
+	 * Panel Behavior
+	 */
+	{
+		"command": "workbench.action.togglePanel",
+		"key": "ctrl+;"
+	},
+	/**
+	 * Sidebar Behavior
+	 */
+	{
+		"command": "workbench.view.explorer",
+		"key": "ctrl+e",
+		"when": "!sideBarVisible"
+	},
+	{
+		"command": "extension.multiCommand.execute",
+		"key": "ctrl+e",
+		"when": "sideBarVisible",
+		"args": {
+			"sequence": [
+				"workbench.action.focusActiveEditorGroup",
+				"workbench.action.closeSidebar"
+			]
+		}
+	},
+	{
+		"command": "explorer.newFile",
+		"key": "a",
+		"when": "filesExplorerFocus && !inputFocus"
+	},
+	{
+		"command": "explorer.newFolder",
+		"key": "shift+a",
+		"when": "filesExplorerFocus && !inputFocus"
+	},
+	{
+		"command": "deleteFile",
+		"key": "d",
+		"when": "filesExplorerFocus && !inputFocus"
+	},
+	{
+		"command": "extension.multiCommand.execute",
+		"args": {
+			"sequence": ["list.select", "workbench.action.keepEditor"]
+		},
+		"key": "o",
+		"when": "filesExplorerFocus && !inputFocus"
+	},
+	{
+		"command": "explorer.openToSide",
+		"key": "shift+o",
+		"when": "filesExplorerFocus && !inputFocus"
+	},
+	{
+		"command": "renameFile",
+		"key": "r",
+		"when": "filesExplorerFocus && !inputFocus"
+	},
+	/**
+	 * Toggle Quick-Open
+	 */
+	{
+		"command": "workbench.action.quickOpen",
+		"key": "ctrl+o"
+	},
+	/**
+	 * Navigate Dropdowns with ctrl+j/k
+	 */
+	{
+		"command": "selectNextSuggestion",
+		"key": "ctrl+j",
+		"when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
+	},
+	{
+		"command": "selectPrevSuggestion",
+		"key": "ctrl+k",
+		"when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
+	},
+	/**
+	 * Navigate QuickOpen with ctrl+j/k
+	 */
+	{
+		"command": "workbench.action.quickOpenSelectNext",
+		"key": "ctrl+j",
+		"when": "inQuickOpen"
+	},
+	{
+		"command": "workbench.action.quickOpenSelectPrevious",
+		"key": "ctrl+k",
+		"when": "inQuickOpen"
+	},
+	/**
+	 * Splits - Creation and Naviagation
+	 */
+	{
+		"command": "workbench.action.newGroupRight",
+		"key": "ctrl+/"
+	},
+	{
+		"command": "workbench.action.newGroupBelow",
+		"key": "ctrl+-"
+	},
+	{
+		"command": "workbench.action.navigateLeft",
+		"key": "ctrl+h"
+	},
+	{
+		"command": "workbench.action.navigateDown",
+		"key": "ctrl+j",
+		"when": "!suggestWidgetVisible && !inQuickOpen"
+	},
+	{
+		"command": "workbench.action.navigateUp",
+		"key": "ctrl+k",
+		"when": "!suggestWidgetVisible && !inQuickOpen"
+	},
+	{
+		"command": "workbench.action.navigateRight",
+		"key": "ctrl+l"
+	},
+	/**
+	 * Buffer Navigation
+	 */
+	{
+		"command": "workbench.action.nextEditorInGroup",
+		"key": "ctrl+]"
+	},
+	{
+		"command": "workbench.action.previousEditorInGroup",
+		"key": "ctrl+["
+	},
+	/**
+	 * Project Navigation
+	 */
+	{
+		"command": "workbench.action.files.openFileFolder",
+		"key": "ctrl+shift+o"
+	},
+	{
+		"command": "workbench.action.closeFolder",
+		"key": "ctrl+shift+c"
+	}
 ]
