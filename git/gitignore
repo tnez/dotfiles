@@ -1,0 +1,33 @@
+# osx
+.DS_Store
+
+# tmux
+tmux-client-*
+
+# project management
+/__external
+notes*.md
+notes*.org
+todo*.md
+todo*.org
+standup*.md
+standup*.org
+
+# emacs
+.dir-locals.el
+
+# tmux
+init.tmux
+
+# tags
+tags
+GPATH
+GRTAGS
+GTAGS
+
+# ruby config
+.ruby-version
+
+# todo file
+# (negate in project if needed): !todo*.*
+todo*.*
