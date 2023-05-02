@@ -28,15 +28,18 @@
 [core]
   editor = nvim
   excludesfile = ~/.gitignore
+	pager = delta
+[delta]
+  navigate = true
+	light = false
+	line-numbers = true
+[diff]
+  colorMoved = default
 [fetch]
   prune = true
+[interactive]
+  diffFilter = delta --color-only
 [merge]
-  tool = nvim
-[mergetool]
-  prompt = false
-[mergetool "nvim"]
-  cmd = nvim -f -c \"Gdiffsplit!\" \"$MERGED\"
+  conflictstyle = diff3
 [rebase]
   autosquash = true
-[init]
-  templatedir = ~/.git_template
