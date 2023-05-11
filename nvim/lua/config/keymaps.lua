@@ -13,6 +13,13 @@ local function map(mode, lhs, rhs, opts)
   end
 end
 
+-- Better Escape
 map("i", "kj", "<esc>", { desc = "Escape to normal mode" })
 map("i", "jj", "<esc>", { desc = "Escape to normal mode" })
 map("i", "kk", "<esc>", { desc = "Escape to normal mode" })
+
+-- TmuxNavigate...
+map("n", "<C-h>", "<cmd>TmuxNavigateLeft<CR>")
+map("n", "<C-j>", "<cmd>TmuxNavigateDown<CR>")
+map("n", "<C-k>", "<cmd>TmuxNavigateUp<CR>")
+map("n", "<C-l>", "<cmd>TmuxNavigateRight<CR>")
