@@ -18,6 +18,7 @@ return {
     config = function()
       require("chatgpt").setup({
         api_key_cmd = HOMEDIR .. "/.scripts/get-env.sh OPEN_AI_API_KEY",
+        predefined_chat_gpt_prompts = "https://raw.githubusercontent.com/tnez/awesome-chatgpt-prompts/main/prompts.csv",
       })
     end,
     keys = {
