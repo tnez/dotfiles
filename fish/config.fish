@@ -18,6 +18,7 @@ alias tp="t --project"
 set -x EDITOR nvim
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
+set -x MODE LIGHT # set to DARK for dark mode
 set -x N_PREFIX $HOME/n
 set -x PAGER less
 set -x VISUAL nvim
