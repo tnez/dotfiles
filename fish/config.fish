@@ -12,6 +12,7 @@ alias la="ls -a"
 alias lg="lazygit"
 alias ll="ls -al"
 alias nvim="nvim"
+alias python="python3"
 alias tp="t --project"
 
 # set variables
