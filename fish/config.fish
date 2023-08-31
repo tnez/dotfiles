@@ -56,5 +56,8 @@ if not string match -q -- $PNPM_HOME $PATH
 end
 # pnpm end
 
+# activate pyenv
+source (pyenv init - | psub)
+
 # Add .local/bin to path
 set -gx PATH "$HOME/.local/bin" $PATH
