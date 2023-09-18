@@ -19,6 +19,8 @@
 	"git.confirmSync": true,
 	"git.useEditorAsCommitInput": true,
 	"git.mergeEditor": true,
+	"projectManager.git.baseFolders": ["$home/Code"],
+	"projectManager.git.maxDepthRecursion": 3,
 	"terminal.integrated.commandsToSkipShell": [
 		"workbench.action.navigateRight",
 		"workbench.action.navigateLeft"
@@ -65,8 +67,20 @@
 			"commands": [":q"]
 		},
 		{
+			"before": ["<leader>", "q"],
+			"commands": [":q"]
+		},
+		{
 			"before": ["<leader>", "f"],
 			"commands": ["workbench.action.quickOpen"]
+		},
+		{
+			"before": ["<leader>", "o"],
+			"commands": ["workbench.action.quickOpen"]
+		},
+		{
+			"before": ["<leader>", "p"],
+			"commands": ["projectManager.listProjects"]
 		},
 		{
 			"before": ["<leader>", "s"],
@@ -75,6 +89,10 @@
 		{
 			"before": ["<leader>", "t"],
 			"commands": ["workbench.action.createTerminalEditor"]
+		},
+		{
+			"before": ["<leader>", "g", "g"],
+			"commands": ["workbench.view.scm"]
 		}
 	],
 	"vim.leader": "<space>",
@@ -86,10 +104,9 @@
 	"window.commandCenter": true,
 	"workbench.editor.enablePreview": false,
 	"workbench.list.defaultFindMode": "filter",
-	"workbench.colorTheme": "Default Light+",
+	"workbench.colorTheme": "Tokyo Night Storm",
 	"workbench.preferredDarkColorTheme": "Default Dark+",
 	"workbench.preferredLightColorTheme": "Default Light+",
-	"workbench.activityBar.visible": false,
 	"terminal.integrated.letterSpacing": 1,
 	"githubPullRequests.pullBranch": "never",
 	"explorer.confirmDragAndDrop": false,
@@ -117,5 +134,9 @@
 		"extensions": [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx"]
 	},
 	"githubPullRequests.pushBranch": "always",
-	"window.zoomLevel": 1
+	"window.zoomLevel": 1,
+	"workbench.statusBar.visible": false,
+	"breadcrumbs.enabled": false,
+	"editor.stickyScroll.enabled": true,
+	"workbench.activityBar.visible": false
 }
