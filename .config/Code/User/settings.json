@@ -4,6 +4,7 @@
 		"source.organizeImports": false
 	},
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.fontFamily": "'CaskaydiaCove Nerd Font', 'Fira Code', Menlo, Monaco, 'Courier New', monospace",
 	"editor.fontLigatures": true,
 	"editor.formatOnSave": true,
 	"editor.minimap.enabled": false,
@@ -112,9 +113,10 @@
 	"window.commandCenter": true,
 	"workbench.editor.enablePreview": false,
 	"workbench.list.defaultFindMode": "filter",
-	"workbench.colorTheme": "Tokyo Night Storm",
-	"workbench.preferredDarkColorTheme": "Default Dark+",
-	"workbench.preferredLightColorTheme": "Default Light+",
+	"workbench.colorTheme": "Everforest Dark",
+	"workench.iconTheme": "material-icon-theme",
+	"workbench.preferredDarkColorTheme": "Everforest Dark",
+	"workbench.preferredLightColorTheme": "Everforest Light",
 	"terminal.integrated.letterSpacing": 1,
 	"githubPullRequests.pullBranch": "never",
 	"explorer.confirmDragAndDrop": false,
@@ -146,5 +148,6 @@
 	"workbench.statusBar.visible": false,
 	"breadcrumbs.enabled": false,
 	"editor.stickyScroll.enabled": true,
-	"workbench.activityBar.visible": false
+	"workbench.activityBar.visible": false,
+	"workbench.sideBar.location": "right"
 }
