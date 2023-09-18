@@ -13,6 +13,10 @@
 		"command": "workbench.action.createTerminalEditor",
 		"key": "ctrl+shift+;"
 	},
+	{
+		"command": "workbench.action.createTerminalEditor",
+		"key": "ctrl+t;"
+	},
 	/**
 	 * Browser Behavior
 	 */
@@ -116,12 +120,24 @@
 	 * Splits - Creation and Naviagation
 	 */
 	{
-		"command": "workbench.action.newGroupRight",
-		"key": "ctrl+/"
+		"key": "ctrl+/",
+		"command": "extension.multiCommand.execute",
+		"args": {
+			"sequence": [
+				"workbench.action.newGroupRight",
+				"workbench.action.createTerminalEditor"
+			]
+		}
 	},
 	{
-		"command": "workbench.action.newGroupBelow",
-		"key": "ctrl+-"
+		"key": "ctrl+-",
+		"command": "extension.multiCommand.execute",
+		"args": {
+			"sequence": [
+				"workbench.action.newGroupBelow",
+				"workbench.action.createTerminalEditor"
+			]
+		}
 	},
 	{
 		"command": "workbench.action.navigateLeft",
@@ -146,11 +162,13 @@
 	 */
 	{
 		"command": "workbench.action.nextEditorInGroup",
-		"key": "ctrl+]"
+		"key": "shift+l",
+		"when": "terminalFocus"
 	},
 	{
 		"command": "workbench.action.previousEditorInGroup",
-		"key": "ctrl+["
+		"key": "shift+h",
+		"when": "terminalFocus"
 	},
 	/**
 	 * Project Navigation
