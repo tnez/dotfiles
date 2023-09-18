@@ -20,8 +20,9 @@
 	"git.confirmSync": true,
 	"git.useEditorAsCommitInput": true,
 	"git.mergeEditor": true,
-	"projectManager.git.baseFolders": ["$home/Code"],
+	"projectManager.git.baseFolders": ["$home/Code", "$home/workspace"],
 	"projectManager.git.maxDepthRecursion": 3,
+	"projectManager.sortList": "Recent",
 	"terminal.integrated.commandsToSkipShell": [
 		"workbench.action.navigateRight",
 		"workbench.action.navigateLeft"
