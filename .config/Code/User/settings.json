@@ -63,36 +63,44 @@
 			"silent": true
 		},
 		{
-			"before": ["<leader>", "c"],
+			"before": ["<leader>", "b", "c"],
 			"commands": [":q"]
 		},
 		{
-			"before": ["<leader>", "q"],
+			"before": ["<leader>", "b", "d"],
 			"commands": [":q"]
 		},
 		{
-			"before": ["<leader>", "f"],
-			"commands": ["workbench.action.quickOpen"]
+			"before": ["<leader>", "b", "q"],
+			"commands": [":q"]
 		},
 		{
-			"before": ["<leader>", "o"],
-			"commands": ["workbench.action.quickOpen"]
-		},
-		{
-			"before": ["<leader>", "p"],
-			"commands": ["projectManager.listProjects"]
-		},
-		{
-			"before": ["<leader>", "s"],
+			"before": ["<leader>", "b", "s"],
 			"commands": [":w"]
 		},
 		{
-			"before": ["<leader>", "t"],
-			"commands": ["workbench.action.createTerminalEditor"]
+			"before": ["<leader>", "g", "b"],
+			"commands": ["workbench.action.quickOpen"]
+		},
+		{
+			"before": ["<leader>", "g", "f"],
+			"commands": ["workbench.action.quickOpen"]
 		},
 		{
 			"before": ["<leader>", "g", "g"],
 			"commands": ["workbench.view.scm"]
+		},
+		{
+			"before": ["<leader>", "g", "p"],
+			"commands": ["projectManager.listProjects"]
+		},
+		{
+			"before": ["<leader>", "g", "t"],
+			"commands": ["workbench.action.createTerminalEditor"]
+		},
+		{
+			"before": ["<leader>", "<leader>"],
+			"commands": ["workbench.action.showCommand"]
 		}
 	],
 	"vim.leader": "<space>",
