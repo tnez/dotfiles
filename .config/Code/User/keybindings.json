@@ -156,7 +156,7 @@
 	 * Project Navigation
 	 */
 	{
-		"command": "workbench.action.files.openFileFolder",
+		"command": "projectManager.listProjects",
 		"key": "ctrl+shift+o"
 	},
 	{
