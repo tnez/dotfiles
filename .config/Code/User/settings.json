@@ -12,6 +12,7 @@
 	"editor.roundedSelection": false,
 	"editor.scrollBeyondLastLine": false,
 	"editor.suggestSelection": "first",
+	"editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?",
 	"files.exclude": {
 		"**/build": true,
 		"**/dist": true,
