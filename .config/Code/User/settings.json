@@ -54,7 +54,7 @@
 		},
 		{
 			"before": ["K"],
-			"commands": ["editor.action.showHover"],
+			"commands": ["editor.action.showDefinitionPreviewHover"],
 			"silent": true
 		},
 		{
