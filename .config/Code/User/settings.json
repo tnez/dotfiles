@@ -113,6 +113,7 @@
 	"vim.handleKeys": {
 		"<C-b>": false
 	},
+	"vim.useSystemClipboard": true,
 	"window.commandCenter": true,
 	"workbench.editor.enablePreview": false,
 	"workbench.list.defaultFindMode": "filter",
