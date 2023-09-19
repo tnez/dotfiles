@@ -67,6 +67,14 @@
 			"silent": true
 		},
 		{
+			"before": ["g", "d"],
+			"commands": ["editor.action.marker.next"]
+		},
+		{
+			"before": ["g", "D"],
+			"commands": ["editor.action.marker.prev"]
+		},
+		{
 			"before": ["<leader>", "b", "c"],
 			"commands": [":q"]
 		},
@@ -107,6 +115,7 @@
 			"commands": ["workbench.action.showCommand"]
 		}
 	],
+	"vim.foldfix": true,
 	"vim.leader": "<space>",
 	"vim.smartRelativeLine": true,
 	"vim.useCtrlKeys": true,
@@ -121,6 +130,7 @@
 	"workench.iconTheme": "material-icon-theme",
 	"workbench.preferredDarkColorTheme": "Everforest Dark",
 	"workbench.preferredLightColorTheme": "Everforest Light",
+	"workbench.settings.editor": "json",
 	"terminal.integrated.letterSpacing": 1,
 	"githubPullRequests.pullBranch": "never",
 	"explorer.confirmDragAndDrop": false,
@@ -153,5 +163,6 @@
 	"breadcrumbs.enabled": false,
 	"editor.stickyScroll.enabled": true,
 	"workbench.activityBar.visible": false,
-	"workbench.sideBar.location": "right"
+	"workbench.sideBar.location": "right",
+	"workbench.startupEditor": "readme"
 }
