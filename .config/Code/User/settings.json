@@ -22,6 +22,14 @@
 	"git.confirmSync": true,
 	"git.useEditorAsCommitInput": true,
 	"git.mergeEditor": true,
+	"leetcode.defaultLanguage": "python3",
+	"leetcode.workspaceFolder": "/Users/tnez/Code/tnez/leet",
+	"leetcode.filePath": {
+		"default": {
+			"folder": "",
+			"filename": "${id}.${kebab-case-name}.${ext}"
+		}
+	},
 	"projectManager.git.baseFolders": ["$home/Code", "$home/workspace"],
 	"projectManager.git.maxDepthRecursion": 3,
 	"projectManager.sortList": "Recent",
