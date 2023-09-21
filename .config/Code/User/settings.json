@@ -166,7 +166,6 @@
 		"extensions": [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx"]
 	},
 	"githubPullRequests.pushBranch": "always",
-	"window.zoomLevel": 1,
 	"workbench.statusBar.visible": false,
 	"breadcrumbs.enabled": false,
 	"editor.stickyScroll.enabled": true,
