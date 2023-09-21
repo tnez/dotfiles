@@ -75,11 +75,11 @@
 			"silent": true
 		},
 		{
-			"before": ["g", "d"],
+			"before": ["g", "]"],
 			"commands": ["editor.action.marker.next"]
 		},
 		{
-			"before": ["g", "D"],
+			"before": ["g", "["],
 			"commands": ["editor.action.marker.prev"]
 		},
 		{
