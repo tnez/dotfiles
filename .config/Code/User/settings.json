@@ -14,8 +14,7 @@
 	"editor.suggestSelection": "first",
 	"editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?",
 	"files.exclude": {
-		"**/build": true,
-		"**/dist": true,
+		"**/.venv": true,
 		"**/node_modules": true
 	},
 	"git.autofetch": true,
