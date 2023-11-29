@@ -126,6 +126,10 @@
 			"commands": ["workbench.view.scm"]
 		},
 		{
+			"before": ["<leader>", "g", "h"],
+			"commands": ["workbench.view.copilot"]
+		},
+		{
 			"before": ["<leader>", "g", "p"],
 			"commands": ["projectManager.listProjects"]
 		},
