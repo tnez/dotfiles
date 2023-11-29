@@ -5,6 +5,12 @@
 	},
 	"editor.cursorSurroundingLines": 8,
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[python]": {
+		"diffEditor.ignoreTrimWhitespace": false,
+		"editor.formatOnSave": true,
+		"editor.wordBasedSuggestions": false,
+		"editor.defaultFormatter": "charliermarsh.ruff"
+	},
 	"editor.fontFamily": "'CaskaydiaCove Nerd Font', 'Fira Code', Menlo, Monaco, 'Courier New', monospace",
 	"editor.fontLigatures": true,
 	"editor.formatOnSave": true,
@@ -32,6 +38,7 @@
 	"projectManager.git.baseFolders": ["$home/Code", "$home/workspace"],
 	"projectManager.git.maxDepthRecursion": 3,
 	"projectManager.sortList": "Recent",
+	"python.testing.pytestEnabled": true,
 	"terminal.integrated.commandsToSkipShell": [
 		"workbench.action.navigateRight",
 		"workbench.action.navigateLeft"
