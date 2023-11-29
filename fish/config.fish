@@ -11,18 +11,17 @@ alias gs="git status"
 alias la="ls -a"
 alias lg="lazygit"
 alias ll="ls -al"
-alias nvim="nvim"
 alias python="python3"
 alias tp="t --project"
 
 # set variables
-set -x EDITOR nvim
+set -x EDITOR vim
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x MODE LIGHT # set to DARK for dark mode
 set -x N_PREFIX $HOME/n
 set -x PAGER less
-set -x VISUAL nvim
+set -x VISUAL vim
 
 # install plugin manger (fisher) and any missing plugins
 if not functions -q fisher

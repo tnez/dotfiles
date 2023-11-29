@@ -19,7 +19,7 @@ tmux new-session -d -s $SESSION_NAME
 ###################
 # Main Editing
 tmux rename-window -t 1 'main'
-tmux send-keys -t 'main' 'nvim' C-m
+tmux send-keys -t 'main' 'vim' C-m
 
 # Script Runner - mostly for tests
 if [ $COLS -gt 200 ]; then
@@ -36,7 +36,7 @@ tmux send-keys -t 'git' 'lazygit' C-m
 
 # Notes
 tmux new-window -t $SESSION_NAME:4 -n 'notes'
-tmux send-keys -t 'notes' 'nvim notes.md' C-m
+tmux send-keys -t 'notes' 'vim notes.md' C-m
 
 #####################################
 # 3) Finally, attach to the session
