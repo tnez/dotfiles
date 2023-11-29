@@ -240,8 +240,52 @@
 	},
 
 	/**
-	 * Close it all down. This command closes all editors, panels, and closes the sidebar. Resets to a new state, ready for action.
+	 * Opening things...
 	 */
+	{
+		"key": "ctrl+g e",
+		"command": "workbench.extensions.action.focusExtensionsView"
+	},
+	{
+		"key": "ctrl+g g",
+		"command": "workbench.scm.focus"
+	},
+	{
+		"key": "ctrl+g h",
+		"command": "workbench.panel.chat.view.copilot.focus"
+	},
+	{
+		"key": "ctrl+g o",
+		"command": "workbench.view.explorer"
+	},
+	{
+		"key": "ctrl+g r",
+		"command": "workbench.view.extension.github-pull-requests.focus"
+	},
+	{
+		"key": "ctrl+g t",
+		"command": "workbench.view.testing.focus"
+	},
+	{
+		"key": "ctrl+g s",
+		"command": "workbench.view.search.focus"
+	},
+
+	/**
+	 * Closing things...
+	 */
+	{
+		"key": "backspace",
+		"when": "!inputFocus",
+		"command": "extension.multiCommand.execute",
+		"args": {
+			"sequence": [
+				"workbench.action.closePanel",
+				"workbench.action.closeSidebar",
+				"workbench.action.focusActiveEditorGroup"
+			]
+		}
+	},
 	{
 		"key": "ctrl+shift+backspace",
 		"command": "extension.multiCommand.execute",
