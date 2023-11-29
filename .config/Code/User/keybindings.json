@@ -237,5 +237,20 @@
 		"key": "backspace",
 		"command": "git.revertSelectedRanges",
 		"when": "textCompareEditorActive && !operationInProgress"
+	},
+
+	/**
+	 * Close it all down. This command closes all editors, panels, and closes the sidebar. Resets to a new state, ready for action.
+	 */
+	{
+		"key": "ctrl+shift+backspace",
+		"command": "extension.multiCommand.execute",
+		"args": {
+			"sequence": [
+				"workbench.action.closeAllEditors",
+				"workbench.action.closePanel",
+				"workbench.action.closeSidebar"
+			]
+		}
 	}
 ]
