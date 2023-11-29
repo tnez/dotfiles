@@ -203,5 +203,15 @@
 	{
 		"command": "workbench.action.closeFolder",
 		"key": "ctrl+shift+c"
+	},
+	{
+		"key": "ctrl+c ctrl+c",
+		"command": "testing.runAtCursor",
+		"when": "editorTextFocus"
+	},
+	{
+		"key": "cmd+; c",
+		"command": "-testing.runAtCursor",
+		"when": "editorTextFocus"
 	}
 ]
