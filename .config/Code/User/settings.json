@@ -127,7 +127,7 @@
 		},
 		{
 			"before": ["<leader>", "g", "h"],
-			"commands": ["workbench.view.copilot"]
+			"commands": ["workbench.panel.chat.view.copilot.focus"]
 		},
 		{
 			"before": ["<leader>", "g", "p"],
@@ -151,15 +151,15 @@
 	"vim.useCtrlKeys": true,
 	"vim.useSystemClipboard": true,
 
+	"window.autoDetectColorScheme": true,
 	"window.commandCenter": true,
+	"window.zoomLevel": 1,
 
-	"workbench.activityBar.visible": false,
-	"workbench.colorTheme": "Everforest Dark",
 	"workbench.editor.enablePreview": false,
 	"workbench.iconTheme": "material-icon-theme",
 	"workbench.list.defaultFindMode": "filter",
-	"workbench.preferredDarkColorTheme": "Everforest Dark",
-	"workbench.preferredLightColorTheme": "Everforest Light",
+	"workbench.preferredDarkColorTheme": "Gruvbox Dark Hard",
+	"workbench.preferredLightColorTheme": "Gruvbox Light Hard",
 	"workbench.settings.editor": "json",
 	"workbench.sideBar.location": "right",
 	"workbench.startupEditor": "readme",
