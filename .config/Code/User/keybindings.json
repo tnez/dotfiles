@@ -213,5 +213,29 @@
 		"key": "cmd+; c",
 		"command": "-testing.runAtCursor",
 		"when": "editorTextFocus"
+	},
+
+	/**
+	 * Diff Navigation
+	 */
+	{
+		"key": "ctrl+k",
+		"command": "workbench.action.compareEditor.previousChange",
+		"when": "isInDiffEditor"
+	},
+	{
+		"key": "ctrl+j",
+		"command": "workbench.action.compareEditor.nextChange",
+		"when": "isInDiffEditor"
+	},
+	{
+		"key": "space",
+		"command": "git.stageSelectedRanges",
+		"when": "isInDiffEditor && !operationInProgress"
+	},
+	{
+		"key": "backspace",
+		"command": "git.revertSelectedRanges",
+		"when": "textCompareEditorActive && !operationInProgress"
 	}
 ]
