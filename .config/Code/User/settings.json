@@ -1,32 +1,38 @@
 {
+	"breadcrumbs.enabled": false,
+
 	"diffEditor.ignoreTrimWhitespace": false,
+
 	"editor.codeActionsOnSave": {
 		"source.organizeImports": false
 	},
 	"editor.cursorSurroundingLines": 8,
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
-	"[python]": {
-		"diffEditor.ignoreTrimWhitespace": false,
-		"editor.formatOnSave": true,
-		"editor.wordBasedSuggestions": false,
-		"editor.defaultFormatter": "charliermarsh.ruff"
-	},
 	"editor.fontFamily": "'CaskaydiaCove Nerd Font', 'Fira Code', Menlo, Monaco, 'Courier New', monospace",
 	"editor.fontLigatures": true,
 	"editor.formatOnSave": true,
 	"editor.minimap.enabled": false,
 	"editor.roundedSelection": false,
 	"editor.scrollBeyondLastLine": false,
+	"editor.stickyScroll.enabled": true,
 	"editor.suggestSelection": "first",
 	"editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?",
+
+	"explorer.confirmDragAndDrop": false,
+
 	"files.exclude": {
 		"**/.venv": true,
 		"**/node_modules": true
 	},
+
 	"git.autofetch": true,
-	"git.confirmSync": true,
+	"git.confirmSync": false,
 	"git.useEditorAsCommitInput": true,
 	"git.mergeEditor": true,
+
+	"githubPullRequests.pullBranch": "never",
+	"githubPullRequests.pushBranch": "always",
+
 	"leetcode.defaultLanguage": "python3",
 	"leetcode.workspaceFolder": "/Users/tnez/Code/tnez/leet",
 	"leetcode.filePath": {
@@ -35,14 +41,17 @@
 			"filename": "${id}.${kebab-case-name}.${ext}"
 		}
 	},
+
 	"projectManager.git.baseFolders": ["$home/Code", "$home/workspace"],
 	"projectManager.git.maxDepthRecursion": 3,
 	"projectManager.sortList": "Recent",
-	"python.testing.pytestEnabled": true,
+
 	"terminal.integrated.commandsToSkipShell": [
 		"workbench.action.navigateRight",
 		"workbench.action.navigateLeft"
 	],
+	"terminal.integrated.letterSpacing": 1,
+
 	"vim.insertModeKeyBindings": [
 		{
 			"before": ["j", "j"],
@@ -130,52 +139,37 @@
 		}
 	],
 	"vim.foldfix": true,
-	"vim.leader": "<space>",
-	"vim.smartRelativeLine": true,
-	"vim.useCtrlKeys": true,
 	"vim.handleKeys": {
 		"<C-b>": false
 	},
+	"vim.leader": "<space>",
+	"vim.smartRelativeLine": true,
+	"vim.useCtrlKeys": true,
 	"vim.useSystemClipboard": true,
+
 	"window.commandCenter": true,
-	"workbench.editor.enablePreview": false,
-	"workbench.list.defaultFindMode": "filter",
+
+	"workbench.activityBar.visible": false,
 	"workbench.colorTheme": "Everforest Dark",
-	"workench.iconTheme": "material-icon-theme",
+	"workbench.editor.enablePreview": false,
+	"workbench.iconTheme": "material-icon-theme",
+	"workbench.list.defaultFindMode": "filter",
 	"workbench.preferredDarkColorTheme": "Everforest Dark",
 	"workbench.preferredLightColorTheme": "Everforest Light",
 	"workbench.settings.editor": "json",
-	"terminal.integrated.letterSpacing": 1,
-	"githubPullRequests.pullBranch": "never",
-	"explorer.confirmDragAndDrop": false,
-	"eslint.probe": [
-		"html",
-		"javascript",
-		"javascriptreact",
-		"markdown",
-		"mdx",
-		"typescript",
-		"typescriptreact",
-		"vue"
-	],
-	"eslint.validate": [
-		"html",
-		"javascript",
-		"javascriptreact",
-		"markdown",
-		"mdx",
-		"typescript",
-		"typescriptreact",
-		"vue"
-	],
-	"eslint.options": {
-		"extensions": [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx"]
-	},
-	"githubPullRequests.pushBranch": "always",
-	"workbench.statusBar.visible": false,
-	"breadcrumbs.enabled": false,
-	"editor.stickyScroll.enabled": true,
-	"workbench.activityBar.visible": false,
 	"workbench.sideBar.location": "right",
-	"workbench.startupEditor": "readme"
+	"workbench.startupEditor": "readme",
+	"workbench.statusBar.visible": false,
+
+	"[python]": {
+		"analysis.typeCheckingMode": "basic",
+		"diffEditor.ignoreTrimWhitespace": false,
+		"editor.formatOnSave": true,
+		"editor.wordBasedSuggestions": false,
+		"editor.defaultFormatter": "charliermarsh.ruff",
+		"testing.cwd": "${workspaceFolder}/**/tests",
+		"testing.pytestArgs": ["-s", "-vv"],
+		"testing.pytestEnabled": true,
+		"venvPath": "${workspaceFolder}/.venv"
+	}
 }
