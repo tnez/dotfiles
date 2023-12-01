@@ -27,8 +27,10 @@
 
 	"git.autofetch": true,
 	"git.confirmSync": false,
-	"git.useEditorAsCommitInput": true,
+	"git.enableSmartCommit": true,
 	"git.mergeEditor": true,
+	"git.openRepositoryInParentFolders": "always",
+	"git.useEditorAsCommitInput": true,
 
 	"githubPullRequests.pullBranch": "never",
 	"githubPullRequests.pushBranch": "always",
