@@ -154,9 +154,9 @@
 	"vim.useSystemClipboard": true,
 
 	"window.autoDetectColorScheme": true,
-	"window.commandCenter": true,
-	"window.zoomLevel": 1,
+	"window.commandCenter": false,
 
+	"workbench.activityBar.location": "hidden",
 	"workbench.colorTheme": "Solarized Dark",
 	"workbench.editor.enablePreview": false,
 	"workbench.iconTheme": "material-icon-theme",
@@ -166,7 +166,7 @@
 	"workbench.settings.editor": "json",
 	"workbench.sideBar.location": "right",
 	"workbench.startupEditor": "readme",
-	"workbench.statusBar.visible": false,
+	"workbench.statusBar.visible": true,
 
 	"[python]": {
 		"analysis.typeCheckingMode": "basic",
