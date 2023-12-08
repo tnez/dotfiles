@@ -158,6 +158,9 @@
 
 	"workbench.activityBar.location": "hidden",
 	"workbench.colorTheme": "Solarized Dark",
+	"workbench.editorAssociations": {
+		"git-rebase-todo": "default"
+	},
 	"workbench.editor.enablePreview": false,
 	"workbench.iconTheme": "material-icon-theme",
 	"workbench.list.defaultFindMode": "filter",
