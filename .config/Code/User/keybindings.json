@@ -209,7 +209,6 @@
 		"command": "-testing.runAtCursor",
 		"when": "editorTextFocus"
 	},
-
 	/**
 	 * Diff Navigation
 	 */
@@ -260,6 +259,10 @@
 	{
 		"key": "ctrl+space b",
 		"command": "simpleBrowser.show"
+	},
+	{
+		"key": "ctrl+space z",
+		"command": "workbench.action.toggleZenMode"
 	},
 	{
 		"key": "ctrl+space p",
