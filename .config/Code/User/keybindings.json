@@ -10,8 +10,8 @@
 	 * Terminal Behavior
 	 */
 	{
-		"command": "workbench.action.createTerminalEditor",
-		"key": "ctrl+shift+;"
+		"key": "ctrl+shift+;",
+		"command": "workbench.action.toggleMaximizedPanel"
 	},
 	/**
 	 * Browser Behavior
@@ -28,24 +28,8 @@
 		"key": "ctrl+;"
 	},
 	/**
-	 * Sidebar Behavior
+	 * File Explorer Behavior
 	 */
-	{
-		"command": "workbench.view.explorer",
-		"key": "ctrl+e",
-		"when": "!sideBarVisible"
-	},
-	{
-		"command": "extension.multiCommand.execute",
-		"key": "ctrl+e",
-		"when": "sideBarVisible",
-		"args": {
-			"sequence": [
-				"workbench.action.focusActiveEditorGroup",
-				"workbench.action.closeSidebar"
-			]
-		}
-	},
 	{
 		"command": "explorer.newFile",
 		"key": "a",
