@@ -7,25 +7,51 @@
 		"key": "ctrl+space space"
 	},
 	/**
-	 * Terminal Behavior
-	 */
-	{
-		"key": "ctrl+shift+;",
-		"command": "workbench.action.toggleMaximizedPanel"
-	},
-	/**
-	 * Browser Behavior
-	 */
-	{
-		"key": "ctrl+b",
-		"command": "simpleBrowser.show"
-	},
-	/**
 	 * Panel Behavior
 	 */
 	{
 		"command": "workbench.action.togglePanel",
 		"key": "ctrl+;"
+	},
+	{
+		"key": "ctrl+space n",
+		"command": "workbench.action.terminal.new",
+		"when": "terminalFocus"
+	},
+	{
+		"key": "ctrl+t",
+		"command": "workbench.action.terminal.new",
+		"when": "terminalFocus"
+	},
+	{
+		"key": "ctrl+shift+j",
+		"command": "workbench.action.terminal.focusNext",
+		"when": "terminalFocus"
+	},
+	{
+		"key": "ctrl+shift+l",
+		"command": "workbench.action.terminal.focusNext",
+		"when": "terminalFocus"
+	},
+	{
+		"key": "ctrl+shift+k",
+		"command": "workbench.action.terminal.focusPrevious",
+		"when": "terminalFocus"
+	},
+	{
+		"key": "ctrl+shift+h",
+		"command": "workbench.action.terminal.focusPrevious",
+		"when": "terminalFocus"
+	},
+	{
+		"command": "workbench.action.nextPanelView",
+		"key": "ctrl+l",
+		"when": "panelFocus || terminalFocus"
+	},
+	{
+		"command": "workbench.action.previousPanelView",
+		"key": "ctrl+h",
+		"when": "panelFocus || terminalFocus"
 	},
 	/**
 	 * File Explorer Behavior
@@ -121,7 +147,8 @@
 	},
 	{
 		"command": "workbench.action.navigateLeft",
-		"key": "ctrl+h"
+		"key": "ctrl+h",
+		"when": "!panelFocus && !terminalFocus && !suggestWidgetVisible && !inQuickOpen"
 	},
 	{
 		"command": "workbench.action.navigateDown",
@@ -135,7 +162,8 @@
 	},
 	{
 		"command": "workbench.action.navigateRight",
-		"key": "ctrl+l"
+		"key": "ctrl+l",
+		"when": "!panelFocus && !terminalFocus && !suggestWidgetVisible && !inQuickOpen"
 	},
 	/**
 	 * Scroll in Popovers
@@ -159,19 +187,6 @@
 		"key": "l",
 		"command": "editor.action.scrollRightHover",
 		"when": "editorHoverFocused"
-	},
-	/**
-	 * Buffer Navigation
-	 */
-	{
-		"command": "workbench.action.nextPanelView",
-		"key": "ctrl+shift+l",
-		"when": "panelFocus"
-	},
-	{
-		"command": "workbench.action.previousPanelView",
-		"key": "ctrl+shift+h",
-		"when": "panelFocus"
 	},
 	/**
 	 * Project Navigation
@@ -241,6 +256,10 @@
 	{
 		"key": "ctrl+space /",
 		"command": "workbench.view.search.focus"
+	},
+	{
+		"key": "ctrl+space b",
+		"command": "simpleBrowser.show"
 	},
 	{
 		"key": "ctrl+space p",
