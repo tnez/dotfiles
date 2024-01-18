@@ -171,7 +171,7 @@
   "workbench.statusBar.visible": true,
 
   "[python]": {
-    "analysis.typeCheckingMode": "basic",
+    "analysis.typeCheckingMode": "strict",
     "diffEditor.ignoreTrimWhitespace": false,
     "editor.formatOnSave": true,
     "editor.wordBasedSuggestions": "off",
