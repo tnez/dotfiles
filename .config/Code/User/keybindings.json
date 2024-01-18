@@ -1,293 +1,293 @@
 [
-	/**
-	 * Toggle Command Palette
-	 */
-	{
-		"command": "workbench.action.showCommands",
-		"key": "ctrl+space space"
-	},
-	/**
-	 * Panel Behavior
-	 */
-	{
-		"command": "workbench.action.togglePanel",
-		"key": "ctrl+;"
-	},
-	{
-		"key": "ctrl+space n",
-		"command": "workbench.action.terminal.new",
-		"when": "terminalFocus"
-	},
-	{
-		"key": "ctrl+t",
-		"command": "workbench.action.terminal.new",
-		"when": "terminalFocus"
-	},
-	{
-		"key": "ctrl+shift+j",
-		"command": "workbench.action.terminal.focusNext",
-		"when": "terminalFocus"
-	},
-	{
-		"key": "ctrl+shift+l",
-		"command": "workbench.action.terminal.focusNext",
-		"when": "terminalFocus"
-	},
-	{
-		"key": "ctrl+shift+k",
-		"command": "workbench.action.terminal.focusPrevious",
-		"when": "terminalFocus"
-	},
-	{
-		"key": "ctrl+shift+h",
-		"command": "workbench.action.terminal.focusPrevious",
-		"when": "terminalFocus"
-	},
-	{
-		"command": "workbench.action.nextPanelView",
-		"key": "ctrl+l",
-		"when": "panelFocus || terminalFocus"
-	},
-	{
-		"command": "workbench.action.previousPanelView",
-		"key": "ctrl+h",
-		"when": "panelFocus || terminalFocus"
-	},
-	/**
-	 * File Explorer Behavior
-	 */
-	{
-		"command": "explorer.newFile",
-		"key": "a",
-		"when": "filesExplorerFocus && !inputFocus"
-	},
-	{
-		"command": "explorer.newFolder",
-		"key": "shift+a",
-		"when": "filesExplorerFocus && !inputFocus"
-	},
-	{
-		"command": "deleteFile",
-		"key": "d",
-		"when": "filesExplorerFocus && !inputFocus"
-	},
-	{
-		"command": "extension.multiCommand.execute",
-		"args": {
-			"sequence": ["list.select", "workbench.action.keepEditor"]
-		},
-		"key": "o",
-		"when": "filesExplorerFocus && !inputFocus"
-	},
-	{
-		"command": "explorer.openToSide",
-		"key": "shift+o",
-		"when": "filesExplorerFocus && !inputFocus"
-	},
-	{
-		"command": "renameFile",
-		"key": "r",
-		"when": "filesExplorerFocus && !inputFocus"
-	},
-	/**
-	 * Toggle Quick-Open
-	 */
-	{
-		"command": "workbench.action.quickOpen",
-		"key": "ctrl+o"
-	},
-	/**
-	 * Navigate Dropdowns with ctrl+j/k
-	 */
-	{
-		"command": "selectNextSuggestion",
-		"key": "ctrl+j",
-		"when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
-	},
-	{
-		"command": "selectPrevSuggestion",
-		"key": "ctrl+k",
-		"when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
-	},
-	/**
-	 * Navigate QuickOpen with ctrl+j/k
-	 */
-	{
-		"command": "workbench.action.quickOpenSelectNext",
-		"key": "ctrl+j",
-		"when": "inQuickOpen"
-	},
-	{
-		"command": "workbench.action.quickOpenSelectPrevious",
-		"key": "ctrl+k",
-		"when": "inQuickOpen"
-	},
-	/**
-	 * Splits - Creation and Naviagation
-	 */
-	{
-		"key": "ctrl+/",
-		"command": "extension.multiCommand.execute",
-		"args": {
-			"sequence": [
-				"workbench.action.newGroupRight",
-				"workbench.action.createTerminalEditor"
-			]
-		}
-	},
-	{
-		"key": "ctrl+-",
-		"command": "extension.multiCommand.execute",
-		"args": {
-			"sequence": [
-				"workbench.action.newGroupBelow",
-				"workbench.action.createTerminalEditor"
-			]
-		}
-	},
-	{
-		"command": "workbench.action.navigateLeft",
-		"key": "ctrl+h",
-		"when": "!panelFocus && !terminalFocus && !suggestWidgetVisible && !inQuickOpen"
-	},
-	{
-		"command": "workbench.action.navigateDown",
-		"key": "ctrl+j",
-		"when": "!suggestWidgetVisible && !inQuickOpen"
-	},
-	{
-		"command": "workbench.action.navigateUp",
-		"key": "ctrl+k",
-		"when": "!suggestWidgetVisible && !inQuickOpen"
-	},
-	{
-		"command": "workbench.action.navigateRight",
-		"key": "ctrl+l",
-		"when": "!panelFocus && !terminalFocus && !suggestWidgetVisible && !inQuickOpen"
-	},
-	/**
-	 * Scroll in Popovers
-	 */
-	{
-		"key": "h",
-		"command": "editor.action.scrollLeftHover",
-		"when": "editorHoverFocused"
-	},
-	{
-		"key": "j",
-		"command": "editor.action.scrollDownHover",
-		"when": "editorHoverFocused"
-	},
-	{
-		"key": "k",
-		"command": "editor.action.scrollUpHover",
-		"when": "editorHoverFocused"
-	},
-	{
-		"key": "l",
-		"command": "editor.action.scrollRightHover",
-		"when": "editorHoverFocused"
-	},
-	/**
-	 * Project Navigation
-	 */
-	{
-		"command": "projectManager.listProjects",
-		"key": "ctrl+shift+o"
-	},
-	{
-		"command": "workbench.action.closeFolder",
-		"key": "ctrl+shift+c"
-	},
-	{
-		"key": "ctrl+c ctrl+c",
-		"command": "testing.runAtCursor",
-		"when": "editorTextFocus"
-	},
-	{
-		"key": "cmd+; c",
-		"command": "-testing.runAtCursor",
-		"when": "editorTextFocus"
-	},
-	/**
-	 * Diff Navigation
-	 */
-	{
-		"key": "ctrl+k",
-		"command": "workbench.action.compareEditor.previousChange",
-		"when": "isInDiffEditor"
-	},
-	{
-		"key": "ctrl+j",
-		"command": "workbench.action.compareEditor.nextChange",
-		"when": "isInDiffEditor"
-	},
-	{
-		"key": "space",
-		"command": "git.stageSelectedRanges",
-		"when": "isInDiffEditor && !operationInProgress"
-	},
-	{
-		"key": "backspace",
-		"command": "git.revertSelectedRanges",
-		"when": "isInDiffEditor && !operationInProgress"
-	},
+  /**
+   * Toggle Command Palette
+   */
+  {
+    "command": "workbench.action.showCommands",
+    "key": "ctrl+space space"
+  },
+  /**
+   * Panel Behavior
+   */
+  {
+    "command": "workbench.action.togglePanel",
+    "key": "ctrl+;"
+  },
+  {
+    "key": "ctrl+space n",
+    "command": "workbench.action.terminal.new",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+t",
+    "command": "workbench.action.terminal.new",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+j",
+    "command": "workbench.action.terminal.focusNext",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+l",
+    "command": "workbench.action.terminal.focusNext",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+k",
+    "command": "workbench.action.terminal.focusPrevious",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+h",
+    "command": "workbench.action.terminal.focusPrevious",
+    "when": "terminalFocus"
+  },
+  {
+    "command": "workbench.action.nextPanelView",
+    "key": "ctrl+l",
+    "when": "panelFocus || terminalFocus"
+  },
+  {
+    "command": "workbench.action.previousPanelView",
+    "key": "ctrl+h",
+    "when": "panelFocus || terminalFocus"
+  },
+  /**
+   * File Explorer Behavior
+   */
+  {
+    "command": "explorer.newFile",
+    "key": "a",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "explorer.newFolder",
+    "key": "shift+a",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "deleteFile",
+    "key": "d",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "extension.multiCommand.execute",
+    "args": {
+      "sequence": ["list.select", "workbench.action.keepEditor"]
+    },
+    "key": "o",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "explorer.openToSide",
+    "key": "shift+o",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "renameFile",
+    "key": "r",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  /**
+   * Toggle Quick-Open
+   */
+  {
+    "command": "workbench.action.quickOpen",
+    "key": "ctrl+o"
+  },
+  /**
+   * Navigate Dropdowns with ctrl+j/k
+   */
+  {
+    "command": "selectNextSuggestion",
+    "key": "ctrl+j",
+    "when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
+  },
+  {
+    "command": "selectPrevSuggestion",
+    "key": "ctrl+k",
+    "when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
+  },
+  /**
+   * Navigate QuickOpen with ctrl+j/k
+   */
+  {
+    "command": "workbench.action.quickOpenSelectNext",
+    "key": "ctrl+j",
+    "when": "inQuickOpen"
+  },
+  {
+    "command": "workbench.action.quickOpenSelectPrevious",
+    "key": "ctrl+k",
+    "when": "inQuickOpen"
+  },
+  /**
+   * Splits - Creation and Naviagation
+   */
+  {
+    "key": "ctrl+/",
+    "command": "extension.multiCommand.execute",
+    "args": {
+      "sequence": [
+        "workbench.action.newGroupRight",
+        "workbench.action.createTerminalEditor"
+      ]
+    }
+  },
+  {
+    "key": "ctrl+-",
+    "command": "extension.multiCommand.execute",
+    "args": {
+      "sequence": [
+        "workbench.action.newGroupBelow",
+        "workbench.action.createTerminalEditor"
+      ]
+    }
+  },
+  {
+    "command": "workbench.action.navigateLeft",
+    "key": "ctrl+h",
+    "when": "!panelFocus && !terminalFocus && !suggestWidgetVisible && !inQuickOpen"
+  },
+  {
+    "command": "workbench.action.navigateDown",
+    "key": "ctrl+j",
+    "when": "!suggestWidgetVisible && !inQuickOpen"
+  },
+  {
+    "command": "workbench.action.navigateUp",
+    "key": "ctrl+k",
+    "when": "!suggestWidgetVisible && !inQuickOpen"
+  },
+  {
+    "command": "workbench.action.navigateRight",
+    "key": "ctrl+l",
+    "when": "!panelFocus && !terminalFocus && !suggestWidgetVisible && !inQuickOpen"
+  },
+  /**
+   * Scroll in Popovers
+   */
+  {
+    "key": "h",
+    "command": "editor.action.scrollLeftHover",
+    "when": "editorHoverFocused"
+  },
+  {
+    "key": "j",
+    "command": "editor.action.scrollDownHover",
+    "when": "editorHoverFocused"
+  },
+  {
+    "key": "k",
+    "command": "editor.action.scrollUpHover",
+    "when": "editorHoverFocused"
+  },
+  {
+    "key": "l",
+    "command": "editor.action.scrollRightHover",
+    "when": "editorHoverFocused"
+  },
+  /**
+   * Project Navigation
+   */
+  {
+    "command": "projectManager.listProjects",
+    "key": "ctrl+shift+o"
+  },
+  {
+    "command": "workbench.action.closeFolder",
+    "key": "ctrl+shift+c"
+  },
+  {
+    "key": "ctrl+c ctrl+c",
+    "command": "testing.runAtCursor",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "cmd+; c",
+    "command": "-testing.runAtCursor",
+    "when": "editorTextFocus"
+  },
+  /**
+   * Diff Navigation
+   */
+  {
+    "key": "ctrl+k",
+    "command": "workbench.action.compareEditor.previousChange",
+    "when": "isInDiffEditor"
+  },
+  {
+    "key": "ctrl+j",
+    "command": "workbench.action.compareEditor.nextChange",
+    "when": "isInDiffEditor"
+  },
+  {
+    "key": "space",
+    "command": "git.stageSelectedRanges",
+    "when": "isInDiffEditor && !operationInProgress"
+  },
+  {
+    "key": "backspace",
+    "command": "git.revertSelectedRanges",
+    "when": "isInDiffEditor && !operationInProgress"
+  },
 
-	/**
-	 * Opening and Closing Things...
-	 */
-	{
-		"key": "ctrl+space o",
-		"command": "workbench.view.explorer"
-	},
-	{
-		"key": "ctrl+space i",
-		"command": "workbench.panel.chat.view.copilot.focus"
-	},
-	{
-		"key": "ctrl+space g",
-		"command": "workbench.scm.focus"
-	},
-	{
-		"key": "ctrl+space h",
-		"command": "pr:github.focus"
-	},
-	{
-		"key": "ctrl+space /",
-		"command": "workbench.view.search.focus"
-	},
-	{
-		"key": "ctrl+space b",
-		"command": "simpleBrowser.show"
-	},
-	{
-		"key": "ctrl+space z",
-		"command": "workbench.action.toggleZenMode"
-	},
-	{
-		"key": "ctrl+space p",
-		"command": "postman-for-vscode.sidebar-panel.focus"
-	},
-	{
-		"key": "ctrl+space backspace",
-		"command": "extension.multiCommand.execute",
-		"args": {
-			"sequence": [
-				"workbench.action.closeSidebar",
-				"workbench.action.closePanel",
-				"workbench.action.focusActiveEditorGroup"
-			]
-		}
-	},
-	{
-		"key": "ctrl+space shift+backspace",
-		"command": "extension.multiCommand.execute",
-		"args": {
-			"sequence": [
-				"workbench.action.closeAllEditors",
-				"workbench.action.closePanel",
-				"workbench.action.closeSidebar"
-			]
-		}
-	}
+  /**
+   * Opening and Closing Things...
+   */
+  {
+    "key": "ctrl+space o",
+    "command": "workbench.view.explorer"
+  },
+  {
+    "key": "ctrl+space i",
+    "command": "workbench.panel.chat.view.copilot.focus"
+  },
+  {
+    "key": "ctrl+space g",
+    "command": "workbench.scm.focus"
+  },
+  {
+    "key": "ctrl+space h",
+    "command": "pr:github.focus"
+  },
+  {
+    "key": "ctrl+space /",
+    "command": "workbench.view.search.focus"
+  },
+  {
+    "key": "ctrl+space b",
+    "command": "simpleBrowser.show"
+  },
+  {
+    "key": "ctrl+space z",
+    "command": "workbench.action.toggleZenMode"
+  },
+  {
+    "key": "ctrl+space p",
+    "command": "postman-for-vscode.sidebar-panel.focus"
+  },
+  {
+    "key": "ctrl+space backspace",
+    "command": "extension.multiCommand.execute",
+    "args": {
+      "sequence": [
+        "workbench.action.closeSidebar",
+        "workbench.action.closePanel",
+        "workbench.action.focusActiveEditorGroup"
+      ]
+    }
+  },
+  {
+    "key": "ctrl+space shift+backspace",
+    "command": "extension.multiCommand.execute",
+    "args": {
+      "sequence": [
+        "workbench.action.closeAllEditors",
+        "workbench.action.closePanel",
+        "workbench.action.closeSidebar"
+      ]
+    }
+  }
 ]
