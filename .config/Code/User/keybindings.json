@@ -205,6 +205,11 @@
     "when": "editorTextFocus"
   },
   {
+    "key": "ctrl+c ctrl+c",
+    "when": "testing.isPeekVisible",
+    "command": "editor.closeTestPeek"
+  },
+  {
     "key": "cmd+; c",
     "command": "-testing.runAtCursor",
     "when": "editorTextFocus"
