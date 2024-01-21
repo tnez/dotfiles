@@ -28,7 +28,7 @@
 [init]
 	defaultBranch = main
 [core]
-  editor = "code --wait"
+  editor = "nvim"
   excludesfile = ~/.gitignore
 	pager = delta
 [delta]
