@@ -25,6 +25,4 @@ return {
 
   { import = "astrocommunity.test.neotest" },
   { import = "astrocommunity.test.nvim-coverage" },
-
-  { import = "astrocommunity.workflow.hardtime-nvim" },
 }
