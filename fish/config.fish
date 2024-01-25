@@ -23,6 +23,9 @@ set -x N_PREFIX $HOME/n
 set -x PAGER less
 set -x VISUAL vim
 
+# set _secret_ variables
+set -x OPENAI_API_KEY (cat ~/.secrets/OPENAI_API_KEY)
+
 # install plugin manger (fisher) and any missing plugins
 if not functions -q fisher
     set -q XDG_CONFIG_HOME; or set XDG_CONFIG_HOME ~/.config
