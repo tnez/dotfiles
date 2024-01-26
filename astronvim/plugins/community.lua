@@ -9,8 +9,6 @@ return {
   { import = "astrocommunity.completion.copilot-lua-cmp" },
   { import = "astrocommunity.completion.copilot-lua" },
 
-  { import = "astrocommunity.editing-support.chatgpt-nvim" },
-
   { import = "astrocommunity.git.octo-nvim" },
 
   { import = "astrocommunity.pack.html-css" },
