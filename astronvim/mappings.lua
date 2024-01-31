@@ -4,7 +4,6 @@ return {
   },
   n = {
     ["kj"] = false,
-    ["<leader>c"] = false,
     ["<C-c><C-c>"] = { ":Neotest run<cr>", desc = "Testing: Run nearest" },
     ["<C-c><C-o>"] = { ":Neotest summary<cr>", desc = "Testing: Open summary" },
     ["<S-H>"] = { ":bp<CR>", desc = "Jump to previous buffer" },
