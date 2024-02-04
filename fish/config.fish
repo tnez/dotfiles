@@ -33,16 +33,6 @@ if not functions -q fisher
     fish -c fisher
 end
 
-# set completions for GitHub CLI
-# if not test -e $HOME/.config/fish/completions/gh.fish
-#  gh completion -s fish > $HOME/.config/fish/completions/gh.fish
-# end
-
-# emacs ansi-term support
-if test -n "$EMACS"
-    set -x TERM eterm-color
-end
-
 # this function may be required
 function fish_title
     true
