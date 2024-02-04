@@ -15,13 +15,13 @@ alias python="python3"
 alias tp="t --project"
 
 # set variables
-set -x EDITOR vim
+set -x EDITOR nvim
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x MODE LIGHT # set to DARK for dark mode
 set -x N_PREFIX $HOME/n
 set -x PAGER less
-set -x VISUAL vim
+set -x VISUAL nvim
 
 # set _secret_ variables
 set -x OPENAI_API_KEY (cat ~/.secrets/OPENAI_API_KEY)
