@@ -1,5 +1,5 @@
 # aliases
-alias bat="bat"
+alias bat="bat --theme Catppuccin-frappe"
 alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
 alias d="docker"
