@@ -1,5 +1,5 @@
 # aliases
-alias bat="bat --theme base16-256"
+alias bat="bat"
 alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
 alias d="docker"
@@ -25,6 +25,9 @@ set -x VISUAL nvim
 
 # set _secret_ variables
 set -x OPENAI_API_KEY (cat ~/.secrets/OPENAI_API_KEY)
+
+# set fzf options
+set -x FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border --preview-window=right:60% --preview 'bat --color=always --style=header,grid --line-range :500 {}'"
 
 # install plugin manger (fisher) and any missing plugins
 if not functions -q fisher
