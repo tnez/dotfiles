@@ -12,7 +12,6 @@ alias la="ls -a"
 alias lg="lazygit"
 alias ll="ls -al"
 alias python="python3"
-alias tp="t --project"
 
 # set variables
 set -x EDITOR nvim
