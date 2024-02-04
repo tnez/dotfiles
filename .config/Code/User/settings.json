@@ -158,7 +158,7 @@
   "window.commandCenter": false,
 
   "workbench.activityBar.location": "hidden",
-  "workbench.colorTheme": "Solarized Light",
+  "workbench.colorTheme": "Solarized Dark",
   "workbench.editorAssociations": {
     "git-rebase-todo": "default"
   },
