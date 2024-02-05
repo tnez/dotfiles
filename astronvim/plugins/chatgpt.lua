@@ -20,6 +20,7 @@ return {
         presence_penalty = 0,
         temperature = 0,
         top_p = 1,
+        max_tokens = 8192,
         n = 1,
       },
       openai_edit_params = {
@@ -28,6 +29,7 @@ return {
         presence_penalty = 0,
         temperature = 0,
         top_p = 1,
+        max_tokens = 8192,
         n = 1,
       },
       openai_functions_params = {
@@ -36,6 +38,7 @@ return {
         presence_penalty = 0,
         temperature = 0,
         top_p = 1,
+        max_tokens = 8192,
         n = 1,
       },
       use_openai_functions_for_edits = true,
