@@ -4,6 +4,9 @@
 # tmux
 tmux-client-*
 
+# neovim noise
+.null-ls_*
+
 # project management
 /__external
 notes*.md
