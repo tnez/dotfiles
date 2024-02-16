@@ -13,6 +13,12 @@ alias lg="lazygit"
 alias ll="ls -al"
 alias python="python3"
 
+# Setup zoxide if present
+if type zoxide > /dev/null 2>&1
+  zoxide init fish | source
+  alias cd="z"
+end
+
 # set variables
 set -x EDITOR nvim
 set -x LANG en_US.UTF-8
