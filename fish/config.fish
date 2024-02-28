@@ -27,6 +27,7 @@ set -x MODE LIGHT # set to DARK for dark mode
 set -x N_PREFIX $HOME/n
 set -x PAGER less
 set -x VISUAL nvim
+set -x ZK_NOTEBOOK_DIR $HOME/Documents/sb
 
 # set _secret_ variables
 set -x OPENAI_API_KEY (cat ~/.secrets/OPENAI_API_KEY)
