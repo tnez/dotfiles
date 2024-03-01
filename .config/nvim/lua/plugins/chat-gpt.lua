@@ -10,4 +10,19 @@ return {
     "folke/trouble.nvim",
     "nvim-telescope/telescope.nvim",
   },
+  keys = {
+    { "<leader>;", desc = "ChatGPT ->", mode = { "n", "v" } },
+    {
+      "<leader>;;",
+      "<cmd>ChatGPT<cr>",
+      mode = "n",
+      desc = "Open ChatGPT",
+    },
+    {
+      "<leader>;;",
+      "<cmd>ChatGPTEditWithInstructions<cr>",
+      mode = "v",
+      desc = "Edit Region with ChatGPT",
+    },
+  },
 }
