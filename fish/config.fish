@@ -14,9 +14,9 @@ alias ll="ls -al"
 alias python="python3"
 
 # Setup zoxide if present
-if type zoxide > /dev/null 2>&1
-  zoxide init fish | source
-  alias cd="z"
+if type zoxide >/dev/null 2>&1
+    zoxide init fish | source
+    alias cd="z"
 end
 
 # set variables
@@ -25,6 +25,7 @@ set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x MODE LIGHT # set to DARK for dark mode
 set -x N_PREFIX $HOME/n
+set -x NVIM_APPNAME nvim-tnez
 set -x PAGER less
 set -x VISUAL nvim
 set -x ZK_NOTEBOOK_DIR $HOME/Documents/sb
@@ -64,4 +65,6 @@ source (pyenv init - | psub)
 set -gx PATH "$HOME/.local/bin" $PATH
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc' ]; . '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc'; end
+if [ -f '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc' ]
+    . '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc'
+end
