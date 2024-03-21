@@ -64,4 +64,4 @@ vim.opt.scrolloff = 10
 vim.opt.foldmethod = 'expr'
 vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
 vim.opt.foldenable = true
-vim.opt.foldlevelstart = 2
+vim.opt.foldlevelstart = 99
