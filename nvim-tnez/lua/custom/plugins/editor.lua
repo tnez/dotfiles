@@ -153,37 +153,31 @@ return {
       local append_mark = function()
         harpoon:list():append()
       end
-      vim.keymap.set('n', '<C-m>', append_mark, { desc = 'Append to Harpoon Marks' })
-      vim.keymap.set('n', '<C-Enter>', append_mark, { desc = 'Append to Harpoon Marks' })
+      vim.keymap.set('n', 'm.', append_mark, { desc = 'Append to Harpoon Marks' })
 
       -- Searching Marks
       local open_harpoon_picker = function()
         harpoon.ui:toggle_quick_menu(harpoon:list())
       end
-
-      vim.keymap.set('n', '<leader>sm', open_harpoon_picker, { desc = '[S]earch Harpoon [M]arks' })
-      vim.keymap.set('n', '<leader><leader>', open_harpoon_picker, { desc = '[S]earch Harpoon [M]arks' })
+      vim.keymap.set('n', 'mm', open_harpoon_picker, { desc = 'Open Marks' })
 
       -- Jumping to marks
       local function jump_to_mark(idx)
         harpoon:list():select(idx)
       end
 
-      vim.keymap.set('n', '1', function()
+      vim.keymap.set('n', 'ma', function()
         jump_to_mark(1)
       end, { desc = 'Jump to mark 1' })
-      vim.keymap.set('n', '2', function()
+      vim.keymap.set('n', 'ms', function()
         jump_to_mark(2)
       end, { desc = 'Jump to mark 2' })
-      vim.keymap.set('n', '3', function()
+      vim.keymap.set('n', 'md', function()
         jump_to_mark(3)
       end, { desc = 'Jump to mark 3' })
-      vim.keymap.set('n', '4', function()
+      vim.keymap.set('n', 'mf', function()
         jump_to_mark(4)
       end, { desc = 'Jump to mark 4' })
-      vim.keymap.set('n', '5', function()
-        jump_to_mark(5)
-      end, { desc = 'Jump to mark 5' })
     end,
   },
 }
