@@ -27,7 +27,7 @@ return {
     opts = {},
     keys = {
       {
-        's',
+        '<C-f>',
         mode = { 'n', 'x', 'o' },
         function()
           require('flash').jump()
