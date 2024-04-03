@@ -59,4 +59,15 @@ return {
       },
     },
   },
+  {
+    'folke/zen-mode.nvim',
+    opts = {
+      window = {
+        width = 112,
+      },
+    },
+    keys = {
+      { '<leader>uz', '<cmd>ZenMode<CR>', desc = 'Toogle [Z]en Mode' },
+    },
+  },
 }
