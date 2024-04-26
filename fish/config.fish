@@ -64,6 +64,9 @@ source (pyenv init - | psub)
 # Add .local/bin to path
 set -gx PATH "$HOME/.local/bin" $PATH
 
+# Add go to path
+set -gx PATH "$HOME/go/bin" $PATH
+
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc' ]
     . '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc'
