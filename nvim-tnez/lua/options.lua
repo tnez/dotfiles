@@ -9,6 +9,9 @@ vim.g.maplocalleader = ' '
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- Do not use swapfiles (these are more trouble than they are worth for me)
+vim.opt.swapfile = false
+
 -- Show line numbers and use relative for surrounding lines
 vim.opt.number = true
 vim.opt.relativenumber = true
