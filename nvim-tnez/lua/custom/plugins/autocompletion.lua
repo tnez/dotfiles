@@ -41,7 +41,7 @@ return {
       },
       {
         'zbirenbaum/copilot-cmp',
-        options = {},
+        opts = {},
       },
     },
     config = function()
