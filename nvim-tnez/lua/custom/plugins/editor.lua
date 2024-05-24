@@ -1,4 +1,8 @@
 return {
+  { -- format files according to `.editorconfig` file
+    'editorconfig/editorconfig-vim',
+  },
+
   { -- Detect tabstop and shiftwidth automatically
     'tpope/vim-sleuth',
   },
