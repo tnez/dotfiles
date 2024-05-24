@@ -19,6 +19,8 @@ return { -- Autoformat
       markdown = { { 'prettierd', 'prettier' } },
       typescript = { { 'prettierd', 'prettier' } },
       typescriptreact = { { 'prettierd', 'prettier' } },
+      toml = { 'prettierd', 'prettier' },
+      yaml = { 'prettierd', 'prettier' },
     },
   },
 }
