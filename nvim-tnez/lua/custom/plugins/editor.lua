@@ -154,10 +154,10 @@ return {
       harpoon:setup()
 
       -- Setting Marks
-      local append_mark = function()
-        harpoon:list():append()
+      local add_mark = function()
+        harpoon:list():add()
       end
-      vim.keymap.set('n', 'm.', append_mark, { desc = 'Append to Harpoon Marks' })
+      vim.keymap.set('n', 'm.', add_mark, { desc = 'Append to Harpoon Marks' })
 
       -- Searching Marks
       local open_harpoon_picker = function()
