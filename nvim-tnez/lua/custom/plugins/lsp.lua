@@ -167,6 +167,7 @@ return { -- LSP Configuration & Plugins
       pyright = {},
       ruff_lsp = {},
       tailwindcss = {},
+      terraformls = {},
       tsserver = {},
       yamlls = {},
       zk = {},
