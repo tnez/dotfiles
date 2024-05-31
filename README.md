@@ -1,7 +1,9 @@
 `@tnez/dotfiles`
 
-### What is this?
+This is my collection of personal dotfiles.
 
-This is my personal dotfile / config collection primarily setup to support development using [GitHub Codespaces](https://github.com/features/codespaces)
+# Setting up on a new machine
 
-See [Personalizing GitHub Codespaces for your account](https://docs.github.com/en/codespaces/customizing-your-codespace/personalizing-github-codespaces-for-your-account#dotfiles) for more info.
+1. Clone this repo: `git clone https://github.com/tnez/dotfiles.git`
+1. Hop into directory: `cd dotfiles`
+1. Run the bootstrap script: `./bootstrap.sh`
