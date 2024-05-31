@@ -1,3 +1,4 @@
+# Environment stuff
 .env*
 !.env.example
 
