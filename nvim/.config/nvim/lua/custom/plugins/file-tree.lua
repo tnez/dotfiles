@@ -10,6 +10,17 @@ return {
     '3rd/image.nvim', -- Optional image support in preview window: See `# Preview Mode` for more information
   },
   opts = {
+    filesystem = {
+      filtered_items = {
+        hide_dotfiles = false,
+        hide_by_name = {
+          '.DS_Store',
+          '.git',
+          '.venv',
+          'node_modules',
+        },
+      },
+    },
     window = {
       position = 'right',
       mappings = {
