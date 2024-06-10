@@ -1,47 +1,12 @@
+-- set solarized colorscheme and inspect TERMINAL_COLOR_SCHEME_VARIANT to see if
+-- we want to use dark or light variant
 return {
-  'catppuccin/nvim',
-  name = 'catppuccin',
+  'maxmx03/solarized.nvim',
+  lazy = false,
   priority = 1000,
   config = function()
-    require('catppuccin').setup {
-      flavour = 'frappe',
-      integrations = {
-        aerial = true,
-        alpha = true,
-        cmp = true,
-        dashboard = true,
-        flash = true,
-        gitsigns = true,
-        headlines = true,
-        illuminate = true,
-        indent_blankline = { enabled = true },
-        leap = true,
-        lsp_trouble = true,
-        mason = true,
-        markdown = true,
-        mini = true,
-        native_lsp = {
-          enabled = true,
-          underlines = {
-            errors = { 'undercurl' },
-            hints = { 'undercurl' },
-            warnings = { 'undercurl' },
-            information = { 'undercurl' },
-          },
-        },
-        navic = { enabled = true, custom_bg = 'lualine' },
-        neotest = true,
-        neotree = true,
-        noice = true,
-        notify = true,
-        semantic_tokens = true,
-        telescope = true,
-        treesitter = true,
-        treesitter_context = true,
-        which_key = true,
-      },
-    }
-
-    vim.cmd.colorscheme 'catppuccin'
+    vim.o.background = vim.env.OS_INTERFACE_STYLE:lower()
+    vim.o.termguicolors = true
+    vim.cmd.colorscheme 'solarized'
   end,
 }
