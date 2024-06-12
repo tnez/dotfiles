@@ -43,7 +43,7 @@ config.set_environment_variables = {
 
 -- Fonts
 config.font = wezterm.font("Monaspace Neon")
-config.font_size = 16.0
+config.font_size = 14.0
 
 -- Keybindings
 config.debug_key_events = true -- uncomment this line to see key codes
