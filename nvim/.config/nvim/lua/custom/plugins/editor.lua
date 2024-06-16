@@ -184,4 +184,50 @@ return {
       end, { desc = 'Jump to mark 4' })
     end,
   },
+
+  -- TODO: Decide if I want to keep `tris203/precongnition.nvim`
+  -- Plugin that hints useful movements using virtual text
+  {
+    'tris203/precognition.nvim',
+    very_lazy = true,
+    opts = {
+      startVisible = true,
+      showBlankVirtLine = true,
+      highlightColor = { link = 'Comment' },
+      hints = {
+        Caret = { text = '^', prio = 2 },
+        Dollar = { text = '$', prio = 1 },
+        MatchingPair = { text = '%', prio = 5 },
+        Zero = { text = '0', prio = 1 },
+        w = { text = 'w', prio = 10 },
+        b = { text = 'b', prio = 9 },
+        e = { text = 'e', prio = 8 },
+        W = { text = 'W', prio = 7 },
+        B = { text = 'B', prio = 6 },
+        E = { text = 'E', prio = 5 },
+      },
+      gutterHints = {
+        G = { text = 'G', prio = 10 },
+        gg = { text = 'gg', prio = 9 },
+        PrevParagraph = { text = '{', prio = 8 },
+        NextParagraph = { text = '}', prio = 8 },
+      },
+    },
+    keys = {
+      {
+        'gm',
+        function()
+          require('precognition').peek()
+        end,
+        desc = 'Peek Movements',
+      },
+      {
+        '<leader>um',
+        function()
+          require('precognition').toggle()
+        end,
+        desc = 'Toggle Movements',
+      },
+    },
+  },
 }
