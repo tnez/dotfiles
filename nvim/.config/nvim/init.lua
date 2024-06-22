@@ -12,3 +12,6 @@ require 'keymaps'
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 require 'lazy-bootstrap'
+
+-- [[ Load AutoCommands ]]
+require 'autocmds'
