@@ -11,6 +11,8 @@ config.window_padding = {
   top = 10,
   bottom = 10,
 }
+
+-- On Startup
 local function maximize_on_startup()
   local _tab, _pane, window = wezterm.mux.spawn_window({})
   window:gui_window():maximize()
@@ -111,20 +113,29 @@ config.keys = {
   {
     key = "N",
     mods = "CTRL|SHIFT",
-    -- action = wezterm.action.SendString("\x1b[21;5~"),
     action = wezterm.action.SpawnTab("DefaultDomain"),
   },
   {
     key = "H",
     mods = "CTRL|SHIFT",
-    -- action = wezterm.action.SendString("\x1b[23;5~"),
     action = wezterm.action.ActivateTabRelative(-1),
   },
   {
     key = "L",
     mods = "CTRL|SHIFT",
-    -- action = wezterm.action.SendString("\x1b[24;5~"),
     action = wezterm.action.ActivateTabRelative(1),
+  },
+  {
+    key = "i",
+    mods = "CTRL",
+    action = wezterm.action.PromptInputLine({
+      description = "Enter new name for the tab",
+      action = wezterm.action_callback(function(window, _, line)
+        if line then
+          window:active_tab():set_title(line)
+        end
+      end),
+    }),
   },
   -- Panes
   {
@@ -138,9 +149,9 @@ config.keys = {
     action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
   },
   {
-    key = " ",
+    key = "Enter",
     mods = "CTRL",
-    action = wezterm.action.ShowLauncher,
+    action = wezterm.action.RotatePanes("Clockwise"),
   },
   -- move between split panes
   split_nav("move", "h"),
@@ -152,6 +163,25 @@ config.keys = {
   split_nav("resize", "j"),
   split_nav("resize", "k"),
   split_nav("resize", "l"),
+
+  -- Workspaces
+  {
+    key = " ",
+    mods = "CTRL",
+    action = wezterm.action.ShowLauncherArgs({ flags = "WORKSPACES" }),
+  },
+  {
+    key = "I",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.PromptInputLine({
+      description = "Enter new name for the workspace",
+      action = wezterm.action_callback(function(window, _, line)
+        if line then
+          wezterm.mux.rename_workspace(wezterm.mux.get_active_workspace(), line)
+        end
+      end),
+    }),
+  },
 }
 
 -- Tab Bar Stuff
