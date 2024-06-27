@@ -92,6 +92,24 @@ end
 config.debug_key_events = true -- uncomment this line to see key codes
 config.disable_default_key_bindings = true
 config.keys = {
+  -- Fonts
+  {
+    key = "+",
+    mods = "CMD",
+    action = wezterm.action.IncreaseFontSize,
+  },
+  -- Decrease font size
+  {
+    key = "-",
+    mods = "CMD",
+    action = wezterm.action.DecreaseFontSize,
+  },
+  -- Reset font size to default
+  {
+    key = "0",
+    mods = "CMD",
+    action = wezterm.action.ResetFontSize,
+  },
   -- Copy / Paste
   {
     key = "C",
