@@ -1,11 +1,6 @@
 # aliases
-alias bat="bat --theme Catppuccin-frappe"
 alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
-alias d="docker"
-alias dc="docker-compose"
-alias e="edit"
-alias fm="ranger-cd"
 alias g="git"
 alias gs="git status"
 alias ls="eza --icons"
