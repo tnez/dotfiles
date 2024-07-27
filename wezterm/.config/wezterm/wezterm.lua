@@ -2,7 +2,6 @@ local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
 -- General Appearance
-config.enable_tab_bar = true
 config.line_height = 1.2
 config.window_decorations = "RESIZE"
 config.window_padding = {
@@ -205,50 +204,64 @@ config.keys = {
 -- Tab Bar Stuff
 config.enable_tab_bar = true
 config.use_fancy_tab_bar = false
--- config.hide_tab_bar_if_only_one_tab = true
+config.tab_bar_at_bottom = true
 
-local tab_colors = {
+local theme_colors = {
   dark = {
-    active_tab = {
-      bg_color = "#282a36",
-      fg_color = "#f8f8f2",
-    },
-    inactive_tab = {
-      bg_color = "#1e1e2e",
-      fg_color = "#6272a4",
-    },
-    new_tab = {
-      bg_color = "#1e1e2e",
-      fg_color = "#6272a4",
-    },
-    new_tab_hover = {
-      bg_color = "#44475a",
-      fg_color = "#f8f8f2",
-    },
+    background = "#002b36",
+    background_highlight = "#073642",
+    comments = "#586e75",
+    body_text = "#839496",
+    emphasized_text = "#93a1a1",
   },
   light = {
-    background = "#e0e0e0",
-    active_tab = {
-      bg_color = "#ffffff",
-      fg_color = "#000000",
-    },
-    inactive_tab = {
-      bg_color = "#e0e0e0",
-      fg_color = "#555555",
-    },
-    new_tab = {
-      bg_color = "#e0e0e0",
-      fg_color = "#555555",
-    },
-    new_tab_hover = {
-      bg_color = "#cccccc",
-      fg_color = "#000000",
-    },
+    background = "#fdf6e3",
+    background_highlight = "#eee8d5",
+    comments = "#93a1a1",
+    body_text = "#657b83",
+    emphasized_text = "#586e75",
   },
 }
 
+local function tab_colors(variant)
+  local c = theme_colors[variant]
+
+  return {
+    background = c.background_highlight,
+    active_tab = {
+      bg_color = c.background,
+      fg_color = c.emphasized_text,
+    },
+    inactive_tab = {
+      bg_color = c.background_highlight,
+      fg_color = c.comments,
+    },
+    inactive_tab_hover = {
+      bg_color = c.background,
+      fg_color = c.emphasized_text,
+    },
+    new_tab = {
+      bg_color = c.background_highlight,
+      fg_color = c.comments,
+    },
+    new_tab_hover = {
+      bg_color = c.background,
+      fg_color = c.emphasized_text,
+    },
+  }
+end
+
 config.colors = {}
-config.colors.tab_bar = tab_colors[system_color_mode]
+config.colors.tab_bar = tab_colors(system_color_mode)
+
+wezterm.on("update-right-status", function(window, pane)
+  -- Make it italic and underlined
+  window:set_right_status(wezterm.format({
+    { Attribute = { Underline = "Single" } },
+    { Attribute = { Italic = true } },
+    { Text = "TODO: What should go here? Session / Worktree / Etc... " },
+  }))
+end)
 
 -- Pane Styling
 config.inactive_pane_hsb = {
