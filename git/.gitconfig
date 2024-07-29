@@ -21,6 +21,7 @@
   r = rebase
   ri = rebase --interactive
   s = status
+  wt = worktree
   z = stash
   zl = stash list
   zp = stash pop
