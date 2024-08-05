@@ -20,27 +20,27 @@ wezterm.on("gui-startup", maximize_on_startup)
 
 -- Colors
 local function get_system_color_mode()
-  local handle = io.popen("defaults read -g AppleInterfaceStyle 2>/dev/null")
-  if handle ~= nil then
-    local result = handle and handle:read("*a")
-    handle:close()
+  if wezterm.gui then
+    local appearance = wezterm.gui.get_appearance()
 
-    if result:match("Dark") then
+    if appearance:find("Dark") then
       return "dark"
-    else
-      return "light"
     end
   end
+
+  return "light"
 end
-local system_color_mode = get_system_color_mode()
-local color_scheme = {
-  dark = "Solarized Dark (Gogh)",
-  light = "Solarized Light (Gogh)",
-}
-config.color_scheme = color_scheme[system_color_mode]
-config.set_environment_variables = {
-  OS_INTERFACE_STYLE = system_color_mode,
-}
+
+local function get_color_scheme()
+  local available_schemes = {
+    dark = "Solarized Dark (Gogh)",
+    light = "Solarized Light (Gogh)",
+  }
+
+  return available_schemes[get_system_color_mode()]
+end
+
+config.color_scheme = get_color_scheme()
 
 -- Fonts
 config.font = wezterm.font("Monaspace Neon")
@@ -223,7 +223,7 @@ local theme_colors = {
   },
 }
 
-local function tab_colors(variant)
+local function get_tab_colors(variant)
   local c = theme_colors[variant]
 
   return {
@@ -251,8 +251,8 @@ local function tab_colors(variant)
   }
 end
 
-config.colors = {}
-config.colors.tab_bar = tab_colors(system_color_mode)
+config.colors = config.colors or {}
+config.colors.tab_bar = get_tab_colors(get_system_color_mode())
 
 wezterm.on("update-right-status", function(window, pane)
   -- Make it italic and underlined
