@@ -254,12 +254,10 @@ end
 config.colors = config.colors or {}
 config.colors.tab_bar = get_tab_colors(get_system_color_mode())
 
-wezterm.on("update-right-status", function(window, pane)
-  -- Make it italic and underlined
+wezterm.on("update-right-status", function(window)
+  session_name = window:active_workspace()
   window:set_right_status(wezterm.format({
-    { Attribute = { Underline = "Single" } },
-    { Attribute = { Italic = true } },
-    { Text = "TODO: What should go here? Session / Worktree / Etc... " },
+    { Text = " [Session: " .. session_name:upper() .. "] " },
   }))
 end)
 
