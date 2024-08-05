@@ -1,12 +1,22 @@
--- set solarized colorscheme and inspect TERMINAL_COLOR_SCHEME_VARIANT to see if
--- we want to use dark or light variant
 return {
-  'maxmx03/solarized.nvim',
-  lazy = false,
-  priority = 1000,
-  config = function()
-    vim.o.background = vim.env.OS_INTERFACE_STYLE:lower()
-    vim.o.termguicolors = true
-    vim.cmd.colorscheme 'solarized'
-  end,
+  {
+    'maxmx03/solarized.nvim',
+    config = function()
+      vim.cmd 'colorscheme solarized'
+    end,
+  },
+  {
+    'f-person/auto-dark-mode.nvim',
+    opts = {
+      update_interval = 1000,
+      set_dark_mode = function()
+        vim.o.background = 'dark'
+        vim.cmd 'colorscheme solarized'
+      end,
+      set_light_mode = function()
+        vim.o.background = 'light'
+        vim.cmd 'colorscheme solarized'
+      end,
+    },
+  },
 }
