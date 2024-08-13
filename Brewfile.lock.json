@@ -1583,6 +1583,12 @@
         "options": {
           "full_name": "wezterm"
         }
+      },
+      "aerospace": {
+        "version": "0.14.1-Beta",
+        "options": {
+          "full_name": "nikitabobko/tap/aerospace"
+        }
       }
     }
   },
