@@ -2,7 +2,7 @@ return {
   {
     'mfussenegger/nvim-dap',
     dependencies = {
-      { 'rcarriag/nvim-dap-ui', opts = {} },
+      { 'rcarriga/nvim-dap-ui', opts = {} },
       { 'theHamsta/nvim-dap-virtual-text', opts = {} },
     },
 
