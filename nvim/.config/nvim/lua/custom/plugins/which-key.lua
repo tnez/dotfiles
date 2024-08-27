@@ -7,7 +7,7 @@ return { -- Useful plugin to show you pending keybinds.
     -- Document existing key chains
     -- TODO: We should defer these to relevant plugins
     require('which-key').register {
-      ['<leader>a'] = { name = '[A]sk', _ = 'which_key_ignore' },
+      ['<leader>a'] = { name = '[A]I', _ = 'which_key_ignore' },
       ['<leader>b'] = { name = '[B]uffer', _ = 'which_key_ignore' },
       ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
       ['<leader>d'] = { name = '[D]ebug', _ = 'which_key_ignore' },
