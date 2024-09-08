@@ -29,6 +29,7 @@ set -x ZK_NOTEBOOK_DIR $HOME/Documents/sb
 
 # set _secret_ variables
 set -x OPENAI_API_KEY (cat ~/.secrets/OPENAI_API_KEY)
+set -x ANTHROPIC_API_KEY (cat ~/.secrets/ANTHROPIC_API_KEY)
 
 # set fzf options
 set -x FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border --preview-window=right:60% --preview 'bat --color=always --style=header,grid --line-range :500 {}'"
