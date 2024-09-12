@@ -168,7 +168,7 @@ return { -- LSP Configuration & Plugins
       ruff_lsp = {},
       tailwindcss = {},
       terraformls = {},
-      tsserver = {},
+      ts_ls = {},
       yamlls = {},
       zk = {},
     }
