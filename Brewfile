@@ -18,7 +18,7 @@ brew "luarocks"
 brew "neovim"
 brew "pandoc"
 brew "tree"
-brew "pipenv", link: false
+brew "pngpaste"
 brew "pnpm"
 brew "pyenv"
 brew "ripgrep"
