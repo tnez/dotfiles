@@ -4,15 +4,6 @@ return {
   lazy = false,
   version = false,
   build = 'make',
-  opts = {
-    hints = {
-      enabled = true,
-    },
-    windows = {
-      width = 40,
-      wrap = true,
-    },
-  },
   dependencies = {
     'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
     'stevearc/dressing.nvim',
@@ -42,5 +33,17 @@ return {
       },
       ft = { 'markdown', 'Avante' },
     },
+  },
+  opts = {
+    hints = {
+      enabled = true,
+    },
+    windows = {
+      width = 40,
+      wrap = true,
+    },
+  },
+  keys = {
+    { '<leader>a', group = 'A[I]', desc = 'A[I]' },
   },
 }
