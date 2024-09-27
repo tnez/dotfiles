@@ -33,8 +33,8 @@ end
 
 local function get_color_scheme()
   local available_schemes = {
-    dark = "Solarized Dark (Gogh)",
-    light = "Solarized Light (Gogh)",
+    dark = "Tokyo Night Storm",
+    light = "Tokyo Night Day",
   }
 
   return available_schemes[get_system_color_mode()]
@@ -45,6 +45,21 @@ config.color_scheme = get_color_scheme()
 -- Fonts
 config.font = wezterm.font("Monaspace Neon")
 config.font_size = 14.0
+config.font_rules = {
+  {
+    italic = true,
+    intensity = "Bold",
+    font = wezterm.font("Monaspace Radon", { weight = "Black" }),
+  },
+  {
+    intensity = "Bold",
+    font = wezterm.font("Monaspace Neon", { weight = "Bold" }),
+  },
+  {
+    italic = true,
+    font = wezterm.font("Monaspace Radon", { italic = true, weight = "Thin" }),
+  },
+}
 
 -- Navigation helpers for between splits with hjkl that work in both vim and
 -- wezterm
@@ -208,18 +223,18 @@ config.tab_bar_at_bottom = true
 
 local theme_colors = {
   dark = {
-    background = "#002b36",
-    background_highlight = "#073642",
+    background = "#1f2335",
+    background_highlight = "#282e44",
     comments = "#586e75",
-    body_text = "#839496",
+    body_text = "#7982a9",
     emphasized_text = "#93a1a1",
   },
   light = {
-    background = "#fdf6e3",
-    background_highlight = "#eee8d5",
+    background = "#d6d8df",
+    background_highlight = "#e6e7ed",
     comments = "#93a1a1",
-    body_text = "#657b83",
-    emphasized_text = "#586e75",
+    body_text = "#343B58",
+    emphasized_text = "#707280",
   },
 }
 
@@ -227,25 +242,25 @@ local function get_tab_colors(variant)
   local c = theme_colors[variant]
 
   return {
-    background = c.background_highlight,
+    background = c.background,
     active_tab = {
-      bg_color = c.background,
+      bg_color = c.background_highlight,
       fg_color = c.emphasized_text,
     },
     inactive_tab = {
-      bg_color = c.background_highlight,
+      bg_color = c.background,
       fg_color = c.comments,
     },
     inactive_tab_hover = {
-      bg_color = c.background,
+      bg_color = c.background_highlight,
       fg_color = c.emphasized_text,
     },
     new_tab = {
-      bg_color = c.background_highlight,
+      bg_color = c.background,
       fg_color = c.comments,
     },
     new_tab_hover = {
-      bg_color = c.background,
+      bg_color = c.background_highlight,
       fg_color = c.emphasized_text,
     },
   }
