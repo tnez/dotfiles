@@ -1,9 +1,9 @@
 return {
   {
-    'maxmx03/solarized.nvim',
-    config = function()
-      vim.cmd 'colorscheme solarized'
-    end,
+    'folke/tokyonight.nvim',
+    lazy = false,
+    priority = 1000,
+    opts = {},
   },
   {
     'f-person/auto-dark-mode.nvim',
@@ -11,11 +11,11 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.o.background = 'dark'
-        vim.cmd 'colorscheme solarized'
+        vim.cmd 'colorscheme tokyonight-storm'
       end,
       set_light_mode = function()
         vim.o.background = 'light'
-        vim.cmd 'colorscheme solarized'
+        vim.cmd 'colorscheme tokyonight-day'
       end,
     },
   },
