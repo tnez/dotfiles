@@ -27,23 +27,16 @@
   zp = stash pop
   zz = stash push -u -m
 [init]
-	defaultBranch = main
+  defaultBranch = main
 [core]
   editor = "nvim"
   excludesfile = ~/.gitignore
-	pager = delta
-[delta]
-  navigate = true
-	light = false
-	line-numbers = true
 [diff]
   colorMoved = default
 [fetch]
   prune = true
 [pull]
   rebase = true
-[interactive]
-  diffFilter = delta --color-only
 [merge]
   conflictstyle = diff3
 [rebase]
