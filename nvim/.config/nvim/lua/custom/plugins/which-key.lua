@@ -4,7 +4,7 @@ return { -- Useful plugin to show you pending keybinds.
   config = function()
     local wk = require 'which-key'
     wk.add {
-      { '<leader>a', group = 'ai' },
+      { '<leader>a', group = 'ai', mode = { 'n', 'v' } },
       { '<leader>b', group = 'buffer' },
       { '<leader>c', group = 'code' },
       { '<leader>d', group = 'debug' },
