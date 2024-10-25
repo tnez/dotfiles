@@ -1,6 +1,3 @@
--- print a statement to let me know this has loaded
-print 'lua: python.lua is indeed loading'
-
 return {
   { 'nvim-neotest/neotest-python' },
   {
