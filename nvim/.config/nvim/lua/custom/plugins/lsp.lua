@@ -164,8 +164,27 @@ return { -- LSP Configuration & Plugins
         },
       },
       marksman = {},
-      pyright = {},
-      ruff_lsp = {},
+      pyright = {
+        settings = {
+          python = {
+            pyright = {
+              -- Using Ruff's import organizer
+              disableOrganizeImports = true,
+            },
+            analysis = {
+              -- Ignore all files for analysis to exclusively use Ruff for linting
+              ignore = { '*' },
+            },
+          },
+        },
+      },
+      ruff = {
+        -- settings = {
+        --   server_capabilities = {
+        --     hoverProvider = false,
+        --   },
+        -- },
+      },
       tailwindcss = {},
       terraformls = {},
       ts_ls = {},
