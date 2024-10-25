@@ -66,8 +66,9 @@ vim.opt.colorcolumn = '80'
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
--- Code folding
-vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
-vim.opt.foldenable = true
-vim.opt.foldlevelstart = 99
+-- Show folding indicators in the sign column
+vim.opt.foldcolumn = '1'
+-- Fold up to 99 levels
+vim.opt.foldlevel = 99
+-- Start with most folds closed
+vim.opt.foldlevelstart = 1
