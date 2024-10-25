@@ -11,16 +11,11 @@ return {
       ['neotest-python'] = {
         dap = { justMyCode = false },
         runner = 'pytest',
-        -- python = '.venv/bin/python',
+        args = { '--capture=no' },
       },
     },
     status = { virtual_text = true },
     output = { open_on_run = true },
-    quickfix = {
-      open = function()
-        vim.cmd 'copen'
-      end,
-    },
   },
 
   config = function(_, opts)
