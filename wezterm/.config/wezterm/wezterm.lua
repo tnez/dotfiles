@@ -1,3 +1,6 @@
+-- set XDG_CONFIG_HOME
+os.execute("export XDG_CONFIG_HOME=$HOME/.config")
+
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
