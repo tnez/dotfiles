@@ -1,0 +1,18 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts
+add_newline = true
+
+[custom.shell]
+command = "sh -c 'basename $STARSHIP_SHELL'"
+when = "true"
+format = '\([/>:$output]($style)\)'
+
+[gcloud]
+format = '\[[gcp:$account(@$domain)(:$project)]($style)\] '
+
+# Disable the package module, hiding it from the prompt completely
+[package]
+disabled = true
+

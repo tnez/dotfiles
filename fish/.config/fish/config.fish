@@ -69,3 +69,6 @@ set -gx PATH "$HOME/go/bin" $PATH
 if [ -f '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc' ]
     . '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc'
 end
+
+# Starship (Prompt)
+starship init fish | source
