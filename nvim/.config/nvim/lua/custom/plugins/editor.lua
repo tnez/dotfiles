@@ -145,77 +145,54 @@ return {
     end,
   },
 
-  { -- For makring and jumping around buffers
-    'ThePrimeagen/harpoon',
-    branch = 'harpoon2',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = {
-      save_on_toggle = true,
-    },
-    config = function()
-      local harpoon = require 'harpoon'
-      harpoon:setup()
-
-      -- Setting Marks
-      local add_mark = function(idx)
-        if idx then
-          return function()
-            harpoon:list():replace_at(idx)
-          end
-        end
-
-        return function()
-          harpoon:list():add()
-        end
-      end
-      vim.keymap.set('n', 'm.', add_mark(nil), { desc = 'Append to Harpoon Marks' })
-      vim.keymap.set('n', 'mA', add_mark(1), { desc = 'Add to Harpoon Marks [a]' })
-      vim.keymap.set('n', 'mS', add_mark(2), { desc = 'Add to Harpoon Marks [s]' })
-      vim.keymap.set('n', 'mD', add_mark(3), { desc = 'Add to Harpoon Marks [d]' })
-      vim.keymap.set('n', 'mF', add_mark(4), { desc = 'Add to Harpoon Marks [f]' })
-
-      -- Clearing Marks
-      local clear_marks = function()
-        harpoon:list():clear()
-      end
-      vim.keymap.set('n', 'mx', clear_marks, { desc = 'Clear Marks' })
-
-      -- Searching Marks
-      local open_harpoon_picker = function()
-        harpoon.ui:toggle_quick_menu(harpoon:list())
-      end
-      vim.keymap.set('n', 'mm', open_harpoon_picker, { desc = 'Open Marks' })
-
-      -- Jumping to marks
-      local function jump_to_mark(idx)
-        harpoon:list():select(idx)
-      end
-      vim.keymap.set('n', 'ma', function()
-        jump_to_mark(1)
-      end, { desc = 'Jump to mark 1' })
-      vim.keymap.set('n', 'ms', function()
-        jump_to_mark(2)
-      end, { desc = 'Jump to mark 2' })
-      vim.keymap.set('n', 'md', function()
-        jump_to_mark(3)
-      end, { desc = 'Jump to mark 3' })
-      vim.keymap.set('n', 'mf', function()
-        jump_to_mark(4)
-      end, { desc = 'Jump to mark 4' })
-
-      -- Opening in splits
-      harpoon:extend {
-        UI_CREATE = function(cx)
-          vim.keymap.set('n', '/', function()
-            harpoon.ui:select_menu_item { vsplit = true }
-          end, { buffer = cx.bufnr })
-
-          vim.keymap.set('n', '-', function()
-            harpoon.ui:select_menu_item { split = true }
-          end, { buffer = cx.bufnr })
+  { -- For jumping around buffers / files
+    'leath-dub/snipe.nvim',
+    keys = {
+      {
+        'mm',
+        function()
+          require('snipe').open_buffer_menu()
         end,
-      }
-    end,
+        desc = 'Open Snipe Buffer Menu',
+      },
+      {
+        'mM',
+        function()
+          require('snipe').open_file_menu()
+        end,
+        desc = 'Open Snipe File Menu',
+      },
+      {
+        'm/',
+        function()
+          require('snipe').repeat_find()
+        end,
+        desc = 'Repeat Snipe Find',
+      },
+      {
+        'm?',
+        function()
+          require('snipe').repeat_find(true)
+        end,
+        desc = 'Repeat Snipe Find Backwards',
+      },
+    },
+    opts = {
+      hints = {
+        dictionary = 'asdfl;qweruiop',
+      },
+      navigate = {
+        cancel_snipe = 'kj',
+        open_vsplit = '/',
+        open_split = '-',
+      },
+      ui = {
+        open_win_override = {
+          border = 'rounded',
+        },
+        position = 'cursor',
+      },
+    },
   },
 
   -- TODO: Decide if I want to keep `tris203/precongnition.nvim`
