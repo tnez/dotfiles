@@ -2,12 +2,12 @@ return {
   'nvim-neotest/neotest',
   dependencies = {
     'nvim-neotest/nvim-nio',
-    -- TODO: Can we move this to lang/python?
     'nvim-neotest/neotest-python',
+    'matrosmartz/neotest-deno',
   },
   opts = {
     adapters = {
-      -- TODO: Can we move this to lang/python?
+      ['neotest-deno'] = {},
       ['neotest-python'] = {
         dap = { justMyCode = false },
         runner = 'pytest',

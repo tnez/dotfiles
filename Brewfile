@@ -1,6 +1,7 @@
 tap "hashicorp/tap"
 tap "homebrew/bundle"
 brew "bat"
+brew "deno"
 brew "eza"
 brew "fd"
 brew "fish"
