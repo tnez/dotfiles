@@ -9,6 +9,11 @@ vim.g.maplocalleader = ' '
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- Enable true color support
+if vim.fn.has 'termguicolors' == 1 then
+  vim.opt.termguicolors = true
+end
+
 -- Do not use swapfiles (these are more trouble than they are worth for me)
 vim.opt.swapfile = false
 
