@@ -14,13 +14,6 @@ config.window_padding = {
   bottom = 10,
 }
 
--- On Startup
-local function maximize_on_startup()
-  local _tab, _pane, window = wezterm.mux.spawn_window({})
-  window:gui_window():maximize()
-end
-wezterm.on("gui-startup", maximize_on_startup)
-
 -- Colors
 local function get_system_color_mode()
   if wezterm.gui then
