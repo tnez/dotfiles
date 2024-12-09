@@ -79,15 +79,6 @@ config.keys = {
     mods = "CMD",
     action = wezterm.action.ResetFontSize,
   },
-  -- Fixes for Wezterm + TMUX
-  { key = "L", mods = "CTRL|SHIFT", action = wezterm.action({
-    SendString = "\x0c",
-  }) }, -- Ctrl+Shift+l
-  { key = "H", mods = "CTRL|SHIFT", action = wezterm.action({
-    SendString = "\x08",
-  }) }, -- Ctrl+Shift+h
-  { key = "/", mods = "CTRL", action = wezterm.action({ SendString = "\x1f" }) }, -- Ctrl+/
-  { key = "-", mods = "CTRL", action = wezterm.action({ SendString = "\x1d" }) }, -- Ctrl+-
 }
 
 -- Disable tab bar
