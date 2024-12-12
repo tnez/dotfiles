@@ -10,3 +10,7 @@ fi
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
+
+if [ -d $HOME/.cargo/env ]; then
+    . $HOME/.cargo/env
+fi
