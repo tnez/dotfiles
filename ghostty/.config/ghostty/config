@@ -1,0 +1,5 @@
+font-family = "JetBrains Mono"
+theme = dark:catppuccin-macchiato,light:catppuccin-latte
+window-decoration = false
+window-padding-x = 0
+window-padding-y = 0
