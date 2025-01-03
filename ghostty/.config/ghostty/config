@@ -1,5 +1,6 @@
 font-family = "JetBrains Mono"
-theme = dark:catppuccin-macchiato,light:catppuccin-latte
+font-size = 14
+theme = dark:tokyonight-storm,light:tokyonight-day
 window-decoration = false
 window-padding-x = 0
 window-padding-y = 0
