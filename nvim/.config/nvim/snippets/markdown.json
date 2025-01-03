@@ -1,0 +1,27 @@
+{
+  "python code block": {
+    "prefix": "py",
+    "body": ["```python", "$0", "```"],
+    "description": "Python code block"
+  },
+  "shell code block": {
+    "prefix": "sh",
+    "body": ["```sh", "$0", "```"],
+    "description": "Shell code block"
+  },
+  "sql code block": {
+    "prefix": "sql",
+    "body": ["```sql", "$0", "```"],
+    "description": "SQL code block"
+  },
+  "timelog entry": {
+    "prefix": "te",
+    "body": "- **$1** - **????**: $0",
+    "description": "Timelog entry with indeterminate end"
+  },
+  "typescript code block": {
+    "prefix": "ts",
+    "body": ["```ts", "$0", "```"],
+    "description": "Typescript code block"
+  }
+}
