@@ -6,6 +6,13 @@ return {
     opts = {},
   },
   {
+    'rose-pine/neovim',
+    name = 'rose-pine',
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
+  {
     'f-person/auto-dark-mode.nvim',
     opts = {
       update_interval = 1000,
@@ -15,7 +22,7 @@ return {
       end,
       set_light_mode = function()
         vim.o.background = 'light'
-        vim.cmd 'colorscheme tokyonight-day'
+        vim.cmd 'colorscheme rose-pine-dawn'
       end,
     },
   },
