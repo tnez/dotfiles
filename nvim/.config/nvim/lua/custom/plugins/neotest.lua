@@ -1,13 +1,16 @@
 return {
   'nvim-neotest/neotest',
   dependencies = {
+    'nvim-lua/plenary.nvim',
     'nvim-neotest/nvim-nio',
+    'nvim-neotest/neotest-plenary',
     'nvim-neotest/neotest-python',
     'matrosmartz/neotest-deno',
   },
   opts = {
     adapters = {
       ['neotest-deno'] = {},
+      ['neotest-plenary'] = {},
       ['neotest-python'] = {
         dap = { justMyCode = false },
         runner = 'pytest',
