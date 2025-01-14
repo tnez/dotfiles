@@ -1,27 +1,12 @@
 {
-  "python code block": {
-    "prefix": "py",
-    "body": ["```python", "$0", "```"],
-    "description": "Python code block"
+  "code block": {
+    "prefix": "cb",
+    "description": "Code Block",
+    "body": ["```${1:lang}", "$0", "```"]
   },
-  "shell code block": {
-    "prefix": "sh",
-    "body": ["```sh", "$0", "```"],
-    "description": "Shell code block"
-  },
-  "sql code block": {
-    "prefix": "sql",
-    "body": ["```sql", "$0", "```"],
-    "description": "SQL code block"
-  },
-  "timelog entry": {
+  "time entry": {
     "prefix": "te",
-    "body": "- **$1** - **????**: $0",
-    "description": "Timelog entry with indeterminate end"
-  },
-  "typescript code block": {
-    "prefix": "ts",
-    "body": ["```ts", "$0", "```"],
-    "description": "Typescript code block"
+    "description": "Time Entry",
+    "body": ["- **${CURRENT_HOUR}:${CURRENT_MINUTE}** - **${2:?????}**: $0"]
   }
 }
