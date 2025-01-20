@@ -22,6 +22,7 @@ set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x MODE LIGHT # set to DARK for dark mode
 set -x N_PREFIX $HOME/n
+set -x NVIM_APPNAME lazyvim
 set -x PAGER less
 set -x RIPGREP_CONFIG_PATH $HOME/.config/ripgrep/rg.conf
 set -x VISUAL nvim
