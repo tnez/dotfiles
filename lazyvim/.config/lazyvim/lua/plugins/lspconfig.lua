@@ -5,6 +5,7 @@ return {
     ---@type lspconfig.options
     servers = {
       denols = {},
+      ruff = {},
     },
   },
 }
