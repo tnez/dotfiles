@@ -1,4 +1,5 @@
 # aliases
+alias clod="SHELL=/bin/bash claude"
 alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
 alias g="git"
