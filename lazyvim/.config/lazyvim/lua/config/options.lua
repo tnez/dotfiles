@@ -8,3 +8,9 @@
 vim.g.lazyvim_python_lsp = "pyright"
 -- Set to "ruff_lsp" to use the old LSP implementation version.
 vim.g.lazyvim_python_ruff = "ruff"
+
+-- File auto-reload settings
+-- Reduce updatetime for faster CursorHold events (used for file change detection)
+vim.opt.updatetime = 500 -- Check for file changes every 500ms
+-- Enable autoread to reload files changed outside of Neovim
+vim.opt.autoread = true

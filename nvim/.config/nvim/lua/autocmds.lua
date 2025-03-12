@@ -26,3 +26,28 @@ autocmd('FileType', {
     vim.opt_local.showbreak = '↪ '
   end,
 })
+
+-- Auto-reload files changed outside of Neovim
+local autoreload_group = augroup('AutoReloadFile', { clear = true })
+
+-- Check for file changes whenever we gain focus, enter a buffer, or haven't typed for a bit
+autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  group = autoreload_group,
+  pattern = "*",
+  callback = function()
+    if vim.fn.getcmdwintype() == "" then
+      vim.cmd("checktime")
+    end
+  end,
+})
+
+-- Notification and visual highlight after file change
+autocmd("FileChangedShellPost", {
+  group = autoreload_group,
+  pattern = "*",
+  callback = function()
+    -- Flash the screen to make changes more noticeable
+    vim.cmd("diffupdate")
+    vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.WARN)
+  end,
+})
