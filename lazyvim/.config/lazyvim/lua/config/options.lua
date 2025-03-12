@@ -10,7 +10,9 @@ vim.g.lazyvim_python_lsp = "pyright"
 vim.g.lazyvim_python_ruff = "ruff"
 
 -- File auto-reload settings
--- Reduce updatetime for faster CursorHold events (used for file change detection)
-vim.opt.updatetime = 500 -- Check for file changes every 500ms
--- Enable autoread to reload files changed outside of Neovim
-vim.opt.autoread = true
+-- Set up automatic file change detection
+vim.opt.updatetime = 500 -- Check for file changes every 500ms during normal editing
+vim.opt.autoread = true -- Enable automatic detection of file changes
+vim.opt.autowriteall = true -- Auto-save modified buffers when switching between them
+-- Set to 0 to disable file change check messages (more suitable for timer-based reloading)
+vim.opt.confirm = true -- Ask to save changes before exiting
