@@ -5,7 +5,11 @@ return { -- LSP Configuration & Plugins
     'williamboman/mason.nvim',
     'williamboman/mason-lspconfig.nvim',
     'WhoIsSethDaniel/mason-tool-installer.nvim',
-    'saghen/blink.cmp',
+    {
+      'saghen/blink.cmp',
+      version = '*',
+      build = 'cargo build --release',
+    },
 
     -- Useful status updates for LSP.
     -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
@@ -129,6 +133,14 @@ return { -- LSP Configuration & Plugins
       cssls = {},
       denols = {
         root_dir = nvim_lsp.util.root_pattern('deno.json', 'deno.jsonc'),
+        disagnostics = {
+          float = {
+            source = true,
+          },
+          virtual_text = {
+            source = true,
+          },
+        },
       },
       emmet_ls = {},
       eslint = {},
@@ -183,12 +195,13 @@ return { -- LSP Configuration & Plugins
         --   },
         -- },
       },
+      svelte = {},
       tailwindcss = {},
       terraformls = {},
-      ts_ls = {
-        root_dir = nvim_lsp.util.root_pattern 'package.json',
-        single_file_support = false,
-      },
+      -- ts_ls = {
+      --   root_dir = nvim_lsp.util.root_pattern 'package.json',
+      --   single_file_support = false,
+      -- },
       yamlls = {},
       zk = {},
     }
@@ -214,7 +227,7 @@ return { -- LSP Configuration & Plugins
         function(server_name)
           local server = servers[server_name] or {}
           local config = server.config or {}
-          config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
+          -- config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
           nvim_lsp[server_name].setup(config)
         end,
       },

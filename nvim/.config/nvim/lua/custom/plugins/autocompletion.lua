@@ -1,6 +1,6 @@
 return {
   'saghen/blink.cmp',
-  version = 'v0.*',
+  version = '*',
   build = 'cargo build --release',
   dependencies = {
     {

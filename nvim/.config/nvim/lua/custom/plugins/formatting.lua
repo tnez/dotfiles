@@ -13,14 +13,15 @@ return { -- Autoformat
       --
       -- You can use a sub-list to tell conform to run *until* a formatter
       -- is found.
-      javascript = { { 'prettierd', 'prettier' } },
-      javascriptreact = { { 'prettierd', 'prettier' } },
-      json = { { 'prettierd', 'prettier' } },
-      markdown = { { 'prettierd', 'prettier' } },
-      typescript = { { 'prettierd', 'prettier' } },
-      typescriptreact = { { 'prettierd', 'prettier' } },
-      toml = { 'prettierd', 'prettier' },
-      yaml = { 'prettierd', 'prettier' },
+      javascript = { 'prettier' },
+      javascriptreact = { 'prettier' },
+      json = { 'prettier' },
+      markdown = { 'prettier' },
+      svelte = { 'prettier' },
+      typescript = { 'prettier' },
+      typescriptreact = { 'prettier' },
+      toml = { 'prettier' },
+      yaml = { 'prettier' },
     },
   },
 }
