@@ -14,5 +14,14 @@ vim.g.lazyvim_python_ruff = "ruff"
 vim.opt.updatetime = 500 -- Check for file changes every 500ms during normal editing
 vim.opt.autoread = true -- Enable automatic detection of file changes
 vim.opt.autowriteall = true -- Auto-save modified buffers when switching between them
--- Set to 0 to disable file change check messages (more suitable for timer-based reloading)
+-- Disable file change warning messages
 vim.opt.confirm = true -- Ask to save changes before exiting
+
+-- This suppresses the "WARNING: File has changed" messages
+vim.cmd([[
+  augroup silent_file_reload
+    autocmd!
+    autocmd FileChangedRO * silent
+    autocmd FileChangedShell * silent
+  augroup END
+]])
