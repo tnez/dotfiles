@@ -45,9 +45,12 @@ vim.opt.smartcase = true
 -- Keep signcolumn on by default
 vim.opt.signcolumn = 'yes'
 
--- Decrease update time
+-- Decrease update time for CursorHold events
+-- Used for file change detection and other features
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
+-- Enable autoread to reload files changed outside of Neovim
+vim.opt.autoread = true
 
 -- Configure how new splits should be opened
 vim.opt.splitright = true
