@@ -49,8 +49,11 @@ vim.opt.signcolumn = 'yes'
 -- Used for file change detection and other features
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
--- Enable autoread to reload files changed outside of Neovim
-vim.opt.autoread = true
+-- File auto-reload settings
+vim.opt.autoread = true -- Enable automatic detection of file changes
+vim.opt.autowriteall = true -- Auto-save modified buffers when switching between them
+-- Set to 0 to disable file change check messages (more suitable for timer-based reloading)
+vim.opt.confirm = true -- Ask to save changes before exiting
 
 -- Configure how new splits should be opened
 vim.opt.splitright = true

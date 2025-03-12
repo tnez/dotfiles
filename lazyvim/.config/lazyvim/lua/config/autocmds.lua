@@ -20,14 +20,45 @@ end
 -- Auto-reload files changed outside of Neovim
 local autoreload_group = vim.api.nvim_create_augroup("AutoReloadFile", { clear = true })
 
-vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+-- Create a timer for periodic file checking regardless of focus
+local reload_timer = vim.loop.new_timer()
+
+-- Setup function for periodic file checking
+local function setup_file_check_timer()
+  if reload_timer then
+    reload_timer:stop()
+    
+    -- Check files every 2 seconds even without focus
+    reload_timer:start(0, 2000, function()
+      -- Schedule the checktime to run in the main Neovim loop
+      vim.schedule(function()
+        if vim.fn.getcmdwintype() == "" then
+          vim.cmd("checktime")
+        end
+      end)
+    end)
+    
+    -- Also keep the traditional focus-based checks for immediate response when focused
+    vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+      group = autoreload_group,
+      pattern = "*",
+      callback = function()
+        if vim.fn.getcmdwintype() == "" then
+          vim.cmd("checktime")
+        end
+      end,
+    })
+  end
+end
+
+-- Set up the timer on startup
+setup_file_check_timer()
+
+-- Also create an autocmd to restart the timer if needed (e.g. after session reload)
+vim.api.nvim_create_autocmd("VimEnter", {
   group = autoreload_group,
-  pattern = "*",
-  callback = function()
-    if vim.fn.getcmdwintype() == "" then
-      vim.cmd("checktime")
-    end
-  end,
+  callback = setup_file_check_timer,
+  once = true,
 })
 
 -- Notification after file change with visual highlight
