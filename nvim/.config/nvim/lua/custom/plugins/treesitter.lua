@@ -26,6 +26,7 @@ return { -- Highlight, edit, and navigate code
         'python',
         'query',
         'regex',
+        'svelte',
         'toml',
         'tsx',
         'typescript',

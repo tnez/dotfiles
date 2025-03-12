@@ -75,5 +75,5 @@ vim.opt.scrolloff = 10
 vim.opt.foldcolumn = '1'
 -- Fold up to 99 levels
 vim.opt.foldlevel = 99
--- Start with most folds closed
-vim.opt.foldlevelstart = 99
+--
+vim.opt.foldmethod = 'expr'
