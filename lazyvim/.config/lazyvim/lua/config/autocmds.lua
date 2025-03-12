@@ -61,13 +61,20 @@ vim.api.nvim_create_autocmd("VimEnter", {
   once = true,
 })
 
--- Notification after file change with visual highlight
+-- Subtle visual indication of file changes without notifications
 vim.api.nvim_create_autocmd("FileChangedShellPost", {
   group = autoreload_group,
   pattern = "*",
   callback = function()
-    -- Flash the screen to make changes more noticeable
+    -- Just do a diff update to refresh the display, no notification
     vim.cmd("diffupdate")
-    vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.WARN)
+    
+    -- Optional: You can use a more subtle indicator like a status line flash
+    -- or highlight the line number instead of showing a notification
+    
+    -- For a subtle status line flash, you could use:
+    -- local current_statusline = vim.o.statusline
+    -- vim.o.statusline = '%#DiffAdd#  File Updated  %#Normal#'
+    -- vim.defer_fn(function() vim.o.statusline = current_statusline end, 1000)
   end,
 })
