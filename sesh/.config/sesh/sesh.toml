@@ -1,24 +1,28 @@
+[default_session]
+startup_command = "nvim"
+
 [[session]]
-name = "Desktop"
+name = "desktop"
 path = "~/Desktop"
 startup_command = "yazi"
 
 [[session]]
-name = "Downloads"
+name = "dotfiles"
+path = "~/Code/tnez/dotfiles"
+
+[[session]]
+name = "downloads"
 path = "~/Downloads"
 startup_command = "yazi"
 
 [[session]]
-name = "Today"
-path = "~/Code/tnez/things.tnez.dev"
-startup_command = "nvim inbox/daily-notes--$(date +%F).md"
+name = "org"
+path = "~/Code/tnez/tnez.dev/org"
 
-[[session]]
-name = "Yesterday"
-path = "~/Code/tnez/things.tnez.dev"
-startup_command = "nvim inbox/daily-notes--$(date -v-1d +%F).md"
+[[scoutos]]
+name = "scoutos"
+path = "~/Code/scoutos/scoutos/main"
 
-[[session]]
-name = "Tomorrow"
-path = "~/Code/tnez/things.tnez.dev"
-startup_command = "nvim inbox/daily-notes--$(date -v+1d +%F).md"
+[[tnezdev]]
+name = "tnezdev"
+path = "~/Code/tnez/tnez.dev"
