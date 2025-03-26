@@ -2,6 +2,11 @@
 startup_command = "nvim"
 
 [[session]]
+name = "capture"
+path = "~/Code/tnez/tnez.dev/org/scratch"
+startup_command = "nvim capture.md"
+
+[[session]]
 name = "desktop"
 path = "~/Desktop"
 startup_command = "yazi"
