@@ -7,7 +7,6 @@
     "lazyvim.plugins.extras.dap.nlua",
     "lazyvim.plugins.extras.formatting.black",
     "lazyvim.plugins.extras.formatting.prettier",
-    "lazyvim.plugins.extras.lang.deno",
     "lazyvim.plugins.extras.lang.docker",
     "lazyvim.plugins.extras.lang.git",
     "lazyvim.plugins.extras.lang.json",
@@ -25,8 +24,10 @@
     "lazyvim.plugins.extras.util.octo",
     "lazyvim.plugins.extras.util.rest"
   ],
+  "install_version": 7,
   "news": {
     "NEWS.md": "10960"
   },
-  "version": 7
+  "version": 8
 }
+
