@@ -1,5 +1,5 @@
 # aliases
-alias clod="SHELL=/bin/bash claude"
+alias clod='SHELL=/bin/bash claude --allowedTools Read Write Edit Glob Grep LS "Bash(git:*)" "Bash(npm:*)" "Bash(python:*)" Task Batch TodoRead TodoWrite'
 alias clip="tr -d '\n' | pbcopy"
 alias cls="clear"
 alias g="git"
