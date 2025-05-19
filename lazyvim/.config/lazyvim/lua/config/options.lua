@@ -17,6 +17,13 @@ vim.opt.autowriteall = true -- Auto-save modified buffers when switching between
 -- Disable file change warning messages
 vim.opt.confirm = true -- Ask to save changes before exiting
 
+-- Global wrap settings (will apply to all buffers)
+vim.opt.wrap = false -- Don't wrap by default
+vim.opt.linebreak = true -- Break at word boundaries when wrap is enabled
+vim.opt.breakindent = true -- Maintain indent when wrapping
+vim.opt.showbreak = "↪ " -- Show break indicator
+vim.opt.breakindentopt = "shift:2" -- Indent wrapped lines by 2 spaces
+
 -- This suppresses the "WARNING: File has changed" messages
 vim.cmd([[
   augroup silent_file_reload

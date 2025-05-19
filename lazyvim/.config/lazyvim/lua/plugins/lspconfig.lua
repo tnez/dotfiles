@@ -6,6 +6,15 @@ return {
     servers = {
       denols = {},
       ruff = {},
+      marksman = {
+        settings = {
+          markdown = {
+            validation = {
+              ignoreLineLength = true,
+            },
+          },
+        },
+      },
     },
   },
 }
