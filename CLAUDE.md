@@ -2,8 +2,9 @@
 
 ## Setup Commands
 - `./bootstrap.sh` - Initial setup of dotfiles
-- `brew bundle` - Install dependencies from Brewfile
-- `stow <package>` - Symlink specific config package to ~
+- `stow --dotfiles <package>` - Symlink specific config package to ~
+  - Uses `dot-` prefix convention (e.g., `dot-config` → `.config`)
+- `brew bundle --file=brew/Brewfile` - Install dependencies from Brewfile
 
 ## Code Style Guidelines
 - UTF-8 encoding, Unix line endings (LF)

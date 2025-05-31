@@ -1,3 +1,5 @@
+# vim: ft=gitconfig
+
 [user]
   name = Travis Nesland
   email = travis@tnez.dev
