@@ -19,6 +19,9 @@ todo*.org
 standup*.md
 standup*.org
 
+# claude project state
+.claude
+
 # emacs
 .dir-locals.el
 
