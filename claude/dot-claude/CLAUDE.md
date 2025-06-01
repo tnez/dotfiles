@@ -46,7 +46,7 @@ This document defines my global preferences and working philosophy for all Claud
 
 ## Git Workflow
 
-- DO NOT attribute commits to Claude Code
+- DO NOT attribute commits or PRs to Claude Code - no "Generated with Claude Code" signatures
 - Use conventional commit format when appropriate
 - Default to `main` branch for new work unless specified otherwise
 - Work in git branches named for associated tickets/issues, may be in worktrees

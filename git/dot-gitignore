@@ -20,7 +20,8 @@ standup*.md
 standup*.org
 
 # claude project state
-.claude
+.claude/
+!.claude/settings.json
 
 # emacs
 .dir-locals.el
