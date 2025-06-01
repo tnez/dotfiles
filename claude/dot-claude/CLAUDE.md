@@ -64,7 +64,7 @@ This document defines my global preferences and working philosophy for all Claud
 
 ## Tool Preferences
 
-- Prefer ripgrep (`rg`) over grep for searching
+- **ALWAYS use ripgrep (`rg`) instead of grep** - Never use grep commands in bash, use rg instead
 - Use Task tool for complex searches that might require multiple rounds
 - Leverage parallel tool execution when fetching multiple pieces of information
 - Use existing project linters and formatters rather than suggesting new ones
