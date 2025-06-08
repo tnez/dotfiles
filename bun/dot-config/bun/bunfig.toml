@@ -1,0 +1,37 @@
+# Bun configuration
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Default registry
+registry = "https://registry.npmjs.org"
+
+# Save exact versions to package.json
+save-exact = false
+
+# Global install directory
+globalDir = "~/.bun/install/global"
+
+[install.cache]
+# Package cache directory
+dir = "~/.bun/install/cache"
+
+# Disable cache
+disable = false
+
+# Force clean install
+disableManifest = false
+
+[install.lockfile]
+# Save lockfile after install
+save = true
+
+# Print a yarn-style lockfile
+print = "bun"
+
+[run]
+# Prefer to run the local version from node_modules
+bun = true
+
+[debug]
+# Disable debug logging
+quiet = false

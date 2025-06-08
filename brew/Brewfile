@@ -1,6 +1,8 @@
 tap "hashicorp/tap"
 tap "homebrew/bundle"
+tap "oven-sh/bun"
 brew "bat"
+brew "oven-sh/bun/bun"
 brew "deno"
 brew "eza"
 brew "fd"
