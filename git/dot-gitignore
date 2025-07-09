@@ -18,6 +18,7 @@ todo*.md
 todo*.org
 standup*.md
 standup*.org
+CONTEXT.md
 
 # claude project state
 .claude/
