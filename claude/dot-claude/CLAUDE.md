@@ -46,7 +46,7 @@ This document defines my global preferences and working philosophy for all Claud
 
 ## Git Workflow
 
-- DO NOT attribute commits or PRs to Claude Code - no "Generated with Claude Code" signatures
+- **NEVER** attribute commits or PRs to Claude Code - no "Generated with Claude Code" or Co-author signatures
 - Use conventional commit format when appropriate
 - Default to `main` branch for new work unless specified otherwise
 - Work in git branches named for associated tickets/issues, may be in worktrees
@@ -55,6 +55,7 @@ This document defines my global preferences and working philosophy for all Claud
 - When rebasing for PR: reorganize commits based on WHY (meaningful business chunks)
 - Before PRs: clean up commits via squashing, rebasing to create logical story
 - For commits intended to be pushed: match existing git history style unless specified
+- When creating PRs: use succinct bullet points for descriptions, avoid verbose explanations
 
 ## Pre-Commit Requirements
 

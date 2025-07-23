@@ -1,50 +1,36 @@
 {
   "permissions": {
     "allow": [
-      // File operations
       "Read(**)",
       "Write(**)",
       "Edit(**)",
       "MultiEdit(**)",
-
-      // Web access
       "WebFetch",
       "WebSearch",
-
-      // Task runners
       "Bash(just)",
       "Bash(just *)",
       "Bash(make)",
       "Bash(make *)",
       "Bash(task)",
       "Bash(task *)",
-
-      // Task runners with cd prefix (for worktrees)
       "Bash(cd * && just)",
       "Bash(cd * && just *)",
       "Bash(cd * && make)",
       "Bash(cd * && make *)",
       "Bash(cd * && task)",
       "Bash(cd * && task *)",
-
-      // Development tools
       "Bash(rg:*)",
       "Bash(npm:*)",
       "Bash(yarn:*)",
       "Bash(pnpm:*)",
       "Bash(bun:*)",
-
-      // Version control
       "Bash(git:*)",
-
-      // Common utilities
       "Bash(ls:*)",
       "Bash(cat:*)",
       "Bash(which:*)",
       "Bash(pwd)"
     ],
     "deny": [
-      // Dangerous just commands
       "Bash(just deploy)",
       "Bash(just deploy *)",
       "Bash(just release)",
@@ -57,8 +43,6 @@
       "Bash(cd * && just release *)",
       "Bash(cd * && just publish)",
       "Bash(cd * && just publish *)",
-
-      // Dangerous make commands
       "Bash(make deploy)",
       "Bash(make deploy *)",
       "Bash(make release)",
@@ -75,8 +59,6 @@
       "Bash(cd * && make publish *)",
       "Bash(cd * && make prod)",
       "Bash(cd * && make production)",
-
-      // Dangerous task commands
       "Bash(task deploy)",
       "Bash(task deploy *)",
       "Bash(task release)",
@@ -93,11 +75,8 @@
       "Bash(cd * && task publish *)",
       "Bash(cd * && task prod)",
       "Bash(cd * && task production)",
-
-      // Prevent destructive operations
       "Bash(rm -rf /*)",
       "Bash(rm -rf ~/*)"
     ]
   }
 }
-
