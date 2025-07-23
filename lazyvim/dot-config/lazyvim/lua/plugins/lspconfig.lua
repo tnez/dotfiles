@@ -6,6 +6,21 @@ return {
     servers = {
       denols = {},
       ruff = {},
+      pyright = {
+        capabilities = {
+          textDocument = {
+            formatting = false,
+          },
+        },
+        settings = {
+          python = {
+            analysis = {
+              -- Use Ruff for import organization
+              disableOrganizeImports = true,
+            },
+          },
+        },
+      },
       marksman = {
         settings = {
           markdown = {
