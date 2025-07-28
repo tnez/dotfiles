@@ -12,6 +12,7 @@ tmux-client-*
 # project management
 /__external__
 /__scratch__
+.scratch/
 notes*.md
 notes*.org
 todo*.md
