@@ -2,26 +2,27 @@
 
 # Delete without confirmation
 [[manager.prepend_keymap]]
-on   = ["d", "d"]
-run  = "remove --force"
+on = ["d", "d"]
+run = "remove --force"
 desc = "Delete file/directory without confirmation"
 
 # Move to new directory (creates directory if needed)
 [[manager.prepend_keymap]]
-on   = ["m", "v"]
-run  = '''
+on = ["m", "v"]
+run = '''
   shell --confirm 'read -p "Move to directory: " dir && mkdir -p "$dir" && mv "$@" "$dir"'
 '''
 desc = "Move to new directory (creates if needed)"
 
-# Create Apple Note with attachment
-[[manager.prepend_keymap]]
-on   = ["n", "n"]
-run  = 'shell "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-apple-note.sh \"$@\""'
-desc = "Create Apple Note with file attachment"
-
-# Create Apple Reminder with attachment
-[[manager.prepend_keymap]]
-on   = ["r", "r"]
-run  = 'shell --confirm "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-apple-reminder.sh \"$@\""'
-desc = "Create Apple Reminder with file attachment"
+# These were giving me a bit of issues. I'm going to come back to this.
+# # Create Apple Note with attachment
+# [[manager.prepend_keymap]]
+# on   = ["n", "n"]
+# run  = 'shell "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-apple-note.sh \"$@\""'
+# desc = "Create Apple Note with file attachment"
+#
+# # Create Apple Reminder with attachment
+# [[manager.prepend_keymap]]
+# on   = ["r", "r"]
+# run  = 'shell --confirm "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-apple-reminder.sh \"$@\""'
+# desc = "Create Apple Reminder with file attachment"
