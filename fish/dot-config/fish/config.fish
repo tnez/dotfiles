@@ -76,3 +76,8 @@ end
 
 # Starship (Prompt)
 starship init fish | source
+
+# Added by LM Studio CLI (lms)
+set -gx PATH $PATH /Users/tnez/.lmstudio/bin
+# End of LM Studio CLI section
+
