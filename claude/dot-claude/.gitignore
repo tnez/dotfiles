@@ -1,0 +1,7 @@
+# Claude runtime directories and files not managed by dotfiles
+projects/
+shell-snapshots/
+statsig/
+todos/
+.DS_Store
+*.backup
