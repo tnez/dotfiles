@@ -67,5 +67,6 @@ Analyzes and reorganizes feature branch commits to tell the story of WHAT was do
 
 - Always work on a backup branch first
 - Verify no changes are lost with `git diff origin/main...HEAD`
-- Ensure force-push is safe (no other collaborators on branch)
 - Keep original branch as backup until PR is merged
+- **Never push changes** - this command only reorganizes local commits
+- User decides when to push after reviewing the reorganized history
