@@ -1,28 +1,40 @@
 [manager]
 
-# Delete without confirmation
+# Delete to trash (safe delete)
 [[manager.prepend_keymap]]
 on = ["d", "d"]
-run = "remove --force"
-desc = "Delete file/directory without confirmation"
+run = "remove"
+desc = "Move file/directory to trash"
 
-# Move to new directory (creates directory if needed)
+# Force delete without trash (use with caution)
 [[manager.prepend_keymap]]
-on = ["m", "v"]
+on = ["D", "D"]
+run = "remove --force"
+desc = "Permanently delete without trash"
+
+# === File Movement ===
+
+# Standard move - cut files (yank with 'x' then paste with 'p')
+# Built-in: Select with space, cut with 'x', navigate to target, paste with 'p'
+
+# Fuzzy finder move - search for target directory
+[[manager.prepend_keymap]]
+on = ["m", "f"]
+run = 'shell --block --confirm "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-fuzzy-move.sh \"$@\""'
+desc = "Move to directory using fuzzy finder"
+
+# Quick move to new directory (creates if needed)
+[[manager.prepend_keymap]]
+on = ["m", "n"]
 run = '''
-  shell --confirm 'read -p "Move to directory: " dir && mkdir -p "$dir" && mv "$@" "$dir"'
+  shell --block --confirm 'read -p "New directory name: " dir && mkdir -p "$dir" && mv "$@" "$dir"'
 '''
 desc = "Move to new directory (creates if needed)"
 
-# These were giving me a bit of issues. I'm going to come back to this.
-# # Create Apple Note with attachment
-# [[manager.prepend_keymap]]
-# on   = ["n", "n"]
-# run  = 'shell "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-apple-note.sh \"$@\""'
-# desc = "Create Apple Note with file attachment"
-#
-# # Create Apple Reminder with attachment
-# [[manager.prepend_keymap]]
-# on   = ["r", "r"]
-# run  = 'shell --confirm "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-apple-reminder.sh \"$@\""'
-# desc = "Create Apple Reminder with file attachment"
+# === Apple Integration ===
+
+# Create Apple Reminder with file reference
+[[manager.prepend_keymap]]
+on = ["R", "r"]
+run = 'shell --block "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-reminder-attach.sh \"$@\""'
+desc = "Create Apple Reminder with file attachment"
