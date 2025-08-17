@@ -24,7 +24,6 @@ set -x EDITOR nvim
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x MODE LIGHT # set to DARK for dark mode
-set -x N_PREFIX $HOME/n
 set -x NVIM_APPNAME lazyvim
 set -x PAGER less
 set -x RIPGREP_CONFIG_PATH $HOME/.config/ripgrep/rg.conf
@@ -51,7 +50,6 @@ function fish_title
 end
 
 test -e {$HOME}/.iterm2_shell_integration.fish; and source {$HOME}/.iterm2_shell_integration.fish
-
 
 # pnpm
 set -gx PNPM_HOME /Users/tnez/Library/pnpm
@@ -80,4 +78,3 @@ starship init fish | source
 # Added by LM Studio CLI (lms)
 set -gx PATH $PATH /Users/tnez/.lmstudio/bin
 # End of LM Studio CLI section
-
