@@ -1,0 +1,7 @@
+# vim: ft=sh
+
+# Prepend
+export PATH="/opt/homebrew/bin:$PATH"
+
+# Append
+export PATH="$PATH:$HOME/.scripts"
