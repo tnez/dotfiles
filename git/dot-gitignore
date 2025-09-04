@@ -21,9 +21,10 @@ standup*.md
 standup*.org
 CONTEXT.md
 
-# claude project state
+# claude project state and misc
 .claude/
 !.claude/settings.json
+.playwright-mcp/
 
 # emacs
 .dir-locals.el
