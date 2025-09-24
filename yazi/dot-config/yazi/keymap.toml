@@ -20,7 +20,7 @@ desc = "Permanently delete without trash"
 # Fuzzy finder move - search for target directory
 [[manager.prepend_keymap]]
 on = ["m", "f"]
-run = 'shell --block --confirm "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-fuzzy-move.sh \"$@\""'
+run = 'shell --block --confirm "$HOME/.scripts/yazi-fuzzy-move.sh \"$@\""'
 desc = "Move to directory using fuzzy finder"
 
 # Quick move to new directory (creates if needed)
@@ -36,5 +36,5 @@ desc = "Move to new directory (creates if needed)"
 # Create Apple Reminder with file reference
 [[manager.prepend_keymap]]
 on = ["R", "r"]
-run = 'shell --block "/Users/tnez/Code/tnez/dotfiles/scripts/yazi-reminder-attach.sh \"$@\""'
+run = 'shell --block "$HOME/.scripts/yazi-reminder-attach.sh \"$@\""'
 desc = "Create Apple Reminder with file attachment"
