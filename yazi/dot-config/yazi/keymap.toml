@@ -2,7 +2,7 @@
 
 # Delete to trash (safe delete)
 [[manager.prepend_keymap]]
-on = ["d", "d"]
+on = ["m", "t"]
 run = "remove"
 desc = "Move file/directory to trash"
 
@@ -30,6 +30,12 @@ run = '''
   shell --block --confirm 'read -p "New directory name: " dir && mkdir -p "$dir" && mv "$@" "$dir"'
 '''
 desc = "Move to new directory (creates if needed)"
+
+# Archive files - move to ~/Documents/ARCHIVE
+[[manager.prepend_keymap]]
+on = ["m", "a"]
+run = 'shell --block --confirm "$HOME/.scripts/yazi-archive.sh \"$@\""'
+desc = "Archive files to ~/Documents/ARCHIVE"
 
 # === Apple Integration ===
 
