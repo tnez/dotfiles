@@ -355,7 +355,7 @@ done
 
 ### Integration with Other Tools
 
-- When using Playwright MCP: Start dev server in tmux window first, then interact
+- When using Chrome Dev Tools MCP: Start dev server in tmux window first, then interact with browser
 - For API testing: Start backend in tmux window, use curl/httpie in agent window
 - For log analysis: Tail logs in tmux window, analyze captured output in agent
 
