@@ -6,6 +6,7 @@
       "Bash(rm -rf ~/*)"
     ]
   },
+  "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754096404719
   }
