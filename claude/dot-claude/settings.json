@@ -1,12 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
-    "deny": [
-      "Bash(rm -rf /*)",
-      "Bash(rm -rf ~/*)"
-    ]
+    "deny": ["Bash(rm -rf /*)", "Bash(rm -rf ~/*)"]
   },
-  "alwaysThinkingEnabled": true,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
   "feedbackSurveyState": {
     "lastShownTime": 1754096404719
   }
