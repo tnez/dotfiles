@@ -2,143 +2,75 @@ tap "hashicorp/tap"
 tap "homebrew/bundle"
 tap "oven-sh/bun"
 tap "scoutos/scoutos-cli"
-# New file format for still image compression
 brew "jpeg-xl"
-# Codec library for encoding and decoding AV1 video streams
 brew "aom"
-# Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
-# Core application library for C
 brew "glib"
-# Vector graphics library with cross-device output support
 brew "cairo"
-# GNU File, Shell, and Text utilities
 brew "coreutils"
-# Secure runtime for JavaScript and TypeScript
 brew "deno"
-# Load/unload environment variables based on $PWD
 brew "direnv"
-# Modern, maintained replacement for ls
 brew "eza"
-# Simple, fast and user-friendly alternative to find
 brew "fd"
-# OpenType text shaping engine
 brew "harfbuzz"
-# Library for JPEG-2000 image manipulation
 brew "openjpeg"
-# OCR (Optical Character Recognition) engine
 brew "tesseract"
-# Play, record, convert, and stream audio and video
 brew "ffmpeg"
-# User-friendly command-line shell for UNIX-like operating systems
 brew "fish"
-# Command-line fuzzy finder written in Go
 brew "fzf"
-# Library for encoding and decoding .avif files
 brew "libavif"
-# GitHub command-line tool
 brew "gh"
-# Interpreter for PostScript and PDF
 brew "ghostscript"
-# Distributed revision control system
 brew "git"
-# Syntax-highlighting pager for git and diff output
 brew "git-delta"
-# Task is a task runner/build tool that aims to be simpler and easier to use
 brew "go-task"
-# Library to render SVG files using Cairo
 brew "librsvg"
-# Graph visualization software from AT&T and Bell Labs
 brew "graphviz"
-# Improved top (interactive process viewer)
 brew "htop"
-# Database of common MIME types
 brew "shared-mime-info"
-# ISO/IEC 23008-12:2017 HEIF file format decoder and encoder
 brew "libheif"
-# Tools and libraries to manipulate images in many formats
 brew "imagemagick"
-# Lightweight and flexible command-line JSON processor
 brew "jq"
-# Handy way to save and run project-specific commands
 brew "just"
-# Simple terminal UI for git commands
 brew "lazygit"
-# Terminal file manager
 brew "lf"
-# Powerful, lightweight programming language
 brew "lua"
-# Just-In-Time Compiler (JIT) for the Lua programming language
 brew "luajit"
-# Package manager for the Lua programming language
 brew "luarocks"
-# Ambitious Vim-fork focused on extensibility and agility
 brew "neovim"
-# Modern shell for the GitHub era
 brew "nushell"
-# Swiss-army knife of markup format conversion
 brew "pandoc"
-# Pandoc filter for numbering and cross-referencing
 brew "pandoc-crossref"
-# Reliable PostgreSQL Backup & Restore
 brew "pgbackrest"
-# Paste PNG into files
 brew "pngpaste"
-# Fast, disk space efficient package manager
 brew "pnpm"
-# PDF rendering library (based on the xpdf-3.0 code base)
 brew "poppler"
-# Object-relational database system
 brew "postgresql@14"
-# Python version management
 brew "pyenv"
-# Tools for and transforming and inspecting PDF files
 brew "qpdf"
-# Search tool like grep and The Silver Searcher
 brew "ripgrep"
-# Safe, concurrent, practical language
 brew "rust"
-# Smart session manager for the terminal
 brew "sesh"
-# Simple keystroke visualizer
+brew "shellcheck"
 brew "showkey"
-# HTTP regression testing and benchmarking utility
 brew "siege"
-# Cross-shell prompt for astronauts
 brew "starship"
-# Organize software neatly under a single directory tree (e.g. /usr/local)
 brew "stow"
-# Opinionated Lua code formatter
 brew "stylua"
-# Tool to build, change, and version infrastructure
 brew "terraform"
-# Free software distribution for the TeX typesetting system
 brew "texlive"
-# Simplified and community-driven man pages
 brew "tldr"
-# Terminal multiplexer
 brew "tmux"
-# CLI tool that moves files or folder to the trash
 brew "trash"
-# Display directories as trees (with optional color/HTML output)
 brew "tree"
-# Extremely fast Python package installer and resolver, written in Rust
 brew "uv"
-# Convert HTML to PDF
 brew "weasyprint"
-# Internet file retriever
 brew "wget"
-# Access X11 clipboards from the command-line
 brew "xclip"
-# Friendly and fast tool for sending HTTP requests
 brew "xh"
-# Blazing fast terminal file manager written in Rust, based on async I/O
 brew "yazi"
-# Shell extension to navigate your filesystem faster
 brew "zoxide"
-# Incredibly fast JavaScript runtime, bundler, transpiler and package manager - all in one.
 brew "oven-sh/bun/bun"
-# Scout CLI for managing AI workflows
 brew "scoutos/scoutos-cli/scoutos-cli"
 cask "font-caskaydia-cove-nerd-font"
 cask "font-fira-code"
@@ -147,13 +79,9 @@ cask "font-jetbrains-mono"
 cask "font-monaspace"
 cask "font-monaspice-nerd-font"
 cask "font-open-sans"
-# Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
-# Desktop automation application
 cask "hammerspoon"
-# Full TeX Live distribution with GUI applications
 cask "mactex"
-# Control your tools with a few keystrokes
 cask "raycast"
 vscode "alefragnani.project-manager"
 vscode "blinkshellinc.blink-fs"
