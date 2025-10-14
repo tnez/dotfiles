@@ -1,6 +1,5 @@
 tap "hashicorp/tap"
 tap "homebrew/bundle"
-tap "nikitabobko/tap"
 tap "oven-sh/bun"
 tap "scoutos/scoutos-cli"
 # New file format for still image compression
@@ -135,16 +134,12 @@ brew "xclip"
 brew "xh"
 # Blazing fast terminal file manager written in Rust, based on async I/O
 brew "yazi"
-# Pluggable terminal workspace, with terminal multiplexer as the base feature
-brew "zellij"
 # Shell extension to navigate your filesystem faster
 brew "zoxide"
 # Incredibly fast JavaScript runtime, bundler, transpiler and package manager - all in one.
 brew "oven-sh/bun/bun"
 # Scout CLI for managing AI workflows
 brew "scoutos/scoutos-cli/scoutos-cli"
-# AeroSpace is an i3-like tiling window manager for macOS
-cask "aerospace"
 cask "font-caskaydia-cove-nerd-font"
 cask "font-fira-code"
 cask "font-hack-nerd-font"
@@ -160,8 +155,6 @@ cask "hammerspoon"
 cask "mactex"
 # Control your tools with a few keystrokes
 cask "raycast"
-# GPU-accelerated cross-platform terminal emulator and multiplexer
-cask "wezterm"
 vscode "alefragnani.project-manager"
 vscode "blinkshellinc.blink-fs"
 vscode "bradlc.vscode-tailwindcss"
