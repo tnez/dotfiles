@@ -6,8 +6,12 @@ if ! command -v brew &>/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
+# Symlink Brewfile to home directory
+# NOTE: We do not have `stow` available yet, so we need to do this manually
+ln -sf "$(pwd)/brew/Brewfile" "$HOME/.Brewfile"
+
 # Install brew packages
-brew bundle install --file=./.brew/Brewfile
+brew bundle install --global
 
 # First, stow stow, so that the ignore file is respected
 stow --target=$HOME --dotfiles stow
