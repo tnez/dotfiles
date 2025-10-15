@@ -1,7 +1,12 @@
 # Claude runtime directories and files not managed by dotfiles
+debug/
+file-history/
+local/
+plugins/
 projects/
 shell-snapshots/
 statsig/
 todos/
 .DS_Store
 *.backup
+history.jsonl
