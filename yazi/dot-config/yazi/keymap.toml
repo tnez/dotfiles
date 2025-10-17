@@ -1,13 +1,13 @@
-[manager]
+[mgr]
 
 # Delete to trash (safe delete)
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = ["m", "t"]
 run = "remove"
 desc = "Move file/directory to trash"
 
 # Force delete without trash (use with caution)
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = ["D", "D"]
 run = "remove --force"
 desc = "Permanently delete without trash"
@@ -18,13 +18,13 @@ desc = "Permanently delete without trash"
 # Built-in: Select with space, cut with 'x', navigate to target, paste with 'p'
 
 # Fuzzy finder move - search for target directory
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = ["m", "f"]
 run = 'shell --block --confirm "$HOME/.scripts/yazi-fuzzy-move.sh \"$@\""'
 desc = "Move to directory using fuzzy finder"
 
 # Quick move to new directory (creates if needed)
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = ["m", "n"]
 run = '''
   shell --block --confirm 'read -p "New directory name: " dir && mkdir -p "$dir" && mv "$@" "$dir"'
@@ -32,7 +32,7 @@ run = '''
 desc = "Move to new directory (creates if needed)"
 
 # Archive files - move to ~/Documents/ARCHIVE
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = ["m", "a"]
 run = 'shell --block --confirm "$HOME/.scripts/yazi-archive.sh \"$@\""'
 desc = "Archive files to ~/Documents/ARCHIVE"
@@ -40,7 +40,7 @@ desc = "Archive files to ~/Documents/ARCHIVE"
 # === Apple Integration ===
 
 # Create Apple Reminder with file reference
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = ["R", "r"]
 run = 'shell --block "$HOME/.scripts/yazi-reminder-attach.sh \"$@\""'
 desc = "Create Apple Reminder with file attachment"
