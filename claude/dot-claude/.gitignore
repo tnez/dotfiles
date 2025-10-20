@@ -10,3 +10,4 @@ todos/
 .DS_Store
 *.backup
 history.jsonl
+settings.json
