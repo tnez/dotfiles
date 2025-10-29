@@ -1,3 +1,4 @@
 #!/bin/bash
+# Quick Claude Code session in YOLO mode
 
-cc # cc is an alias to claude that runs claude in YOLO-mode
+claude --permission-mode bypassPermissions
