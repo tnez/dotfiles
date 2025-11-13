@@ -1,0 +1,11 @@
+# docent configuration
+root: .docent
+
+# Paths to search when using /docent:ask
+search_paths:
+  - .docent
+
+# Projects for issue filing
+projects:
+  dotfiles:
+    repo: tnez/dotfiles
