@@ -79,4 +79,3 @@ starship init fish | source
 set -gx PATH $PATH /Users/tnez/.lmstudio/bin
 # End of LM Studio CLI section
 
-alias claude="/Users/tnez/.claude/local/claude"
