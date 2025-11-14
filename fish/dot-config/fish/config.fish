@@ -30,6 +30,17 @@ set -x RIPGREP_CONFIG_PATH $HOME/.config/ripgrep/rg.conf
 set -x VISUAL nvim
 set -x ZK_NOTEBOOK_DIR $HOME/Documents/sb
 
+# Set BAT_THEME to use terminal colors (adapts automatically to light/dark mode)
+set -x BAT_THEME "ansi"
+
+# Set GLOW_STYLE based on macOS appearance mode
+set appearance (defaults read -g AppleInterfaceStyle 2>/dev/null)
+if test "$appearance" = "Dark"
+  set -x GLOW_STYLE "dark"
+else
+  set -x GLOW_STYLE "light"
+end
+
 # set _secret_ variables
 # set -x OPENAI_API_KEY (cat ~/.secrets/OPENAI_API_KEY)
 # set -x ANTHROPIC_API_KEY (cat ~/.secrets/ANTHROPIC_API_KEY)
