@@ -7,9 +7,12 @@ if [ -z "$EDITOR" ]; then
   exit 1
 fi
 
+# Set inbox directory with fallback
+INBOX_DIR="${INBOX_DIR:-$HOME/Documents/INBOX}"
+
 # Get today's date
 today=$(date +"%Y-%m-%d")
-daily_file="Desktop/DAILY--${today}.md"
+daily_file="Inbox/DAILY--${today}.md"
 
 # Build list of existing markdown files with priority ordering
 file_list=$(
@@ -17,11 +20,11 @@ file_list=$(
     # Priority 0: Today's DAILY (always first, even if doesn't exist yet)
     echo "$daily_file"
 
-    # Priority 1: Other Desktop files
-    find "$HOME/Desktop" -maxdepth 1 -name "*.md" -type f 2>/dev/null | while read -r f; do
+    # Priority 1: Other Inbox files
+    find "$INBOX_DIR" -maxdepth 1 -name "*.md" -type f 2>/dev/null | while read -r f; do
       basename_f=$(basename "$f")
       # Skip if it's today's DAILY (already added)
-      [[ "$basename_f" != "DAILY--${today}.md" ]] && echo "Desktop/$basename_f"
+      [[ "$basename_f" != "DAILY--${today}.md" ]] && echo "Inbox/$basename_f"
     done
 
     # Priority 2: Documents/TODO.md
@@ -47,8 +50,8 @@ file_list=$(
 # Helper function to convert display path to actual path
 path_to_actual() {
   local display_path="$1"
-  if [[ "$display_path" == Desktop/* ]]; then
-    echo "$HOME/Desktop/$(echo "$display_path" | sed 's|Desktop/||')"
+  if [[ "$display_path" == Inbox/* ]]; then
+    echo "$INBOX_DIR/$(echo "$display_path" | sed 's|Inbox/||')"
   else
     echo "$HOME/Documents/$display_path"
   fi
@@ -61,7 +64,7 @@ selection=$(echo "$file_list" | fzf \
   --reverse \
   --print-query \
   --preview-window='right:60%:wrap' \
-  --preview="sh -c 'case {} in Desktop/*) preview_path=\"$HOME/Desktop/\$(echo {} | sed \"s|Desktop/||\")\";; *) preview_path=\"$HOME/Documents/{}\";; esac; if [ -f \"\$preview_path\" ]; then glow -w 80 \"\$preview_path\" 2>/dev/null || cat \"\$preview_path\"; else echo \"[New file - will be created]\"; fi'" \
+  --preview="sh -c 'case {} in Inbox/*) preview_path=\"$INBOX_DIR/\$(echo {} | sed \"s|Inbox/||\")\";; *) preview_path=\"$HOME/Documents/{}\";; esac; if [ -f \"\$preview_path\" ]; then glow -w 80 \"\$preview_path\" 2>/dev/null || cat \"\$preview_path\"; else echo \"[New file - will be created]\"; fi'" \
   | tail -n1)
 
 # Exit if user cancelled (Escape or Ctrl-C)
@@ -82,9 +85,9 @@ if echo "$file_list" | grep -Fxq "$selection"; then
 EOF
   fi
 else
-  # New title entered - create new note on Desktop
+  # New title entered - create new note in inbox
   slug=$(echo "$selection" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
-  note_file="$HOME/Desktop/NOTE--${slug}--${today}.md"
+  note_file="$INBOX_DIR/NOTE--${slug}--${today}.md"
   header="# ${selection} - ${today}"
 
   # Create file with header if it doesn't exist
