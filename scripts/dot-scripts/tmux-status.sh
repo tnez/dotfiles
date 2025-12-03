@@ -18,7 +18,7 @@ if git rev-parse --is-inside-work-tree &>/dev/null; then
 
   # Check for uncommitted changes
   if ! git diff --quiet 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
-    output=" ${branch} ○"
+    output="○ ${branch}"
   else
     output=" ${branch}"
   fi
