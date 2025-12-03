@@ -1,3 +1,8 @@
+# Source shell-agnostic profile (using bass for POSIX compatibility)
+if test -f ~/.profile
+    bass source ~/.profile
+end
+
 # aliases
 alias cc="claude --permission-mode bypassPermissions"
 alias ccp="claude --permission-mode bypassPermissions -p"
