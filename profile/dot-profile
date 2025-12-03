@@ -1,7 +1,14 @@
 # vim: ft=sh
 
 # Prepend
+export PATH="$HOME/.claude/local:$PATH"
 export PATH="/opt/homebrew/bin:$PATH"
 
 # Append
 export PATH="$PATH:$HOME/.scripts"
+
+# Cargo (Rust)
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+
+# LM Studio CLI
+export PATH="$PATH:$HOME/.lmstudio/bin"
