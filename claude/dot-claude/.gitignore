@@ -11,3 +11,4 @@ todos/
 *.backup
 history.jsonl
 settings.json
+.credentials.json
