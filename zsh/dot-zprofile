@@ -1,0 +1,4 @@
+# vim: ft=zsh
+
+# Source shell-agnostic profile
+[[ -f ~/.profile ]] && source ~/.profile
