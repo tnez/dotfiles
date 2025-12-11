@@ -1,9 +1,8 @@
 [default_session]
 
 [[session]]
-name = "capture"
-path = "~/Code/tnez/tnez.dev/org/scratch"
-startup_command = "nvim capture.md"
+name = "home"
+path = "~"
 
 [[session]]
 name = "desktop"
@@ -11,26 +10,6 @@ path = "~/Desktop"
 startup_command = "yazi"
 
 [[session]]
-name = "dotfiles"
-path = "~/Code/tnez/dotfiles"
-
-[[session]]
 name = "downloads"
 path = "~/Downloads"
 startup_command = "yazi"
-
-[[session]]
-name = "home"
-path = "~"
-
-[[session]]
-name = "org"
-path = "~/Code/tnez/tnez.dev/org"
-
-[[scoutos]]
-name = "scoutos"
-path = "~/Code/scoutos/scoutos/main"
-
-[[tnezdev]]
-name = "tnezdev"
-path = "~/Code/tnez/tnez.dev"
