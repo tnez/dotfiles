@@ -20,6 +20,10 @@ path = "~/Downloads"
 startup_command = "yazi"
 
 [[session]]
+name = "home"
+path = "~"
+
+[[session]]
 name = "org"
 path = "~/Code/tnez/tnez.dev/org"
 
