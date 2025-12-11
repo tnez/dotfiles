@@ -1,0 +1,7 @@
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+
+Host odin
+  HostName odin
+  User tnez
