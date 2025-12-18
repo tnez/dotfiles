@@ -1,8 +1,8 @@
 #!/bin/bash
-# Attach to persistent knowledge agent in Documents session
+# Attach to dottie persona in Documents session
 
 SESSION_NAME="docs"
-AGENT_WINDOW="kb-agent"
+AGENT_WINDOW="dottie"
 
 # Ensure Documents session exists
 if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
