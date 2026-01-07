@@ -3,6 +3,11 @@ if test -f ~/.profile
     bass source ~/.profile
 end
 
+# macOS SSH agent - use launchd's ssh-agent socket for keychain integration
+if test (uname) = "Darwin"
+    set -gx SSH_AUTH_SOCK (launchctl getenv SSH_AUTH_SOCK)
+end
+
 # aliases
 alias cc="claude --permission-mode bypassPermissions"
 alias ccp="claude --permission-mode bypassPermissions -p"
