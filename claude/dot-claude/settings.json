@@ -1,0 +1,17 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION": "false",
+    "DISABLE_AUTO_COMPACT": "true"
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-code-plugins": true
+  },
+  "permissions": {
+    "allow": ["mcp__pencil"]
+  }
+}
