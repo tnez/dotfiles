@@ -2,6 +2,6 @@ Host *
   AddKeysToAgent yes
   UseKeychain yes
 
-Host odin
-  HostName odin
+Host heimdall
+  HostName heimdall
   User tnez
