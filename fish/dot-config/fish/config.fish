@@ -27,6 +27,7 @@ alias python="python3"
 if type zoxide >/dev/null 2>&1
     zoxide init fish | source
     alias cd="z"
+    alias zq="zoxide query -i"
 end
 
 # set variables
