@@ -32,7 +32,7 @@ end
 
 # set variables
 set -x EDITOR nvim
-set -x INBOX_DIR $HOME/Documents/INBOX
+set -x INBOX_DIR $HOME/PARA/DESK/inbox
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x MODE LIGHT # set to DARK for dark mode
@@ -95,6 +95,9 @@ if [ -f '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc' ]
     . '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc'
 end
 
+# Television (fuzzy finder)
+tv init fish | source
+
 # Starship (Prompt)
 starship init fish | source
 
@@ -105,3 +108,9 @@ set -gx PATH $PATH /Users/tnez/.lmstudio/bin
 
 # Added by Antigravity
 fish_add_path /Users/tnez/.antigravity/antigravity/bin
+
+# Ensure scratch tmux session exists (belt-and-suspenders for LaunchAgent)
+if type -q tmux; and tmux info &>/dev/null; and not tmux has-session -t scratch &>/dev/null
+    tmux new-session -ds scratch -c "$HOME/PARA/DESK/inbox"
+    tmux send-keys -t scratch "nvim $HOME/PARA/DESK/inbox/scratch.md" Enter
+end

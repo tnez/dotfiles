@@ -1,12 +1,12 @@
 #!/bin/bash
-# Attach to dottie persona in Documents session
+# Attach to dottie persona in plan session
 
-SESSION_NAME="docs"
+SESSION_NAME="plan"
 AGENT_WINDOW="dottie"
 
-# Ensure Documents session exists
+# Ensure plan session exists
 if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
-  ~/.scripts/init-documents-session.sh
+  ~/.scripts/init-plan-session.sh
 fi
 
 # Attach to agent window in popup-friendly way

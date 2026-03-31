@@ -1,15 +1,46 @@
 [default_session]
 
+# --- Reusable windows ---
+
+[[window]]
+name = "desk-inbox"
+startup_script = "yazi ~/PARA/DESK/inbox"
+
+[[window]]
+name = "desk-outbox"
+startup_script = "yazi ~/PARA/DESK/outbox"
+
+[[window]]
+name = "desktop"
+startup_script = "yazi ~/Desktop"
+
+[[window]]
+name = "dottie"
+startup_script = "claude --permission-mode auto"
+
+[[window]]
+name = "notes"
+startup_script = "nvim ~/PARA"
+
+# --- Always-running sessions (managed by LaunchAgents) ---
+
 [[session]]
 name = "home"
 path = "~"
 
 [[session]]
-name = "desktop"
-path = "~/Desktop"
-startup_command = "yazi"
+name = "scratch"
+path = "~/PARA/DESK/inbox"
+startup_command = "nvim ~/PARA/DESK/inbox/scratch.md"
+
+# --- Activity sessions ---
 
 [[session]]
-name = "downloads"
-path = "~/Downloads"
-startup_command = "yazi"
+name = "inbox"
+path = "~/PARA/DESK"
+windows = ["desk-inbox", "desktop", "desk-outbox"]
+
+[[session]]
+name = "plan"
+path = "~/PARA"
+windows = ["dottie", "notes"]
