@@ -22,6 +22,18 @@ startup_script = "claude --permission-mode auto"
 name = "notes"
 startup_script = "nvim ~/PARA"
 
+[[window]]
+name = "gh-dashboard"
+startup_script = "~/.scripts/gh-dashboard.sh"
+
+[[window]]
+name = "calendar"
+startup_script = "~/.scripts/helm-calendar.sh"
+
+[[window]]
+name = "reminders"
+startup_script = "~/.scripts/helm-reminders.sh"
+
 # --- Always-running sessions (managed by LaunchAgents) ---
 
 [[session]]
@@ -42,5 +54,25 @@ windows = ["desk-inbox", "desktop", "desk-outbox"]
 
 [[session]]
 name = "plan"
+path = "~/PARA"
+windows = ["dottie", "notes"]
+
+[[session]]
+name = "helm"
+path = "~"
+windows = ["gh-dashboard", "calendar", "reminders", "desk-inbox"]
+
+[[session]]
+name = "standup"
+path = "~/PARA"
+windows = ["gh-dashboard", "calendar", "notes"]
+
+[[session]]
+name = "weekly-review"
+path = "~/PARA/DESK"
+windows = ["desk-inbox", "desk-outbox", "dottie"]
+
+[[session]]
+name = "coffee-chat"
 path = "~/PARA"
 windows = ["dottie", "notes"]
