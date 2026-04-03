@@ -46,4 +46,6 @@ Synthesize everything into a concise session briefing. Include:
 - **What needs Travis** — anything blocked on interactive sessions or decisions
 - **Loose threads** — stale tasks or unfinished items worth flagging
 
-Close with a prompt: ask Travis what we're working on today. Be direct, be warm, be ready.
+**If `$ARGUMENTS` is non-empty:** Travis has told you what we're working on. After the briefing, immediately begin that work — no need to ask.
+
+**If `$ARGUMENTS` is empty:** Close with a prompt: ask Travis what we're working on today. Be direct, be warm, be ready.
