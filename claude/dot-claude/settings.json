@@ -12,5 +12,18 @@
   "enabledPlugins": {
     "frontend-design@claude-code-plugins": true
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/tnez/.claude/hooks/redirect-memory.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
