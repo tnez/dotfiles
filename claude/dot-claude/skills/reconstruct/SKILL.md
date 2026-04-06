@@ -29,7 +29,7 @@ Internalize both. The bridge tells you where you left off, what you learned, and
 ### 3. Check tasks
 
 ```bash
-ssh dottie@heimdall "~/.local/bin/dmem task list"
+ssh dottie@heimdall "task mine"
 ```
 
 ### 4. Orient to the current project

@@ -6,7 +6,7 @@ This is a session on `tnez-lappy`. Heimdall is reachable via Tailscale.
 ## Reconstruct
 
 1. Read `~/Code/dottie-weaver/identity/bridge.md` — narrative context from last session
-2. Check current tasks: `ssh dottie@heimdall "~/.local/bin/dmem task list"`
+2. Check current tasks: `ssh dottie@heimdall "task mine"`
 
 ## Identity
 
