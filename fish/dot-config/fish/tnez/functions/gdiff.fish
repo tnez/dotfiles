@@ -37,7 +37,7 @@ function gdiff -d "Open comprehensive git diff viewer in neovim against origin/m
         return 1
     end
 
-    set -l nvim_cmd "NVIM_APPNAME=lazyvim nvim -c 'DiffviewOpen $base_branch'"
+    set -l nvim_cmd "nvim -c 'DiffTool $base_branch'"
 
     echo "Opening diff view: working tree + staged + commits vs $base_branch"
 

@@ -3,6 +3,9 @@
 
 -- Configure LSP servers natively
 vim.lsp.config("lua_ls", {
+  cmd = { "lua-language-server" },
+  filetypes = { "lua" },
+  root_markers = { ".luarc.json", ".luarc.jsonc", ".stylua.toml", "stylua.toml" },
   settings = {
     Lua = {
       runtime = { version = "LuaJIT" },
@@ -28,9 +31,14 @@ vim.lsp.config("denols", {
   root_markers = { "deno.json", "deno.jsonc" },
 })
 
-vim.lsp.config("ruff", {})
+vim.lsp.config("ruff", {
+  cmd = { "ruff", "server" },
+  filetypes = { "python" },
+})
 
 vim.lsp.config("pyright", {
+  cmd = { "pyright-langserver", "--stdio" },
+  filetypes = { "python" },
   settings = {
     python = {
       analysis = {
@@ -40,7 +48,10 @@ vim.lsp.config("pyright", {
   },
 })
 
-vim.lsp.config("marksman", {})
+vim.lsp.config("marksman", {
+  cmd = { "marksman", "server" },
+  filetypes = { "markdown" },
+})
 
 -- Enable all configured servers
 vim.lsp.enable({ "lua_ls", "ts_ls", "denols", "ruff", "pyright", "marksman" })

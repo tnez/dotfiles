@@ -36,7 +36,7 @@ set -x INBOX_DIR $HOME/PARA/DESK/inbox
 set -x LANG en_US.UTF-8
 set -x LC_ALL en_US.UTF-8
 set -x MODE LIGHT # set to DARK for dark mode
-set -x NVIM_APPNAME lazyvim
+set -x NVIM_APPNAME nvim
 set -x PAGER less
 set -x RIPGREP_CONFIG_PATH $HOME/.config/ripgrep/rg.conf
 set -x VISUAL nvim
