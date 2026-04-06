@@ -1,17 +1,25 @@
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+-- Options first (before plugins load)
+require("options")
 
--- [[ Setting options ]]
-require 'options'
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.uv.fs_stat(lazypath) then
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none",
+    "--branch=stable",
+    "https://github.com/folke/lazy.nvim.git",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
--- [[ Basic Keymaps ]]
-require 'keymaps'
+-- Load plugins
+require("lazy").setup("plugins", {
+  install = { colorscheme = { "tokyonight", "habamax" } },
+  checker = { enabled = true, notify = false },
+  change_detection = { notify = false },
+})
 
--- [[ Install `lazy.nvim` plugin manager ]]
-require 'lazy-bootstrap'
-
--- [[ Load AutoCommands ]]
-require 'autocmds'
+-- Keymaps and autocmds after plugins
+require("keymaps")
+require("autocmds")

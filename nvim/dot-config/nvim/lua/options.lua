@@ -1,93 +1,55 @@
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+-- Leader key (must be set before plugins)
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
--- [[ Setting options ]]
--- See `:help vim.opt`
--- NOTE: You can change these options as you wish!
---  For more options, you can see `:help option-list`
-
--- Enable true color support
-if vim.fn.has 'termguicolors' == 1 then
-  vim.opt.termguicolors = true
-end
-
--- Do not use swapfiles (these are more trouble than they are worth for me)
-vim.opt.swapfile = false
-
--- Show line numbers and use relative for surrounding lines
+-- Line numbers
 vim.opt.number = true
 vim.opt.relativenumber = true
+vim.opt.signcolumn = "yes"
 
--- Enable mouse mode, can be useful for resizing splits for example!
-vim.opt.mouse = 'a'
+-- Indentation
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+vim.opt.smartindent = true
 
--- Don't show the mode, since it's already in status line
-vim.opt.showmode = false
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.opt.clipboard = 'unnamedplus'
-
--- Enable break indent
-vim.opt.breakindent = true
-
--- Save undo history
-vim.opt.undofile = true
-
--- Case-insensitive searching UNLESS \C or capital in search
+-- Search
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
 
--- Keep signcolumn on by default
-vim.opt.signcolumn = 'yes'
-
--- Decrease update time for CursorHold events
--- Used for file change detection and other features
-vim.opt.updatetime = 250
-vim.opt.timeoutlen = 300
--- File auto-reload settings
-vim.opt.autoread = true -- Enable automatic detection of file changes
-vim.opt.autowriteall = true -- Auto-save modified buffers when switching between them
-vim.opt.confirm = true -- Ask to save changes before exiting
-
--- This suppresses the "WARNING: File has changed" messages
-vim.cmd([[
-  augroup silent_file_reload
-    autocmd!
-    autocmd FileChangedRO * silent
-    autocmd FileChangedShell * silent
-  augroup END
-]])
-
--- Configure how new splits should be opened
-vim.opt.splitright = true
-vim.opt.splitbelow = true
-
--- Sets how neovim will display certain whitespace in the editor.
---  See `:help 'list'`
---  and `:help 'listchars'`
-vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
-
--- Preview substitutions live, as you type!
-vim.opt.inccommand = 'split'
-
--- Show which line your cursor is on
+-- Appearance
+vim.opt.termguicolors = true
 vim.opt.cursorline = true
+vim.opt.scrolloff = 8
+vim.opt.sidescrolloff = 8
+vim.opt.showmode = false
 
--- Show col
-vim.opt.colorcolumn = '80'
+-- Wrapping
+vim.opt.wrap = false
+vim.opt.linebreak = true
+vim.opt.breakindent = true
+vim.opt.showbreak = "↪ "
+vim.opt.breakindentopt = "shift:2"
 
--- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+-- File handling
+vim.opt.updatetime = 500
+vim.opt.autoread = true
+vim.opt.autowriteall = true
+vim.opt.confirm = true
+vim.opt.undofile = true
+vim.opt.swapfile = false
 
--- Show folding indicators in the sign column
-vim.opt.foldcolumn = '1'
--- Fold up to 99 levels
-vim.opt.foldlevel = 99
---
-vim.opt.foldmethod = 'expr'
+-- Splits
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+
+-- Completion (Neovim 0.12 built-in)
+vim.opt.completeopt = "menu,menuone,noselect,popup"
+
+-- Clipboard
+vim.opt.clipboard = "unnamedplus"
+
+-- Mouse
+vim.opt.mouse = "a"

@@ -1,90 +1,95 @@
--- Define autocommands in a separate file
--- Create an augroup to group related autocommands
-local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
+local augroup = vim.api.nvim_create_augroup
 
--- General Settings
-local general_group = augroup('GeneralSettings', { clear = true })
--- Example: Automatically resize splits when the window is resized
-autocmd('VimResized', {
-  group = general_group,
+-- Highlight on yank
+autocmd("TextYankPost", {
+  group = augroup("YankHighlight", {}),
   callback = function()
-    vim.cmd 'tabdo wincmd ='
+    vim.hl.on_yank()
   end,
 })
 
--- Markdown Settings
-local markdown_group = augroup('MarkdownSettings', { clear = true })
--- Autocommands for Markdown files
-autocmd('FileType', {
-  group = markdown_group,
-  pattern = 'markdown',
+-- Auto-reload files changed outside Neovim
+local reload_group = augroup("AutoReloadFile", {})
+
+autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  group = reload_group,
   callback = function()
-    vim.opt_local.wrap = true
-    vim.opt_local.breakindent = true
-    vim.opt_local.linebreak = true
-    vim.opt_local.showbreak = '↪ '
+    if vim.fn.getcmdwintype() == "" then
+      vim.cmd("checktime")
+    end
   end,
 })
 
--- Auto-reload files changed outside of Neovim
-local autoreload_group = augroup('AutoReloadFile', { clear = true })
-
--- Create a timer for periodic file checking regardless of focus
-local reload_timer = vim.loop.new_timer()
-
--- Setup function for periodic file checking
-local function setup_file_check_timer()
-  if reload_timer then
-    reload_timer:stop()
-    
-    -- Check files every 2 seconds even without focus
-    reload_timer:start(0, 2000, function()
-      -- Schedule the checktime to run in the main Neovim loop
-      vim.schedule(function()
-        if vim.fn.getcmdwintype() == "" then
-          vim.cmd("checktime")
-        end
-      end)
+-- Periodic file check timer (catches changes even without focus)
+local timer = vim.uv.new_timer()
+if timer then
+  timer:start(0, 2000, function()
+    vim.schedule(function()
+      if vim.fn.getcmdwintype() == "" then
+        vim.cmd("checktime")
+      end
     end)
-    
-    -- Also keep the traditional focus-based checks for immediate response when focused
-    autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
-      group = autoreload_group,
-      pattern = "*",
-      callback = function()
-        if vim.fn.getcmdwintype() == "" then
-          vim.cmd("checktime")
-        end
-      end,
-    })
-  end
+  end)
 end
 
--- Set up the timer on startup
-setup_file_check_timer()
-
--- Also create an autocmd to restart the timer if needed (e.g. after session reload)
-autocmd("VimEnter", {
-  group = autoreload_group,
-  callback = setup_file_check_timer,
-  once = true,
+-- Suppress file change warnings
+autocmd("FileChangedShellPost", {
+  group = reload_group,
+  callback = function()
+    vim.cmd("diffupdate")
+  end,
 })
 
--- Subtle visual indication of file changes without notifications
-autocmd("FileChangedShellPost", {
-  group = autoreload_group,
-  pattern = "*",
+vim.cmd([[
+  augroup silent_file_reload
+    autocmd!
+    autocmd FileChangedRO * silent
+    autocmd FileChangedShell * silent
+  augroup END
+]])
+
+-- Markdown settings
+autocmd("FileType", {
+  pattern = "markdown",
   callback = function()
-    -- Just do a diff update to refresh the display, no notification
-    vim.cmd("diffupdate")
-    
-    -- Optional: You can use a more subtle indicator like a status line flash
-    -- or highlight the line number instead of showing a notification
-    
-    -- For a subtle status line flash, you could use:
-    -- local current_statusline = vim.o.statusline
-    -- vim.o.statusline = '%#DiffAdd#  File Updated  %#Normal#'
-    -- vim.defer_fn(function() vim.o.statusline = current_statusline end, 1000)
+    vim.opt_local.spell = true
+    vim.opt_local.conceallevel = 2
+    vim.opt_local.wrap = true
+    vim.opt_local.colorcolumn = "80"
+    vim.opt_local.textwidth = 80
+    vim.opt_local.linebreak = true
+    vim.opt_local.breakindent = true
+    vim.opt_local.breakindentopt = "shift:2"
+    vim.opt_local.showbreak = "↪ "
+    vim.opt_local.list = false
+    vim.opt_local.formatoptions:remove("t")
+
+    -- Navigate wrapped lines naturally
+    vim.keymap.set("n", "j", "gj", { buffer = true, silent = true })
+    vim.keymap.set("n", "k", "gk", { buffer = true, silent = true })
+    vim.keymap.set("v", "j", "gj", { buffer = true, silent = true })
+    vim.keymap.set("v", "k", "gk", { buffer = true, silent = true })
+  end,
+})
+
+-- Resize splits when terminal is resized
+autocmd("VimResized", {
+  group = augroup("ResizeSplits", {}),
+  callback = function()
+    vim.cmd("tabdo wincmd =")
+  end,
+})
+
+-- Go to last cursor position when opening a buffer
+autocmd("BufReadPost", {
+  group = augroup("LastPlace", {}),
+  callback = function(event)
+    local buf = event.buf
+    local mark = vim.api.nvim_buf_get_mark(buf, '"')
+    local lcount = vim.api.nvim_buf_line_count(buf)
+    if mark[1] > 0 and mark[1] <= lcount then
+      pcall(vim.api.nvim_win_set_cursor, 0, mark)
+    end
   end,
 })
