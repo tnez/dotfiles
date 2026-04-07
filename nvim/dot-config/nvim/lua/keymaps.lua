@@ -12,17 +12,7 @@ map("n", "K", vim.lsp.buf.hover, { desc = "Hover" })
 -- Clear search highlight
 map("n", "<ESC>", "<cmd>nohlsearch<CR>")
 
--- Better window navigation (overridden by smart-splits when loaded)
-map("n", "<C-h>", "<C-w>h")
-map("n", "<C-j>", "<C-w>j")
-map("n", "<C-k>", "<C-w>k")
-map("n", "<C-l>", "<C-w>l")
-
--- Resize windows
-map("n", "<M-h>", "<cmd>vertical resize -2<CR>")
-map("n", "<M-j>", "<cmd>resize -2<CR>")
-map("n", "<M-k>", "<cmd>resize +2<CR>")
-map("n", "<M-l>", "<cmd>vertical resize +2<CR>")
+-- Window navigation + resize handled by smart-splits.nvim (see plugins/editor.lua)
 
 -- Move lines
 map("n", "<A-j>", "<cmd>m .+1<CR>==")

@@ -37,10 +37,15 @@ return {
   },
 
   -- Smart split navigation (works with tmux/wezterm)
+  -- IMPORTANT: must not be lazy-loaded — the @pane-is-vim tmux variable is
+  -- set on plugin load and tmux's smart pane switching depends on it.
   {
     "mrjones2014/smart-splits.nvim",
     lazy = false,
-    opts = {},
+    opts = {
+      at_edge = "wrap",
+      multiplexer_integration = "tmux",
+    },
     keys = {
       { "<C-h>", function() require("smart-splits").move_cursor_left() end, desc = "Move left" },
       { "<C-j>", function() require("smart-splits").move_cursor_down() end, desc = "Move down" },
