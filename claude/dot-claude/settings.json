@@ -9,10 +9,6 @@
     "pr": ""
   },
   "permissions": {},
-  "enabledPlugins": {
-    "frontend-design@claude-code-plugins": true
-  },
-  "skipDangerousModePermissionPrompt": true,
   "hooks": {
     "PreToolUse": [
       {
@@ -25,5 +21,12 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-code-plugins": true
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark-ansi",
+  "autoCompactEnabled": false,
+  "skipAutoPermissionPrompt": true
 }
