@@ -12,3 +12,6 @@ export PATH="$PATH:$HOME/.scripts"
 
 # LM Studio CLI
 export PATH="$PATH:$HOME/.lmstudio/bin"
+
+# OpenCode
+[[ -f "$HOME/.opencode/bin" ]] && export PATH="$PATH:$HOME/.opencode/bin"
