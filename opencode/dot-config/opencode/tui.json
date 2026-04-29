@@ -2,5 +2,10 @@
   "$schema": "https://opencode.ai/tui.json",
   "theme": "system",
   "scroll_speed": 3,
-  "diff_style": "auto"
+  "diff_style": "auto",
+  "keybinds": {
+    "editor_open": "ctrl+g",
+    "messages_first": "home",
+    "input_newline": "shift+return,ctrl+return,ctrl+j"
+  }
 }
