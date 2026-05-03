@@ -1,11 +1,17 @@
-# Source shell-agnostic profile (using bass for POSIX compatibility)
-if test -f ~/.profile
-    bass source ~/.profile
+# Install plugin manager and any missing plugins before using bass.
+if not functions -q fisher
+    set -q XDG_CONFIG_HOME; or set XDG_CONFIG_HOME ~/.config
+    curl https://git.io/fisher --create-dirs -sLo $XDG_CONFIG_HOME/fish/functions/fisher.fish
+    fish -c fisher
 end
 
-# macOS SSH agent - use launchd's ssh-agent socket for keychain integration
-if test (uname) = "Darwin"
-    set -gx SSH_AUTH_SOCK (launchctl getenv SSH_AUTH_SOCK)
+# Source shell-agnostic profile using bass for POSIX compatibility.
+if test -f ~/.profile
+    if type -q bass
+        bass source ~/.profile
+    else
+        echo "warning: bass unavailable; ~/.profile was not sourced" >&2
+    end
 end
 
 # aliases
@@ -30,42 +36,9 @@ if type zoxide >/dev/null 2>&1
     alias zq="zoxide query -i"
 end
 
-# set variables
-set -x EDITOR nvim
-set -x INBOX_DIR $HOME/PARA/DESK/inbox
-set -x LANG en_US.UTF-8
-set -x LC_ALL en_US.UTF-8
-set -x MODE LIGHT # set to DARK for dark mode
-set -x NVIM_APPNAME nvim
-set -x PAGER less
-set -x RIPGREP_CONFIG_PATH $HOME/.config/ripgrep/rg.conf
-set -x VISUAL nvim
-set -x ZK_NOTEBOOK_DIR $HOME/Documents/sb
-
-# Set BAT_THEME to use terminal colors (adapts automatically to light/dark mode)
-set -x BAT_THEME "ansi"
-
-# Set GLOW_STYLE based on macOS appearance mode
-set appearance (defaults read -g AppleInterfaceStyle 2>/dev/null)
-if test "$appearance" = "Dark"
-  set -x GLOW_STYLE "dark"
-else
-  set -x GLOW_STYLE "light"
-end
-
 # set _secret_ variables
 # set -x OPENAI_API_KEY (cat ~/.secrets/OPENAI_API_KEY)
 # set -x ANTHROPIC_API_KEY (cat ~/.secrets/ANTHROPIC_API_KEY)
-
-# set fzf options
-set -x FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border --preview-window=right:60% --preview 'bat --color=always --style=header,grid --line-range :500 {}'"
-
-# install plugin manger (fisher) and any missing plugins
-if not functions -q fisher
-    set -q XDG_CONFIG_HOME; or set XDG_CONFIG_HOME ~/.config
-    curl https://git.io/fisher --create-dirs -sLo $XDG_CONFIG_HOME/fish/functions/fisher.fish
-    fish -c fisher
-end
 
 # this function may be required
 function fish_title
@@ -74,40 +47,14 @@ end
 
 test -e {$HOME}/.iterm2_shell_integration.fish; and source {$HOME}/.iterm2_shell_integration.fish
 
-# pnpm
-set -gx PNPM_HOME /Users/tnez/Library/pnpm
-if not string match -q -- $PNPM_HOME $PATH
-    set -gx PATH "$PNPM_HOME" $PATH
-end
-# pnpm end
-
 # activate pyenv
 source (pyenv init - | psub)
-
-# Add .local/bin to path
-set -gx PATH "$HOME/.local/bin" $PATH
-
-# Add go to path
-set -gx PATH "$HOME/go/bin" $PATH
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc' ]
-    . '/Users/tnez/.local/lib/google-cloud-sdk/path.fish.inc'
-end
 
 # Television (fuzzy finder)
 tv init fish | source
 
 # Starship (Prompt)
 starship init fish | source
-
-# Added by LM Studio CLI (lms)
-set -gx PATH $PATH /Users/tnez/.lmstudio/bin
-# End of LM Studio CLI section
-
-
-# Added by Antigravity
-fish_add_path /Users/tnez/.antigravity/antigravity/bin
 
 # Ensure scratch tmux session exists (belt-and-suspenders for LaunchAgent)
 if type -q tmux; and tmux info &>/dev/null; and not tmux has-session -t scratch &>/dev/null
