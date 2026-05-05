@@ -18,6 +18,14 @@ stow --target=$HOME --dotfiles stow
 
 # Stow packages that use dotfiles pattern
 for package in */; do
+  package="${package%/}"
   echo "Stowing $package with --dotfiles..."
-  stow --target=$HOME --dotfiles $package
+  case "$package" in
+    agents|codex)
+      stow --target="$HOME" --dotfiles --no-folding "$package"
+      ;;
+    *)
+      stow --target="$HOME" --dotfiles "$package"
+      ;;
+  esac
 done
