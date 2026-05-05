@@ -86,7 +86,6 @@ path_prepend "$HOME/go/bin"
 path_prepend "$HOME/.local/lib/google-cloud-sdk/bin"
 
 path_append "$HOME/.scripts"
-path_append "$HOME/.lmstudio/bin"
 path_append "$HOME/.opencode/bin"
 
 # Cargo (Rust)
