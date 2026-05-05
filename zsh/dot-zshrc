@@ -1,0 +1,8 @@
+# vim: ft=zsh
+# shellcheck shell=bash
+
+# Keep interactive non-login zsh sessions aligned with the shared profile.
+if [[ -z "${TNEZ_PROFILE_LOADED:-}" && -f ~/.profile ]]; then
+  # shellcheck disable=SC1090
+  source ~/.profile
+fi
