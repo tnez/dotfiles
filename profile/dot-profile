@@ -1,22 +1,48 @@
 # vim: ft=sh
+# shellcheck shell=sh
 
 # Shell-agnostic environment. Fish imports this through bass; zsh and bash
 # source it directly.
 
+path_remove() {
+  [ -n "$1" ] || return 0
+
+  path_new=
+  path_old="$PATH:"
+  while [ -n "$path_old" ]; do
+    path_entry="${path_old%%:*}"
+    path_old="${path_old#*:}"
+
+    [ -z "$path_entry" ] && continue
+    [ "$path_entry" = "$1" ] && continue
+
+    if [ -n "$path_new" ]; then
+      path_new="$path_new:$path_entry"
+    else
+      path_new="$path_entry"
+    fi
+  done
+  PATH="$path_new"
+}
+
 path_prepend() {
   [ -d "$1" ] || return 0
-  case ":$PATH:" in
-    *":$1:"*) ;;
-    *) PATH="$1:$PATH" ;;
-  esac
+  path_remove "$1"
+  if [ -n "$PATH" ]; then
+    PATH="$1:$PATH"
+  else
+    PATH="$1"
+  fi
 }
 
 path_append() {
   [ -d "$1" ] || return 0
-  case ":$PATH:" in
-    *":$1:"*) ;;
-    *) PATH="$PATH:$1" ;;
-  esac
+  path_remove "$1"
+  if [ -n "$PATH" ]; then
+    PATH="$PATH:$1"
+  else
+    PATH="$1"
+  fi
 }
 
 export EDITOR="nvim"
@@ -64,10 +90,16 @@ path_append "$HOME/.lmstudio/bin"
 path_append "$HOME/.opencode/bin"
 
 # Cargo (Rust)
+# shellcheck disable=SC1091
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+path_prepend "$HOME/.cargo/bin"
 
 export PATH
 export TNEZ_PROFILE_LOADED="1"
 
 unset -f path_prepend
 unset -f path_append
+unset -f path_remove
+unset path_new
+unset path_old
+unset path_entry
