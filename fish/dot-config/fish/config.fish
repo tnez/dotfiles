@@ -14,6 +14,12 @@ if test -f ~/.profile
     end
 end
 
+# Node (fnm)
+if type -q fnm
+    fnm env --use-on-cd --shell fish | source
+    fnm use default --silent-if-unchanged >/dev/null 2>&1
+end
+
 # aliases
 alias cc="claude --permission-mode bypassPermissions"
 alias ccp="claude --permission-mode bypassPermissions -p"

@@ -76,8 +76,18 @@ path_prepend "$HOME/.claude/local"
 path_prepend "/opt/homebrew/bin"
 path_prepend "/opt/homebrew/sbin"
 path_prepend "/opt/homebrew/opt/libpq/bin"
-path_prepend "$HOME/n/bin"
 path_prepend "$HOME/.antigravity/antigravity/bin"
+
+# Node (fnm)
+# Fish sources this file via bass; initialize fnm natively in fish instead.
+if [ -z "${FISH_VERSION:-}" ] && command -v fnm >/dev/null 2>&1; then
+  # shellcheck disable=SC1090
+  eval "$(fnm env --use-on-cd --shell bash)"
+
+  # Ensure a default Node is selected for non-interactive shells.
+  # `--use-on-cd` won't fire unless we actually `cd`.
+  fnm use default --silent-if-unchanged >/dev/null 2>&1 || true
+fi
 
 export PNPM_HOME="$HOME/Library/pnpm"
 path_prepend "$PNPM_HOME"
