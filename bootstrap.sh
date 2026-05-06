@@ -29,3 +29,15 @@ for package in */; do
       ;;
   esac
 done
+
+# Codex currently skips symlinked SKILL.md files when loading user skills.
+# Keep these wrapper skills sourced from dotfiles, but materialize the live
+# entrypoints so both the desktop app and CLI load them from ~/.agents.
+for skill in reconstruct wrap; do
+  src="$(pwd)/agents/dot-agents/skills/$skill/SKILL.md"
+  dst="$HOME/.agents/skills/$skill/SKILL.md"
+
+  mkdir -p "$(dirname "$dst")"
+  rm -f "$dst"
+  cp "$src" "$dst"
+done
