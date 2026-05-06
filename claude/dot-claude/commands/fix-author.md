@@ -1,0 +1,1 @@
+../../../agents/dot-agents/commands/fix-author.md

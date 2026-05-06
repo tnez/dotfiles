@@ -16,4 +16,6 @@ possible surface:
 Codex currently needs special handling for user skill discovery: it can skip
 symlinked `SKILL.md` files. Bootstrap materializes shared skill entrypoints into
 `~/.agents/skills` after stowing so Codex can discover them while this package
-remains the source of truth.
+remains the source of truth. Treat `~/.agents/skills` as a managed runtime
+mirror: bootstrap removes stale materialized skill files there before restowing
+and copying the current shared skills back into place.

@@ -32,6 +32,16 @@ discover_materialized_codex_skills() {
 remove_materialized_codex_skills() {
   discover_materialized_codex_skills
 
+  # ~/.agents/skills is the managed shared runtime mirror for this package.
+  # Remove materialized copies first, including stale skills that no longer
+  # exist in agents/dot-agents/skills, so stow can recreate symlink entrypoints.
+  for skill_dir in "$HOME"/.agents/skills/*; do
+    if [[ -f "$skill_dir/SKILL.md" && ! -L "$skill_dir/SKILL.md" ]]; then
+      rm -f "$skill_dir/SKILL.md"
+      rmdir "$skill_dir" 2>/dev/null || true
+    fi
+  done
+
   for skill in "${materialized_codex_skills[@]}"; do
     dst="$HOME/.agents/skills/$skill/SKILL.md"
     rm -f "$dst"
