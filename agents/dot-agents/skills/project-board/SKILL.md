@@ -1,0 +1,74 @@
+---
+name: project-board
+description: Review and steward a GitHub repo's PRs and issues: classify PRs, review ready PRs when asked, close stale issues, manage ready async work, and recommend next actions.
+---
+
+# Project Board
+
+Run a GitHub project-board stewardship pass for the current repository.
+
+## Inputs
+
+Use the current git remote to determine `owner/repo`. If the repo cannot be resolved, ask for the GitHub repository.
+
+Defaults:
+- Async assignee: `dottie-weaver`
+- Async-ready label: `ready`
+
+If the user provides different names, use those for this run.
+
+## Preflight
+
+1. Read local project instructions (`AGENTS.md`, `CLAUDE.md`, or equivalent) if present.
+2. Verify `gh auth status`.
+3. Fetch current open PRs and issues with `gh`.
+4. Do not mutate GitHub unless the user asked for review, issue hygiene, or board updates.
+
+## PR Pass
+
+Fetch open PRs with enough detail to classify review and merge state:
+
+- number, title, author, draft state
+- head/base branch
+- CI/check rollup
+- merge state
+- review decision
+- labels, assignees, updated time
+- body/comments/reviews when needed
+
+Classify PRs:
+- `ready_to_review`: non-draft, CI green, merge-clean, not waiting on another open PR.
+- `wait`: stacked, depends on an unmerged PR, blocked by merge order, or otherwise should not be acted on yet.
+- `changes_requested`: existing requested changes or a blocking issue found during review.
+- `status_only`: not enough context to act safely.
+
+When asked to review PRs:
+- Approve ready PRs.
+- Approve with non-blocking comments for take-it-or-leave-it notes.
+- Formally request changes for correctness, security, test, or documentation-contract blockers.
+- Take no review action on PRs that need to wait.
+- Write review/comment bodies to temp files and use `gh pr review --body-file` or `gh pr comment --body-file` to avoid shell interpolation of Markdown backticks.
+
+## Issue Pass
+
+Fetch open issues and available labels.
+
+Hygiene rules:
+- Close only obviously stale, duplicate, or superseded issues. Leave a clear closing comment.
+- Remove the async-ready label from issues that already have open PRs.
+- Mark issues async-ready only when they are scoped, unblocked, and have enough context or acceptance criteria.
+- Prefer rewriting stale issue bodies over assigning them.
+
+Async assignment rule:
+- Do not assign new async work while open PRs have change requests, failing CI, merge conflicts, or are blocked in a merge queue.
+- If the PR queue is healthy, assign independent ready issues to the async assignee and apply the async-ready label.
+- More than one issue may be assigned at once when the work is independent and the queue is healthy.
+
+## Output
+
+Summarize:
+- PR status and review actions taken.
+- PRs skipped and why.
+- Issues closed, edited, labeled, assigned, or deliberately left alone.
+- Ready-but-held work.
+- Recommended next move.
