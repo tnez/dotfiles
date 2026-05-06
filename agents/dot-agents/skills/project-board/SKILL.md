@@ -1,6 +1,6 @@
 ---
 name: project-board
-description: Review and steward a GitHub repo's PRs and issues: classify PRs, review ready PRs when asked, close stale issues, manage ready async work, and recommend next actions.
+description: "Review and steward a GitHub repo's PRs and issues: classify PRs, review ready PRs when asked, close stale issues, manage ready async work, and recommend next actions."
 ---
 
 # Project Board
