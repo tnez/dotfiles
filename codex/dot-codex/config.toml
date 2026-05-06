@@ -1,6 +1,9 @@
 personality = "pragmatic"
 model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
+service_tier = "fast"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
 
 [mcp_servers.pencil]
 args = [
@@ -50,3 +53,11 @@ trust_level = "trusted"
 
 [projects."/Users/tnez"]
 trust_level = "trusted"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-05-06T17:13:37Z"
+source_type = "local"
+source = "/Users/tnez/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 2
