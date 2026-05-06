@@ -7,24 +7,15 @@ allowed-tools: Bash, Glob
 
 # Outbox
 
-Copy the current conversation's session log to `~/PARA/DESK/outbox/` so it can be picked up on Heimdall.
+Load and follow the harness-agnostic `outbox` skill.
 
-## Steps
+The source of truth is:
 
-1. Find the most recently modified `.jsonl` file in the current project's Claude session directory:
+`~/.agents/skills/outbox/SKILL.md`
 
-```bash
-ls -t ~/.claude/projects/$(echo "$PWD" | sed 's|/|-|g; s|^-||')/*.jsonl | head -1
-```
+Use the skill named `outbox`. If the skill tool does not list it, read the file
+above directly and follow its instructions.
 
-If that path doesn't resolve, try listing all project directories and matching by the current working directory name.
+If $ARGUMENTS is non-empty, pass it through as the filename suffix:
 
-2. Prompt for a filename suffix if `$ARGUMENTS` is empty. Otherwise use `$ARGUMENTS` as the suffix. Format: `YYYY-MM-DD--<suffix>.jsonl` using today's date.
-
-3. Copy the file:
-
-```bash
-cp <source> ~/PARA/DESK/outbox/<filename>
-```
-
-4. Confirm the copy with the file size and destination path.
+$ARGUMENTS

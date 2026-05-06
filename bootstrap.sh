@@ -14,11 +14,24 @@ ln -sf "$(pwd)/brew/Brewfile" "$HOME/.Brewfile"
 brew bundle install --global
 
 # First, stow stow, so that the ignore file is respected
-stow --target=$HOME --dotfiles stow
+stow --target="$HOME" --dotfiles stow
 
-materialized_codex_skills=(reconstruct wrap)
+materialized_codex_skills=()
+
+discover_materialized_codex_skills() {
+  local skill_dir
+
+  materialized_codex_skills=()
+  for skill_dir in "$PWD"/agents/dot-agents/skills/*; do
+    if [[ -f "$skill_dir/SKILL.md" ]]; then
+      materialized_codex_skills+=("${skill_dir##*/}")
+    fi
+  done
+}
 
 remove_materialized_codex_skills() {
+  discover_materialized_codex_skills
+
   for skill in "${materialized_codex_skills[@]}"; do
     dst="$HOME/.agents/skills/$skill/SKILL.md"
     rm -f "$dst"
@@ -27,8 +40,10 @@ remove_materialized_codex_skills() {
 
 materialize_codex_skills() {
   # Codex currently skips symlinked SKILL.md files when loading user skills.
-  # Keep these wrapper skills sourced from dotfiles, but materialize the live
+  # Keep shared skills sourced from dotfiles, but materialize the live
   # entrypoints so both the desktop app and CLI load them from ~/.agents.
+  discover_materialized_codex_skills
+
   for skill in "${materialized_codex_skills[@]}"; do
     src="$(pwd)/agents/dot-agents/skills/$skill/SKILL.md"
     dst="$HOME/.agents/skills/$skill/SKILL.md"

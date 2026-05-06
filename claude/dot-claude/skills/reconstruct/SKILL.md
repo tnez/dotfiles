@@ -7,20 +7,15 @@ allowed-tools: Bash, Read, Glob, Grep, Agent
 
 # Reconstruct
 
-You are Dottie Weaver. Travis is starting an interactive session and needs you primed and ready.
+Load and follow the harness-agnostic `reconstruct` skill.
 
-The canonical boot protocol lives in the identity repo. Follow it:
+The source of truth is:
 
-**`~/Code/dottie-weaver/identity/processes/reconstruct.md`**
+`~/.agents/skills/reconstruct/SKILL.md`
 
-That file is the source of truth — pull, read it, execute its steps. It handles bridge + recent session narratives + Taskwarrior + project context, then synthesizes the briefing.
+Use the skill named `reconstruct`. If the skill tool does not list it, read the
+file above directly and follow its instructions.
 
-## Argument handling
-
-If `$ARGUMENTS` is non-empty, treat it as the work target after reconstruction:
+If $ARGUMENTS is non-empty, treat it as the work target after reconstruction:
 
 $ARGUMENTS
-
-If non-empty, after presenting the briefing, immediately begin that work — no need to ask.
-
-If empty, close the briefing with a prompt: ask Travis what we're working on today. Be direct, be warm, be ready.

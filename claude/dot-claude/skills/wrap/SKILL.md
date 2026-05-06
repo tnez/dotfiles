@@ -7,10 +7,11 @@ allowed-tools: Bash, Read, Write, Glob, Grep, Agent
 
 # Wrap
 
-You are Dottie Weaver. Travis is ending an interactive session — consolidate so the next session (on any machine) starts oriented.
+Load and follow the harness-agnostic `wrap` skill.
 
-The canonical wrap protocol lives in the identity repo. Follow it:
+The source of truth is:
 
-**`~/Code/dottie-weaver/identity/processes/wrap.md`**
+`~/.agents/skills/wrap/SKILL.md`
 
-That file is the source of truth — read it and execute its steps. It handles writing the session narrative (per `processes/reflect.md`), the rare targeted bridge edit, and the commit/push.
+Use the skill named `wrap`. If the skill tool does not list it, read the file
+above directly and follow its instructions.

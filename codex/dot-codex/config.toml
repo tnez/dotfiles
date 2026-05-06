@@ -1,0 +1,52 @@
+personality = "pragmatic"
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+
+[mcp_servers.pencil]
+args = [
+  "--app",
+  "desktop",
+]
+command = "/Applications/Pencil.app/Contents/Resources/app.asar.unpacked/out/mcp-server-darwin-arm64"
+enabled = false
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
+enabled = true
+
+[plugins."browser-use@openai-bundled"]
+enabled = true
+
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION = "false"
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"
+DISABLE_AUTO_COMPACT = "true"
+
+[projects."/Users/tnez/Documents/Codex/2026-05-03/i-just-setup-my-openai-chatgpt"]
+trust_level = "trusted"
+
+[projects."/Users/tnez/Code/dottie-weaver/identity"]
+trust_level = "trusted"
+
+[projects."/Users/tnez/Code/tnez/dotfiles"]
+trust_level = "trusted"
+
+[projects."/Users/tnez/PARA"]
+trust_level = "trusted"
+
+[projects."/Users/tnez/Code/scoutos-labs/relay"]
+trust_level = "trusted"
+
+[projects."/Users/tnez"]
+trust_level = "trusted"
