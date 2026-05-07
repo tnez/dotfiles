@@ -15,6 +15,11 @@ Defaults:
 - Async assignee: `dottie-weaver`
 - Async-ready label: `ready`
 
+Acting GitHub account:
+- Use `gh auth status` to identify the active account for this machine.
+- In Travis's Relay/Dottie workflow, Codex running on Travis's machine usually acts as `tnez`. If open PRs are gated on a `tnez` review, change request, or approval, treat that as your own review gate and act directly when the user asked for review, issue hygiene, or board updates.
+- Keep `dottie-weaver` as the async implementation assignee by default. Do not confuse the async assignee with the active GitHub account used for review and board stewardship.
+
 If the user gives an async capacity (for example, "assign up to three"), treat
 that as the total number of simultaneously assigned async lanes for this pass.
 Already-assigned issues for the async assignee count against the cap.
@@ -60,6 +65,7 @@ When asked to review PRs:
 - Approve with non-blocking comments for take-it-or-leave-it notes.
 - Formally request changes for correctness, security, test, or documentation-contract blockers.
 - Take no review action on PRs that need to wait.
+- If the active GitHub account is the account that requested changes, re-review the latest head yourself instead of reporting that the PR is gated on someone else.
 - Write review/comment bodies to temp files and use `gh pr review --body-file` or `gh pr comment --body-file` to avoid shell interpolation of Markdown backticks.
 
 ## Issue Pass
