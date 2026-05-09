@@ -47,6 +47,9 @@ vim.opt.splitright = true
 
 -- Completion (Neovim 0.12 built-in)
 vim.opt.completeopt = "menu,menuone,noselect,popup"
+vim.opt.pumborder = "rounded"
+vim.opt.pummaxwidth = 100
+vim.opt.winborder = "rounded"
 
 -- Clipboard
 vim.opt.clipboard = "unnamedplus"

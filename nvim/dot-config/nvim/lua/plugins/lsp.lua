@@ -1,6 +1,27 @@
 -- Native LSP configuration using Neovim 0.12 vim.lsp.config()
 -- No nvim-lspconfig needed — just mason for installing servers.
 
+local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
+if not vim.env.PATH:find(mason_bin, 1, true) then
+  vim.env.PATH = mason_bin .. ":" .. vim.env.PATH
+end
+
+local float_opts = {
+  border = "rounded",
+  focusable = false,
+  max_width = 100,
+}
+
+vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+  config = vim.tbl_deep_extend("force", float_opts, config or {})
+  return vim.lsp.handlers.hover(err, result, ctx, config)
+end
+
+vim.lsp.handlers["textDocument/signatureHelp"] = function(err, result, ctx, config)
+  config = vim.tbl_deep_extend("force", float_opts, config or {})
+  return vim.lsp.handlers.signature_help(err, result, ctx, config)
+end
+
 -- Configure LSP servers natively
 vim.lsp.config("lua_ls", {
   cmd = { "lua-language-server" },
@@ -22,13 +43,22 @@ vim.lsp.config("lua_ls", {
 vim.lsp.config("ts_ls", {
   cmd = { "typescript-language-server", "--stdio" },
   filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-  root_markers = { "package.json", "tsconfig.json", "jsconfig.json" },
+  root_dir = function(bufnr, on_dir)
+    if vim.fs.root(bufnr, { "deno.json", "deno.jsonc" }) then
+      return
+    end
+
+    on_dir(vim.fs.root(bufnr, { "package.json", "tsconfig.json", "jsconfig.json", ".git" }))
+  end,
 })
 
 vim.lsp.config("denols", {
   cmd = { "deno", "lsp" },
   filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-  root_markers = { "deno.json", "deno.jsonc" },
+  root_dir = function(bufnr, on_dir)
+    on_dir(vim.fs.root(bufnr, { "deno.json", "deno.jsonc" }))
+  end,
+  workspace_required = true,
 })
 
 vim.lsp.config("ruff", {
@@ -74,7 +104,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
     map("i", "<C-k>", vim.lsp.buf.signature_help, "Signature Help")
     map("n", "<leader>cr", vim.lsp.buf.rename, "Rename")
     map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
-    map("n", "<leader>cf", function() vim.lsp.buf.format({ async = true }) end, "Format")
+    map("n", "<leader>cf", function()
+      vim.lsp.buf.format({ async = true })
+    end, "Format")
   end,
 })
 
@@ -82,7 +114,7 @@ return {
   -- Mason for installing LSP servers, formatters, linters
   {
     "williamboman/mason.nvim",
-    cmd = "Mason",
+    lazy = false,
     opts = {
       ensure_installed = {
         "lua-language-server",
