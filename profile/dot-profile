@@ -91,6 +91,7 @@ fi
 
 export PNPM_HOME="$HOME/Library/pnpm"
 path_prepend "$PNPM_HOME"
+path_prepend "$HOME/.bun/bin"
 path_prepend "$HOME/.local/bin"
 path_prepend "$HOME/go/bin"
 path_prepend "$HOME/.local/lib/google-cloud-sdk/bin"
