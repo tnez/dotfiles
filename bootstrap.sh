@@ -13,6 +13,22 @@ ln -sf "$(pwd)/brew/Brewfile" "$HOME/.Brewfile"
 # Install brew packages
 brew bundle install --global
 
+install_pi_agent() {
+  if command -v pi &>/dev/null; then
+    return
+  fi
+
+  if command -v bun &>/dev/null; then
+    bun add -g @earendil-works/pi-coding-agent
+  elif command -v npm &>/dev/null; then
+    npm install -g @earendil-works/pi-coding-agent
+  else
+    echo "Skipping Pi install: bun and npm are unavailable" >&2
+  fi
+}
+
+install_pi_agent
+
 # First, stow stow, so that the ignore file is respected
 stow --target="$HOME" --dotfiles stow
 
@@ -86,6 +102,9 @@ for package in */; do
     codex)
       stow --target="$HOME" --dotfiles --no-folding "$package"
       seed_codex_config
+      ;;
+    pi)
+      stow --target="$HOME" --dotfiles --no-folding "$package"
       ;;
     *)
       stow --target="$HOME" --dotfiles "$package"
