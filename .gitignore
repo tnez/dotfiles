@@ -5,6 +5,9 @@
 # osx
 .DS_Store
 
+# app-managed Codex state
+/codex/dot-codex/config.toml
+
 # tmux
 tmux-client-*
 

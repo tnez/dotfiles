@@ -64,6 +64,16 @@ materialize_codex_skills() {
   done
 }
 
+seed_codex_config() {
+  local src="$PWD/codex/dot-codex/config.base.toml"
+  local dst="$HOME/.codex/config.toml"
+
+  if [[ ! -e "$dst" && -f "$src" ]]; then
+    mkdir -p "$(dirname "$dst")"
+    cp "$src" "$dst"
+  fi
+}
+
 # Stow packages that use dotfiles pattern
 for package in */; do
   package="${package%/}"
@@ -75,6 +85,7 @@ for package in */; do
       ;;
     codex)
       stow --target="$HOME" --dotfiles --no-folding "$package"
+      seed_codex_config
       ;;
     *)
       stow --target="$HOME" --dotfiles "$package"

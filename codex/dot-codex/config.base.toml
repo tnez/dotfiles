@@ -25,7 +25,7 @@ enabled = true
 [plugins."computer-use@openai-bundled"]
 enabled = true
 
-[plugins."browser-use@openai-bundled"]
+[plugins."browser@openai-bundled"]
 enabled = true
 
 [shell_environment_policy]
@@ -54,10 +54,7 @@ trust_level = "trusted"
 [projects."/Users/tnez"]
 trust_level = "trusted"
 
-[marketplaces.openai-bundled]
-last_updated = "2026-05-06T17:13:37Z"
-source_type = "local"
-source = "/Users/tnez/.codex/.tmp/bundled-marketplaces/openai-bundled"
-
-[tui.model_availability_nux]
-"gpt-5.5" = 2
+[features]
+terminal_resize_reflow = true
+prevent_idle_sleep = true
+goals = true
