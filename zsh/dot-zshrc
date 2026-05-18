@@ -1,8 +1,225 @@
 # vim: ft=zsh
-# shellcheck shell=bash
 
 # Keep interactive non-login zsh sessions aligned with the shared profile.
 if [[ -z "${TNEZ_PROFILE_LOADED:-}" && -f ~/.profile ]]; then
-  # shellcheck disable=SC1090
   source ~/.profile
+fi
+
+# History
+HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+mkdir -p "${HISTFILE:h}"
+HISTSIZE=100000
+SAVEHIST=100000
+setopt append_history
+setopt extended_history
+setopt hist_ignore_all_dups
+setopt hist_reduce_blanks
+setopt hist_verify
+setopt inc_append_history
+
+# Completion
+if [[ -d /opt/homebrew/share/zsh/site-functions ]]; then
+  fpath=(
+    /opt/homebrew/share/zsh/site-functions
+    ${fpath:#/usr/local/share/zsh/site-functions}
+  )
+fi
+
+autoload -Uz compinit
+zcompdump="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump"
+mkdir -p "${zcompdump:h}"
+compinit -d "$zcompdump"
+zstyle ':completion:*' menu select
+
+# Editing
+bindkey -v
+KEYTIMEOUT=10
+bindkey -M viins 'kj' vi-cmd-mode
+bindkey '^F' forward-char
+bindkey -M viins '^F' forward-char
+bindkey -M vicmd '^F' forward-char
+
+# Aliases
+alias cc='claude --permission-mode bypassPermissions'
+alias ccp='claude --permission-mode bypassPermissions -p'
+alias clip="tr -d '\n' | pbcopy"
+alias cls='clear'
+alias g='git'
+alias gd="nvim ':DiffviewOpen origin/main..HEAD'"
+alias gs='git status'
+alias ls='eza --icons'
+alias la='ls -a'
+alias ld='yazi'
+alias lg='lazygit'
+alias ll='ls -al'
+alias python='python3'
+
+capture() {
+  if [[ $# -eq 0 ]]; then
+    gh issue create --repo tnez/todo --label inbox
+  else
+    gh issue create --repo tnez/todo --label inbox --title "$*"
+  fi
+}
+
+cdp() {
+  local pattern="${1:-.}"
+  local target
+
+  target="$(
+    fd --type d --max-depth 1 "$pattern" "$HOME/Code"/* 2>/dev/null | fzf
+  )" || return
+  [[ -n "$target" ]] && cd "$target"
+}
+
+gdiff() {
+  local dry_run=false
+  local arg
+
+  for arg in "$@"; do
+    case "$arg" in
+      --dry-run|-n) dry_run=true ;;
+      --help|-h)
+        print 'Usage: gdiff [--dry-run|-n] [--help|-h]'
+        print
+        print 'Open neovim diff view for working tree, staged changes, and commits vs base branch.'
+        return 0
+        ;;
+    esac
+  done
+
+  if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    print -u2 'Error: Not in a git repository'
+    return 1
+  fi
+
+  local base_branch
+  if git rev-parse --verify origin/main >/dev/null 2>&1; then
+    base_branch='origin/main'
+  elif git rev-parse --verify main >/dev/null 2>&1; then
+    base_branch='main'
+  elif git rev-parse --verify master >/dev/null 2>&1; then
+    base_branch='master'
+  else
+    print -u2 'Error: Could not find base branch (origin/main, main, or master)'
+    return 1
+  fi
+
+  local -a nvim_cmd
+  nvim_cmd=(nvim -c "DiffTool $base_branch")
+
+  print "Opening diff view: working tree + staged + commits vs $base_branch"
+  if [[ "$dry_run" == true ]]; then
+    print -r -- "Would execute: ${nvim_cmd[*]}"
+    return 0
+  fi
+
+  "${nvim_cmd[@]}"
+}
+
+get_secret() {
+  local key="${1:-}"
+  local secrets_file="${SECRETS_FILE:-$HOME/.secrets}"
+  local name value
+
+  if [[ ! -f "$secrets_file" ]]; then
+    print -u2 '[ERROR] Could not find ~/.secrets'
+    return 1
+  fi
+
+  if [[ -z "$key" ]]; then
+    print -u2 '[ERROR] Please specify key with first argument'
+    return 1
+  fi
+
+  while IFS='=' read -r name value; do
+    [[ "$name" == "$key" ]] || continue
+    print -r -- "$value"
+    return 0
+  done < "$secrets_file"
+
+  print -u2 "[ERROR] Did not find entry for: $key"
+  return 1
+}
+
+is_running_in_tmux() {
+  [[ -n ${TMUX:-} ]]
+}
+
+nvim() {
+  if [[ -d .venv && -f poetry.lock && ${+commands[poetry]} -eq 1 ]]; then
+    poetry run command nvim "$@"
+  elif [[ -d .venv && -f uv.lock && ${+commands[uv]} -eq 1 ]]; then
+    uv run command nvim "$@"
+  else
+    command nvim "$@"
+  fi
+}
+
+tj() {
+  local session
+
+  session="$(
+    tmux list-sessions 2>/dev/null | fzf --preview='' --reverse | cut -d: -f1
+  )" || return
+  [[ -n "$session" ]] && tmux attach -t "$session"
+}
+
+tmux_session_exists() {
+  [[ -n ${1:-} ]] && tmux has-session -t "$1" 2>/dev/null
+}
+
+tp() {
+  local target_readme target_dir session_name
+
+  target_readme="$(
+    fd '[readme|README].md' "$HOME/Code" |
+      fzf --height=90% --preview 'bat --color=always {}'
+  )" || return
+  [[ -n "$target_readme" ]] || return 1
+
+  target_dir="${target_readme:h}"
+  session_name="${target_dir:t}"
+  session_name="${session_name//./-}"
+
+  tmux -2 new-session -As "$session_name" -c "$target_dir"
+}
+
+[[ -e "$HOME/.iterm2_shell_integration.zsh" ]] && source "$HOME/.iterm2_shell_integration.zsh"
+
+if (( ${+commands[pyenv]} )); then
+  eval "$(pyenv init - zsh --no-rehash)"
+fi
+
+if (( ${+commands[zoxide]} )); then
+  eval "$(zoxide init zsh)"
+  alias cd='z'
+  alias zq='zoxide query -i'
+fi
+
+if (( ${+commands[fzf]} )); then
+  source <(fzf --zsh) 2>/dev/null
+fi
+
+if (( ${+commands[tv]} )); then
+  eval "$(tv init zsh)"
+
+  tv-sesh-widget() {
+    zle -I
+    tv sesh
+    zle reset-prompt
+  }
+  zle -N tv-sesh-widget
+  bindkey '^T' tv-sesh-widget
+fi
+
+if (( ${+commands[starship]} )); then
+  eval "$(starship init zsh)"
+fi
+
+# Ensure scratch tmux session exists (belt-and-suspenders for LaunchAgent).
+if (( ${+commands[tmux]} )) && tmux info >/dev/null 2>&1 &&
+  ! tmux has-session -t scratch >/dev/null 2>&1; then
+  tmux new-session -ds scratch -c "$HOME/PARA/DESK/inbox"
+  tmux send-keys -t scratch "nvim $HOME/PARA/DESK/inbox/scratch.md" Enter
 fi
