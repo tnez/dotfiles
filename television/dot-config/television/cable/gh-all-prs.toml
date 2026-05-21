@@ -1,0 +1,44 @@
+[metadata]
+name = "gh-all-prs"
+description = "Open pull requests across active GitHub owners"
+requirements = ["gh"]
+
+[source]
+command = "~/.scripts/tv-gh-workbench.sh all-prs"
+output = "{split:\\t:0}"
+no_sort = true
+
+[preview]
+command = "~/.scripts/tv-gh-workbench-preview.sh pr '{}'"
+
+[keybindings]
+enter = "actions:view"
+ctrl-o = "actions:browser"
+ctrl-c = "actions:checkout"
+ctrl-x = "actions:checks"
+ctrl-a = "actions:agent_review"
+
+[actions.view]
+description = "View PR"
+command = "~/.scripts/tv-gh-workbench-preview.sh pr '{}'"
+mode = "fork"
+
+[actions.browser]
+description = "Open PR in browser"
+command = "gh pr view '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}' --web"
+mode = "fork"
+
+[actions.checkout]
+description = "Checkout PR"
+command = "gh pr checkout '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+mode = "execute"
+
+[actions.checks]
+description = "View PR checks"
+command = "gh pr checks '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+mode = "fork"
+
+[actions.agent_review]
+description = "Review PR with agent"
+command = "opencode 'Review PR {split:\\t:0}. Prioritize bugs, regressions, and missing tests.'"
+mode = "execute"

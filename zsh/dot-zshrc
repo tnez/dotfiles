@@ -54,6 +54,8 @@ alias lg='lazygit'
 alias ll='ls -al'
 alias python='python3'
 
+export GH_DASH_CONFIG="$HOME/Code/tnez/dotfiles/gh-dash/dot-config/gh-dash/config.yml"
+
 capture() {
   if [[ $# -eq 0 ]]; then
     gh issue create --repo tnez/todo --label inbox

@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=https://gh-dash.dev/schema.json
+
+prSections:
+  - title: Needs My Review
+    filters: >-
+      is:open
+      review-requested:@me
+      archived:false
+      sort:updated-desc
+
+  - title: Changes Pushed Back
+    filters: >-
+      is:open
+      reviewed-by:@me
+      review:changes_requested
+      updated:>={{ nowModify "-14d" }}
+      archived:false
+      sort:updated-desc
+
+  - title: Dottie PRs
+    filters: >-
+      is:open
+      author:dottie-weaver
+      archived:false
+      sort:updated-desc
+
+  - title: Mine
+    filters: >-
+      is:open
+      author:@me
+      archived:false
+      sort:updated-desc
+
+issuesSections:
+  - title: Ready
+    filters: >-
+      is:open
+      label:ready
+      archived:false
+      sort:updated-desc
+
+  - title: Assigned Me
+    filters: >-
+      is:open
+      assignee:@me
+      archived:false
+      sort:updated-desc
+
+  - title: Assigned Dottie
+    filters: >-
+      is:open
+      assignee:dottie-weaver
+      archived:false
+      sort:updated-desc
+
+  - title: Involved
+    filters: >-
+      is:open
+      involves:@me
+      -author:@me
+      archived:false
+      sort:updated-desc
+
+repoPaths:
+  tnez/*: ~/Code/tnez/*
+  tnezdev/*: ~/Code/tnezdev/*
+  scoutos-labs/*: ~/Code/scoutos-labs/*
+  dottie-weaver/*: ~/Code/dottie-weaver/*
+
+defaults:
+  view: prs
+  refetchIntervalMinutes: 5
+  preview:
+    open: true
+    width: 84
+  prsLimit: 30
+  issuesLimit: 30
+  layout:
+    prs:
+      repoName:
+        grow: true
+        width: 20
+      base:
+        hidden: true
+    issues:
+      repoName:
+        grow: true
+        width: 20
+
+keybindings:
+  universal:
+    - key: /
+      builtin: search
+    - key: R
+      builtin: refreshAll
+    - key: g
+      name: repo session
+      command: sesh connect {{.RepoPath}}
+    - key: n
+      name: repo nvim
+      command: tmux new-window -c {{.RepoPath}} nvim
+
+  prs:
+    - key: c
+      builtin: checkout
+    - key: d
+      builtin: diff
+    - key: x
+      name: checks
+      command: gh pr checks --repo {{.RepoName}} {{.PrNumber}}
+    - key: e
+      name: edit PR
+      command: gh pr edit --repo {{.RepoName}} {{.PrNumber}}
+    - key: a
+      name: agent review
+      command: >-
+        tmux new-window -c {{.RepoPath}}
+        'opencode "Review PR {{.PrNumber}} in {{.RepoName}}. Prioritize bugs, regressions, and missing tests."'
+
+  issues:
+    - key: e
+      name: edit issue
+      command: gh issue edit --repo {{.RepoName}} {{.IssueNumber}}
+    - key: c
+      builtin: comment
+    - key: x
+      builtin: close
+    - key: a
+      name: agent plan
+      command: >-
+        tmux new-window -c {{.RepoPath}}
+        'opencode "Read issue {{.IssueNumber}} in {{.RepoName}} and implement the smallest correct next step."'

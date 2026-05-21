@@ -1,4 +1,4 @@
 #!/bin/bash
 # Quick GH dashboard popup
 
-~/.scripts/gh-dashboard.sh --once
+exec gh dash --config "$HOME/Code/tnez/dotfiles/gh-dash/dot-config/gh-dash/config.yml"

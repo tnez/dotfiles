@@ -1,0 +1,50 @@
+[metadata]
+name = "gh-ready"
+description = "Ready issues across active GitHub owners"
+requirements = ["gh"]
+
+[source]
+command = "~/.scripts/tv-gh-workbench.sh ready"
+output = "{split:\\t:0}"
+no_sort = true
+
+[preview]
+command = "~/.scripts/tv-gh-workbench-preview.sh issue '{}'"
+
+[keybindings]
+enter = "actions:view"
+ctrl-o = "actions:browser"
+ctrl-e = "actions:edit"
+ctrl-c = "actions:comment"
+ctrl-x = "actions:close"
+ctrl-a = "actions:agent_plan"
+
+[actions.view]
+description = "View issue"
+command = "~/.scripts/tv-gh-workbench-preview.sh issue '{}'"
+mode = "fork"
+
+[actions.browser]
+description = "Open issue in browser"
+command = "gh issue view '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}' --web"
+mode = "fork"
+
+[actions.edit]
+description = "Edit issue"
+command = "gh issue edit '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+mode = "fork"
+
+[actions.comment]
+description = "Comment on issue"
+command = "gh issue comment '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+mode = "fork"
+
+[actions.close]
+description = "Close issue"
+command = "gh issue close '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+mode = "fork"
+
+[actions.agent_plan]
+description = "Plan issue with agent"
+command = "opencode 'Read issue {split:\\t:0} and implement the smallest correct next step.'"
+mode = "execute"
