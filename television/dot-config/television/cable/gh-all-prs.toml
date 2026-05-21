@@ -9,14 +9,19 @@ output = "{split:\\t:0}"
 no_sort = true
 
 [preview]
-command = "~/.scripts/tv-gh-workbench-preview.sh pr '{}'"
+command = [
+  "~/.scripts/tv-gh-workbench-preview.sh pr '{}' rendered",
+  "~/.scripts/tv-gh-workbench-preview.sh pr '{}' raw",
+]
 
 [keybindings]
 enter = "actions:view"
 ctrl-o = "actions:browser"
 ctrl-c = "actions:checkout"
-ctrl-x = "actions:checks"
+alt-x = "actions:checks"
 ctrl-d = "actions:diff"
+ctrl-n = "scroll_preview_half_page_down"
+ctrl-p = "scroll_preview_half_page_up"
 alt-j = "actions:jump"
 ctrl-a = "actions:agent_review"
 

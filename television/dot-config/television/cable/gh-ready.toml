@@ -9,7 +9,10 @@ output = "{split:\\t:0}"
 no_sort = true
 
 [preview]
-command = "~/.scripts/tv-gh-workbench-preview.sh issue '{}'"
+command = [
+  "~/.scripts/tv-gh-workbench-preview.sh issue '{}' rendered",
+  "~/.scripts/tv-gh-workbench-preview.sh issue '{}' raw",
+]
 
 [keybindings]
 enter = "actions:view"
@@ -20,7 +23,9 @@ ctrl-m = "actions:assign_me"
 ctrl-d = "actions:assign_dottie"
 ctrl-r = "actions:remove_ready"
 alt-j = "actions:jump"
-ctrl-x = "actions:close"
+alt-x = "actions:close"
+ctrl-n = "scroll_preview_half_page_down"
+ctrl-p = "scroll_preview_half_page_up"
 ctrl-a = "actions:agent_plan"
 
 [actions.view]

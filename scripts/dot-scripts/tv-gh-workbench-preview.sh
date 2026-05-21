@@ -3,6 +3,7 @@ set -euo pipefail
 
 kind="${1:-}"
 entry="${2:-}"
+mode="${3:-rendered}"
 target="${entry%%$'\t'*}"
 
 if [[ "$target" != *#* ]]; then
@@ -16,11 +17,26 @@ repo="${target%%#*}"
 number="${target##*#}"
 
 render_markdown() {
-  if command -v glow >/dev/null 2>&1; then
-    glow --style dark -
-  else
-    cat
-  fi
+  case "$mode" in
+    raw)
+      if command -v bat >/dev/null 2>&1; then
+        bat --color=always --language markdown --style=plain
+      else
+        cat
+      fi
+      ;;
+    rendered)
+      if command -v glow >/dev/null 2>&1; then
+        glow --style dark -
+      else
+        cat
+      fi
+      ;;
+    *)
+      printf 'usage: %s {pr|issue} ENTRY [rendered|raw]\n' "$0" >&2
+      exit 2
+      ;;
+  esac
 }
 
 jq_common='def text_clean:
