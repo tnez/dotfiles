@@ -1,0 +1,82 @@
+#!/bin/bash
+set -euo pipefail
+
+kind="${1:-}"
+action="${2:-}"
+entry="${3:-}"
+target="${entry%%$'\t'*}"
+
+if [[ "$target" != *#* ]]; then
+  printf 'No GitHub object selected.\n' >&2
+  exit 0
+fi
+
+repo="${target%%#*}"
+number="${target##*#}"
+
+confirm_close() {
+  printf 'Type close to close %s#%s: ' "$repo" "$number" >&2
+  local answer
+  read -r answer
+  [[ "$answer" == "close" ]]
+}
+
+case "$kind:$action" in
+  pr:view)
+    exec ~/.scripts/tv-gh-workbench-preview.sh pr "$entry"
+    ;;
+  pr:browser)
+    exec gh pr view "$number" --repo "$repo" --web
+    ;;
+  pr:checkout)
+    exec gh pr checkout "$number" --repo "$repo"
+    ;;
+  pr:checks)
+    exec gh pr checks "$number" --repo "$repo"
+    ;;
+  pr:diff)
+    exec sh -c 'gh pr diff "$1" --repo "$2" | ${PAGER:-less}' sh "$number" "$repo"
+    ;;
+  pr:agent-review)
+    exec opencode "Review PR $target. Prioritize bugs, regressions, and missing tests."
+    ;;
+
+  issue:view)
+    exec ~/.scripts/tv-gh-workbench-preview.sh issue "$entry"
+    ;;
+  issue:browser)
+    exec gh issue view "$number" --repo "$repo" --web
+    ;;
+  issue:edit)
+    exec gh issue edit "$number" --repo "$repo"
+    ;;
+  issue:comment)
+    exec gh issue comment "$number" --repo "$repo"
+    ;;
+  issue:assign-me)
+    exec gh issue edit "$number" --repo "$repo" --add-assignee @me
+    ;;
+  issue:assign-dottie)
+    exec gh issue edit "$number" --repo "$repo" --add-assignee dottie-weaver
+    ;;
+  issue:add-ready)
+    exec gh issue edit "$number" --repo "$repo" --add-label ready
+    ;;
+  issue:remove-ready)
+    exec gh issue edit "$number" --repo "$repo" --remove-label ready
+    ;;
+  issue:close)
+    if confirm_close; then
+      exec gh issue close "$number" --repo "$repo"
+    fi
+    printf 'Close cancelled.\n' >&2
+    ;;
+  issue:agent-plan)
+    exec opencode "Read issue $target and implement the smallest correct next step."
+    ;;
+
+  *)
+    printf 'usage: %s {pr|issue} ACTION ENTRY\n' "$0" >&2
+    exit 2
+    ;;
+esac

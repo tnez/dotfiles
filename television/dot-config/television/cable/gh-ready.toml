@@ -16,35 +16,53 @@ enter = "actions:view"
 ctrl-o = "actions:browser"
 ctrl-e = "actions:edit"
 ctrl-c = "actions:comment"
+ctrl-m = "actions:assign_me"
+ctrl-d = "actions:assign_dottie"
+ctrl-r = "actions:remove_ready"
 ctrl-x = "actions:close"
 ctrl-a = "actions:agent_plan"
 
 [actions.view]
 description = "View issue"
-command = "~/.scripts/tv-gh-workbench-preview.sh issue '{}'"
+command = "~/.scripts/tv-gh-workbench-action.sh issue view '{}'"
 mode = "fork"
 
 [actions.browser]
 description = "Open issue in browser"
-command = "gh issue view '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}' --web"
+command = "~/.scripts/tv-gh-workbench-action.sh issue browser '{}'"
 mode = "fork"
 
 [actions.edit]
 description = "Edit issue"
-command = "gh issue edit '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+command = "~/.scripts/tv-gh-workbench-action.sh issue edit '{}'"
 mode = "fork"
 
 [actions.comment]
 description = "Comment on issue"
-command = "gh issue comment '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+command = "~/.scripts/tv-gh-workbench-action.sh issue comment '{}'"
+mode = "fork"
+
+[actions.assign_me]
+description = "Assign issue to me"
+command = "~/.scripts/tv-gh-workbench-action.sh issue assign-me '{}'"
+mode = "fork"
+
+[actions.assign_dottie]
+description = "Assign issue to dottie-weaver"
+command = "~/.scripts/tv-gh-workbench-action.sh issue assign-dottie '{}'"
+mode = "fork"
+
+[actions.remove_ready]
+description = "Remove ready label"
+command = "~/.scripts/tv-gh-workbench-action.sh issue remove-ready '{}'"
 mode = "fork"
 
 [actions.close]
 description = "Close issue"
-command = "gh issue close '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+command = "~/.scripts/tv-gh-workbench-action.sh issue close '{}'"
 mode = "fork"
 
 [actions.agent_plan]
 description = "Plan issue with agent"
-command = "opencode 'Read issue {split:\\t:0} and implement the smallest correct next step.'"
+command = "~/.scripts/tv-gh-workbench-action.sh issue agent-plan '{}'"
 mode = "execute"

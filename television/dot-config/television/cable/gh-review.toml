@@ -16,29 +16,35 @@ enter = "actions:view"
 ctrl-o = "actions:browser"
 ctrl-c = "actions:checkout"
 ctrl-x = "actions:checks"
+ctrl-d = "actions:diff"
 ctrl-a = "actions:agent_review"
 
 [actions.view]
 description = "View PR"
-command = "~/.scripts/tv-gh-workbench-preview.sh pr '{}'"
+command = "~/.scripts/tv-gh-workbench-action.sh pr view '{}'"
 mode = "fork"
 
 [actions.browser]
 description = "Open PR in browser"
-command = "gh pr view '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}' --web"
+command = "~/.scripts/tv-gh-workbench-action.sh pr browser '{}'"
 mode = "fork"
 
 [actions.checkout]
 description = "Checkout PR"
-command = "gh pr checkout '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+command = "~/.scripts/tv-gh-workbench-action.sh pr checkout '{}'"
 mode = "execute"
 
 [actions.checks]
 description = "View PR checks"
-command = "gh pr checks '{split:\\t:0|split:#:1}' --repo '{split:\\t:0|split:#:0}'"
+command = "~/.scripts/tv-gh-workbench-action.sh pr checks '{}'"
+mode = "fork"
+
+[actions.diff]
+description = "View PR diff"
+command = "~/.scripts/tv-gh-workbench-action.sh pr diff '{}'"
 mode = "fork"
 
 [actions.agent_review]
 description = "Review PR with agent"
-command = "opencode 'Review PR {split:\\t:0}. Prioritize bugs, regressions, and missing tests.'"
+command = "~/.scripts/tv-gh-workbench-action.sh pr agent-review '{}'"
 mode = "execute"
