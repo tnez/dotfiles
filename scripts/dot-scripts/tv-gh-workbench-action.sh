@@ -56,6 +56,33 @@ confirm_close() {
   [[ "$answer" == "close" ]]
 }
 
+confirm_approve() {
+  printf 'Type approve to approve %s#%s: ' "$repo" "$number" >&2
+  local answer
+  read -r answer
+  [[ "$answer" == "approve" ]]
+}
+
+request_changes() {
+  local body_file
+  body_file="$(mktemp)"
+  trap 'rm -f "$body_file"' EXIT
+
+  cat >"$body_file" <<EOF
+<!-- Write the changes-requested review body. Save and quit to submit. -->
+
+EOF
+
+  "${EDITOR:-nvim}" "$body_file"
+
+  if ! grep -v '^<!--' "$body_file" | grep -q '[^[:space:]]'; then
+    printf 'Request-changes review cancelled: empty body.\n' >&2
+    exit 0
+  fi
+
+  exec gh pr review "$number" --repo "$repo" --request-changes --body-file "$body_file"
+}
+
 case "$kind:$action" in
   pr:view)
     exec ~/.scripts/tv-gh-workbench-preview.sh pr "$entry"
@@ -74,6 +101,15 @@ case "$kind:$action" in
     ;;
   pr:jump)
     jump_repo
+    ;;
+  pr:approve)
+    if confirm_approve; then
+      exec gh pr review "$number" --repo "$repo" --approve
+    fi
+    printf 'Approve cancelled.\n' >&2
+    ;;
+  pr:request-changes)
+    request_changes
     ;;
   pr:agent-review)
     exec opencode "Review PR $target. Prioritize bugs, regressions, and missing tests."

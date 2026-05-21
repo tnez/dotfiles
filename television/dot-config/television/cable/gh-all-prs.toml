@@ -23,6 +23,8 @@ ctrl-d = "actions:diff"
 ctrl-n = "scroll_preview_half_page_down"
 ctrl-p = "scroll_preview_half_page_up"
 alt-j = "actions:jump"
+alt-a = "actions:approve"
+alt-r = "actions:request_changes"
 ctrl-a = "actions:agent_review"
 
 [actions.view]
@@ -54,6 +56,16 @@ mode = "fork"
 description = "Jump to repo session"
 command = "~/.scripts/tv-gh-workbench-action.sh pr jump '{}'"
 mode = "execute"
+
+[actions.approve]
+description = "Approve PR (typed confirmation)"
+command = "~/.scripts/tv-gh-workbench-action.sh pr approve '{}'"
+mode = "fork"
+
+[actions.request_changes]
+description = "Request PR changes in editor"
+command = "~/.scripts/tv-gh-workbench-action.sh pr request-changes '{}'"
+mode = "fork"
 
 [actions.agent_review]
 description = "Review PR with agent"
