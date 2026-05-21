@@ -41,6 +41,20 @@ case "$mode" in
       --jq '.[] | "\(.repository.nameWithOwner)#\(.number)\t\(.title)\t@\(.author.login)\t\(if .isDraft then "draft" else "ready" end)\t\(.updatedAt)"'
     ;;
 
+  changes-requested)
+    run_with_empty_row "No recently updated changes-requested PRs found" gh search prs "${owners[@]}" \
+      --state open \
+      --reviewed-by @me \
+      --review changes_requested \
+      --updated ">=$(date -u -v-30d +%Y-%m-%d 2>/dev/null || date -u -d '30 days ago' +%Y-%m-%d)" \
+      --archived=false \
+      --sort updated \
+      --order desc \
+      --limit 100 \
+      --json repository,number,title,author,updatedAt,isDraft \
+      --jq '.[] | "\(.repository.nameWithOwner)#\(.number)\t\(.title)\t@\(.author.login)\t\(if .isDraft then "draft" else "ready" end)\t\(.updatedAt)"'
+    ;;
+
   ready)
     run_with_empty_row "No ready issues found" gh search issues "${owners[@]}" \
       --state open \
@@ -54,7 +68,7 @@ case "$mode" in
     ;;
 
   *)
-    printf 'usage: %s {all-prs|review|ready}\n' "$0" >&2
+    printf 'usage: %s {all-prs|review|changes-requested|ready}\n' "$0" >&2
     exit 2
     ;;
 esac

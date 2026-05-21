@@ -1,0 +1,50 @@
+[metadata]
+name = "gh-changes-requested"
+description = "Recently updated PRs where I requested changes"
+requirements = ["gh"]
+
+[source]
+command = "~/.scripts/tv-gh-workbench.sh changes-requested"
+output = "{split:\\t:0}"
+no_sort = true
+
+[preview]
+command = "~/.scripts/tv-gh-workbench-preview.sh pr '{}'"
+
+[keybindings]
+enter = "actions:view"
+ctrl-o = "actions:browser"
+ctrl-c = "actions:checkout"
+ctrl-x = "actions:checks"
+ctrl-d = "actions:diff"
+ctrl-a = "actions:agent_review"
+
+[actions.view]
+description = "View PR"
+command = "~/.scripts/tv-gh-workbench-action.sh pr view '{}'"
+mode = "fork"
+
+[actions.browser]
+description = "Open PR in browser"
+command = "~/.scripts/tv-gh-workbench-action.sh pr browser '{}'"
+mode = "fork"
+
+[actions.checkout]
+description = "Checkout PR"
+command = "~/.scripts/tv-gh-workbench-action.sh pr checkout '{}'"
+mode = "execute"
+
+[actions.checks]
+description = "View PR checks"
+command = "~/.scripts/tv-gh-workbench-action.sh pr checks '{}'"
+mode = "fork"
+
+[actions.diff]
+description = "View PR diff"
+command = "~/.scripts/tv-gh-workbench-action.sh pr diff '{}'"
+mode = "fork"
+
+[actions.agent_review]
+description = "Review PR with agent"
+command = "~/.scripts/tv-gh-workbench-action.sh pr agent-review '{}'"
+mode = "execute"
