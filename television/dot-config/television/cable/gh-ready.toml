@@ -19,6 +19,7 @@ ctrl-c = "actions:comment"
 ctrl-m = "actions:assign_me"
 ctrl-d = "actions:assign_dottie"
 ctrl-r = "actions:remove_ready"
+alt-j = "actions:jump"
 ctrl-x = "actions:close"
 ctrl-a = "actions:agent_plan"
 
@@ -56,6 +57,11 @@ mode = "fork"
 description = "Remove ready label"
 command = "~/.scripts/tv-gh-workbench-action.sh issue remove-ready '{}'"
 mode = "fork"
+
+[actions.jump]
+description = "Jump to repo session"
+command = "~/.scripts/tv-gh-workbench-action.sh issue jump '{}'"
+mode = "execute"
 
 [actions.close]
 description = "Close issue"

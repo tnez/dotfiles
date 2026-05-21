@@ -17,6 +17,7 @@ ctrl-o = "actions:browser"
 ctrl-c = "actions:checkout"
 ctrl-x = "actions:checks"
 ctrl-d = "actions:diff"
+alt-j = "actions:jump"
 ctrl-a = "actions:agent_review"
 
 [actions.view]
@@ -43,6 +44,11 @@ mode = "fork"
 description = "View PR diff"
 command = "~/.scripts/tv-gh-workbench-action.sh pr diff '{}'"
 mode = "fork"
+
+[actions.jump]
+description = "Jump to repo session"
+command = "~/.scripts/tv-gh-workbench-action.sh pr jump '{}'"
+mode = "execute"
 
 [actions.agent_review]
 description = "Review PR with agent"

@@ -14,6 +14,41 @@ fi
 repo="${target%%#*}"
 number="${target##*#}"
 
+repo_path() {
+  case "$repo" in
+    tnez/*)
+      printf '%s\n' "$HOME/Code/tnez/${repo#tnez/}"
+      ;;
+    tnezdev/*)
+      printf '%s\n' "$HOME/Code/tnezdev/${repo#tnezdev/}"
+      ;;
+    scoutos-labs/*)
+      printf '%s\n' "$HOME/Code/scoutos-labs/${repo#scoutos-labs/}"
+      ;;
+    dottie-weaver/*)
+      printf '%s\n' "$HOME/Code/dottie-weaver/${repo#dottie-weaver/}"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+jump_repo() {
+  local path
+  path="$(repo_path)" || {
+    printf 'No local path mapping for %s\n' "$repo" >&2
+    exit 1
+  }
+
+  if [[ ! -d "$path" ]]; then
+    printf 'Local checkout not found: %s\n' "$path" >&2
+    exit 1
+  fi
+
+  exec sesh connect "$path"
+}
+
 confirm_close() {
   printf 'Type close to close %s#%s: ' "$repo" "$number" >&2
   local answer
@@ -36,6 +71,9 @@ case "$kind:$action" in
     ;;
   pr:diff)
     exec sh -c 'gh pr diff "$1" --repo "$2" | ${PAGER:-less}' sh "$number" "$repo"
+    ;;
+  pr:jump)
+    jump_repo
     ;;
   pr:agent-review)
     exec opencode "Review PR $target. Prioritize bugs, regressions, and missing tests."
@@ -64,6 +102,9 @@ case "$kind:$action" in
     ;;
   issue:remove-ready)
     exec gh issue edit "$number" --repo "$repo" --remove-label ready
+    ;;
+  issue:jump)
+    jump_repo
     ;;
   issue:close)
     if confirm_close; then
