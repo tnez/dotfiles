@@ -20,18 +20,13 @@ ansi = true
 output = "{strip_ansi|split: :1..|join: }"
 
 [preview]
-command = "sesh preview '{strip_ansi|split: :1..|join: }'"
+command = "sesh preview '{}'"
 
 [keybindings]
-enter = "actions:connect"
+enter = "confirm_selection"
 ctrl-d = [ "actions:kill_session", "reload_source" ]
-
-[actions.connect]
-description = "Connect to selected session"
-command = "sesh connect '{strip_ansi|split: :1..|join: }'"
-mode = "execute"
 
 [actions.kill_session]
 description = "Kill selected tmux session (press Ctrl+r to reload)"
-command = "tmux kill-session -t '{strip_ansi|split: :1..|join: }'"
+command = "tmux kill-session -t '{}'"
 mode = "fork"

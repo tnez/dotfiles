@@ -204,13 +204,17 @@ fi
 if (( ${+commands[tv]} )); then
   eval "$(tv init zsh)"
 
+  alias tsesh='~/.scripts/tv-sesh-connect.sh'
+
   tv-sesh-widget() {
     zle -I
-    tv sesh
+    ~/.scripts/tv-sesh-connect.sh
     zle reset-prompt
   }
   zle -N tv-sesh-widget
-  bindkey '^T' tv-sesh-widget
+  bindkey -M emacs '^T' tv-sesh-widget
+  bindkey -M viins '^T' tv-sesh-widget
+  bindkey -M vicmd '^T' tv-sesh-widget
 fi
 
 if (( ${+commands[starship]} )); then
