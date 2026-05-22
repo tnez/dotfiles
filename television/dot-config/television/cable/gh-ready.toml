@@ -15,6 +15,7 @@ command = [
 ]
 
 [keybindings]
+f1 = "actions:help"
 enter = "actions:view"
 ctrl-o = "actions:browser"
 ctrl-e = "actions:edit"
@@ -27,6 +28,11 @@ alt-x = "actions:close"
 ctrl-n = "scroll_preview_half_page_down"
 ctrl-p = "scroll_preview_half_page_up"
 ctrl-a = "actions:agent_plan"
+
+[actions.help]
+description = "Show GitHub workbench help"
+command = "~/.scripts/tv-gh-workbench-help.sh"
+mode = "fork"
 
 [actions.view]
 description = "View issue"

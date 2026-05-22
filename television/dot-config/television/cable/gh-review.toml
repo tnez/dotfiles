@@ -15,6 +15,7 @@ command = [
 ]
 
 [keybindings]
+f1 = "actions:help"
 enter = "actions:view"
 ctrl-o = "actions:browser"
 ctrl-c = "actions:checkout"
@@ -26,6 +27,11 @@ alt-j = "actions:jump"
 alt-a = "actions:approve"
 alt-r = "actions:request_changes"
 ctrl-a = "actions:agent_review"
+
+[actions.help]
+description = "Show GitHub workbench help"
+command = "~/.scripts/tv-gh-workbench-help.sh"
+mode = "fork"
 
 [actions.view]
 description = "View PR"
