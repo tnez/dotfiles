@@ -49,6 +49,7 @@ Copy Mode
 Popups
 ------
 
+  Prefix m        Mission control dashboard
   Prefix ,        Quick agent
   Prefix g        Git popup
   Prefix G        GitHub workbench help

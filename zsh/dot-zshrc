@@ -52,6 +52,7 @@ alias la='ls -a'
 alias ld='yazi'
 alias lg='lazygit'
 alias ll='ls -al'
+alias mc='~/.scripts/mission-control.sh'
 alias python='python3'
 
 export GH_DASH_CONFIG="$HOME/Code/tnez/dotfiles/gh-dash/dot-config/gh-dash/config.yml"
