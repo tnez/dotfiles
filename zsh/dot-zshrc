@@ -210,9 +210,8 @@ if (( ${+commands[tv]} )); then
   alias tsesh='~/.scripts/tv-sesh-connect.sh'
 
   tv-sesh-widget() {
-    zle -I
-    ~/.scripts/tv-sesh-connect.sh
-    zle reset-prompt
+    BUFFER='~/.scripts/tv-sesh-connect.sh'
+    zle accept-line
   }
   zle -N tv-sesh-widget
   bindkey -M emacs '^T' tv-sesh-widget

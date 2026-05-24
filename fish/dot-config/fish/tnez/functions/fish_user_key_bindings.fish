@@ -9,6 +9,6 @@ function fish_user_key_bindings
 
     # Ctrl+T: sesh session picker (outside tmux, C-t is intercepted by tmux inside)
     for mode in insert default
-        bind -M $mode \ct 'tv sesh; commandline -f repaint'
+        bind -M $mode \ct 'commandline --replace ~/.scripts/tv-sesh-connect.sh; commandline --function execute'
     end
 end
