@@ -20,7 +20,7 @@ ansi = true
 output = "{strip_ansi|split: :1..|join: }"
 
 [preview]
-command = "sesh preview '{}'"
+command = "$HOME/.scripts/tv-sesh-preview.sh '{}'"
 
 [keybindings]
 enter = "confirm_selection"
