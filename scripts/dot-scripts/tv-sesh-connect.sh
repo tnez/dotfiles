@@ -14,6 +14,11 @@ if [[ -z "$selection" ]]; then
 fi
 
 if [[ -n "$TMUX" ]]; then
+  if tmux has-session -t "$selection" >/dev/null 2>&1; then
+    tmux switch-client -t "$selection"
+    exit $?
+  fi
+
   exec sesh connect --switch "$selection"
 fi
 
