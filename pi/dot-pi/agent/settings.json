@@ -1,7 +1,7 @@
 {
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "low",
+  "defaultThinkingLevel": "medium",
   "theme": "system",
   "enableInstallTelemetry": false,
   "hideThinkingBlock": false,
@@ -18,9 +18,19 @@
       "maxRetryDelayMs": 60000
     }
   },
+  "quietStartup": true,
+  "doubleEscapeAction": "tree",
+  "treeFilterMode": "no-tools",
+  "autocompleteMaxVisible": 10,
   "prompts": [
     "~/.agents/commands"
   ],
   "enableSkillCommands": true,
-  "lastChangelogVersion": "0.74.0"
+  "lastChangelogVersion": "0.79.0",
+  "skills": [
+    "+skills/fix-author/SKILL.md"
+  ],
+  "packages": [
+    "npm:pi-docparser"
+  ]
 }
