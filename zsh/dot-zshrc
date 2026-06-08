@@ -36,6 +36,7 @@ bindkey -v
 KEYTIMEOUT=10
 bindkey -M viins 'kj' vi-cmd-mode
 bindkey '^F' forward-char
+
 bindkey -M viins '^F' forward-char
 bindkey -M vicmd '^F' forward-char
 
@@ -55,8 +56,6 @@ alias lg='lazygit'
 alias ll='ls -al'
 alias mc='~/.scripts/mission-control.sh'
 alias python='python3'
-
-export GH_DASH_CONFIG="$HOME/Code/tnez/dotfiles/gh-dash/dot-config/gh-dash/config.yml"
 
 capture() {
   if [[ $# -eq 0 ]]; then

@@ -47,6 +47,8 @@ path_append() {
 
 export EDITOR="nvim"
 export VISUAL="nvim"
+export TESSDATA_PREFIX="/opt/homebrew/share/tessdata"
+export GH_DASH_CONFIG="$HOME/Code/tnez/dotfiles/gh-dash/dot-config/gh-dash/config.yml"
 export PAGER="less"
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
