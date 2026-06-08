@@ -1,5 +1,14 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "permission": "allow",
-  "autoupdate": true
+  "autoupdate": true,
+  "provider": {
+    "openai": {
+      "options": {
+        "headerTimeout": 60000,
+        "timeout": 600000,
+        "chunkTimeout": 60000
+      }
+    }
+  }
 }
