@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail
+
+run_limited() {
+  local timeout_seconds="$1"
+  shift
+
+  if command -v gtimeout >/dev/null 2>&1; then
+    gtimeout "$timeout_seconds" "$@"
+  elif command -v timeout >/dev/null 2>&1; then
+    timeout "$timeout_seconds" "$@"
+  else
+    "$@"
+  fi
+}
+
+task_json() {
+  if [[ "$(hostname -s)" == "heimdall" ]] && command -v task >/dev/null 2>&1; then
+    run_limited 12 task rc.verbose=nothing +me status:pending -parked export
+    return
+  fi
+
+  run_limited 12 ssh -o ConnectTimeout=4 dottie@heimdall \
+    "task rc.verbose=nothing +me status:pending -parked export"
+}
+
+if ! command -v jq >/dev/null 2>&1; then
+  printf '{"type":"table","columns":["ID","Description"],"rows":[["","jq unavailable"]]}\n'
+  exit 0
+fi
+
+if ! task_json 2>/dev/null | jq -c '
+  def short_due:
+    (. // "" | tostring) as $due
+    | if $due == "" then ""
+      elif ($due | test("^[0-9]{8}")) then
+        ($due[0:8] | capture("(?<y>....)(?<m>..)(?<d>..)") | "\(.y)-\(.m)-\(.d)")
+      else ($due | sub("T.*$"; ""))
+      end;
+  sort_by((.urgency // 0) * -1)
+  | .[:10]
+  | {
+      type: "table",
+      columns: ["ID", "Project", "Pri", "Due", "Description"],
+      rows: map([
+        (.id | tostring),
+        (.project // ""),
+        (.priority // ""),
+        (.due | short_due),
+        (.description // "")
+      ])
+    }
+'; then
+  printf '{"type":"table","columns":["ID","Description"],"rows":[["","Taskwarrior unavailable"]]}\n'
+fi

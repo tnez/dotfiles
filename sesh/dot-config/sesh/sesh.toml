@@ -27,6 +27,10 @@ name = "gh-dashboard"
 startup_script = "~/.scripts/gh-dashboard.sh"
 
 [[window]]
+name = "mission-control"
+startup_script = "hud --config ~/Code/tnez/dotfiles/hud/dot-config/hud/mission-control.toml"
+
+[[window]]
 name = "calendar"
 startup_script = "~/.scripts/helm-calendar.sh"
 
@@ -61,6 +65,11 @@ windows = ["dottie", "notes"]
 name = "helm"
 path = "~"
 windows = ["gh-dashboard", "calendar", "reminders", "desk-inbox"]
+
+[[session]]
+name = "mission-control"
+path = "~/Code/dottie-weaver/identity"
+windows = ["mission-control", "dottie", "notes"]
 
 [[session]]
 name = "standup"

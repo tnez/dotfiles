@@ -1,0 +1,119 @@
+#!/bin/bash
+set -euo pipefail
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/hud/dottie-mission-control"
+briefing_file="$cache_dir/briefing.md"
+task_file="$cache_dir/task-mine.txt"
+context_file="$cache_dir/context.md"
+ttl_seconds="${HUD_MISSION_CONTROL_TTL_SECONDS:-21600}"
+force=false
+
+if [[ "${1:-}" == "--force" ]]; then
+  force=true
+fi
+
+run_limited() {
+  local timeout_seconds="$1"
+  shift
+
+  if command -v gtimeout >/dev/null 2>&1; then
+    gtimeout "$timeout_seconds" "$@"
+  elif command -v timeout >/dev/null 2>&1; then
+    timeout "$timeout_seconds" "$@"
+  else
+    "$@"
+  fi
+}
+
+is_fresh() {
+  local file="$1"
+  local now modified age
+
+  [[ -f "$file" ]] || return 1
+  now=$(date +%s)
+  modified=$(stat -f %m "$file" 2>/dev/null || stat -c %Y "$file")
+  age=$((now - modified))
+  [[ "$age" -lt "$ttl_seconds" ]]
+}
+
+identity_dir="$HOME/Code/dottie-weaver/identity"
+
+if [[ "$force" == false ]] && is_fresh "$briefing_file"; then
+  printf 'Mission Control briefing is fresh: %s\n' "$briefing_file"
+  exit 0
+fi
+
+mkdir -p "$cache_dir"
+
+if [[ "$(hostname -s)" == "heimdall" ]] && command -v task >/dev/null 2>&1; then
+  run_limited 20 task mine >"$task_file" 2>/dev/null || true
+else
+  run_limited 20 ssh -o ConnectTimeout=4 dottie@heimdall "task mine" \
+    >"$task_file" 2>/dev/null || true
+fi
+
+if [[ ! -s "$task_file" ]]; then
+  printf 'Taskwarrior snapshot unavailable.\n' >"$task_file"
+fi
+
+recent_sessions=()
+while IFS= read -r session; do
+  recent_sessions+=("$session")
+done < <(
+  find "$identity_dir/sessions" -maxdepth 1 -type f -name '*.md' \
+    ! -name 'heartbeat-log.md' -print 2>/dev/null | sort -r | head -n 3
+)
+
+{
+  printf '# Dottie Identity\n\n'
+  sed -n '1,80p' "$identity_dir/DOTTIE.md" 2>/dev/null || true
+  printf '\n# Bridge\n\n'
+  sed -n '1,140p' "$identity_dir/bridge.md" 2>/dev/null || true
+  printf '\n# Recent Sessions\n\n'
+  for session in "${recent_sessions[@]}"; do
+    printf '\n## %s\n\n' "${session##*/}"
+    sed -n '1,120p' "$session" 2>/dev/null || true
+  done
+  printf '\n# Taskwarrior Snapshot\n\n'
+  sed -n '1,180p' "$task_file" 2>/dev/null || true
+} >"$context_file"
+
+prompt_file="$cache_dir/prompt.md"
+{
+  printf '%s\n' 'You are generating a cached local mission-control briefing for Travis.'
+  printf '%s\n' 'Use only the source context below. Be direct, practical, and concise.'
+  printf '%s\n' 'This will be displayed in narrow terminal dashboard panels, so keep each bullet to one short line.'
+  printf '%s\n' 'Use plain text bullets. Do not use bold, italic, links, tables, nested bullets, or numbered bullets.'
+  printf '%s\n' 'Do not invent current status beyond the source context.'
+  printf '%s\n\n' 'Return exactly these markdown sections, in this order:'
+  printf '%s\n' '## System Health'
+  printf '%s\n' '4-6 bullets summarizing current state and health. Include what is green, stale, blocked, or risky.'
+  printf '%s\n' '## Next Actions'
+  printf '%s\n' '3-5 ranked actions Travis could take next. Put highest priority first; do not number the bullets.'
+  printf '%s\n' '## Open Gates'
+  printf '%s\n\n' 'Things waiting on Travis, review, external setup, or decisions. Omit anything that is not actionable.'
+  printf '%s\n\n' 'Source context follows.'
+  sed -n '1,1200p' "$context_file"
+} >"$prompt_file"
+
+tmp_file="$briefing_file.$$"
+args=(pi --print --no-session --no-context-files --no-skills --no-extensions --no-tools)
+if [[ -n "${HUD_MISSION_CONTROL_MODEL:-}" ]]; then
+  args+=(--model "$HUD_MISSION_CONTROL_MODEL")
+fi
+
+if run_limited "${HUD_MISSION_CONTROL_TIMEOUT_SECONDS:-600}" \
+  "${args[@]}" "$(sed -n '1,1800p' "$prompt_file")" >"$tmp_file"; then
+  mv "$tmp_file" "$briefing_file"
+  printf 'Mission Control briefing refreshed: %s\n' "$briefing_file"
+  exit 0
+fi
+
+rm -f "$tmp_file"
+if [[ -f "$briefing_file" ]]; then
+  printf 'Mission Control refresh failed; using stale briefing: %s\n' "$briefing_file"
+  exit 0
+fi
+
+printf 'Mission Control refresh failed and no cached briefing exists.\n' >&2
+exit 1

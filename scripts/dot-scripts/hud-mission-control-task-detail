@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo pipefail
+
+task_id="${1:?task id required}"
+
+run_limited() {
+  local timeout_seconds="$1"
+  shift
+
+  if command -v gtimeout >/dev/null 2>&1; then
+    gtimeout "$timeout_seconds" "$@"
+  elif command -v timeout >/dev/null 2>&1; then
+    timeout "$timeout_seconds" "$@"
+  else
+    "$@"
+  fi
+}
+
+if [[ "$(hostname -s)" == "heimdall" ]] && command -v task >/dev/null 2>&1; then
+  run_limited 12 task "$task_id"
+  exit $?
+fi
+
+run_limited 12 ssh -o ConnectTimeout=4 dottie@heimdall "task '$task_id'"

@@ -1,0 +1,21 @@
+#!/bin/bash
+set -euo pipefail
+
+section="${1:?section name required}"
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/hud/dottie-mission-control"
+briefing_file="$cache_dir/briefing.md"
+
+if [[ ! -f "$briefing_file" ]]; then
+  ~/.scripts/hud-mission-control-refresh >/dev/null || true
+fi
+
+if [[ ! -f "$briefing_file" ]]; then
+  printf 'No cached briefing yet. Run: ~/.scripts/hud-mission-control-refresh --force\n'
+  exit 0
+fi
+
+awk -v wanted="## $section" '
+  $0 == wanted {printing = 1; next}
+  /^## / && printing {exit}
+  printing {print}
+' "$briefing_file" | sed '/^[[:space:]]*$/d'

@@ -1,0 +1,27 @@
+title = "Dottie Mission Control"
+default_timeout_secs = 20
+
+[[panels]]
+id = "system-health"
+title = "System Health"
+command = "~/.scripts/hud-mission-control-section 'System Health'"
+
+[[panels]]
+id = "next-actions"
+title = "Next Actions"
+command = "~/.scripts/hud-mission-control-section 'Next Actions'"
+
+[[panels]]
+id = "open-gates"
+title = "Open Gates"
+command = "~/.scripts/hud-mission-control-section 'Open Gates'"
+
+[[panels]]
+id = "tasks"
+title = "Task Queue"
+command = "~/.scripts/hud-mission-control-tasks"
+output = "table-json"
+
+[panels.row_detail]
+title = "Task Detail"
+command = "~/.scripts/hud-mission-control-task-detail {{ID}}"
