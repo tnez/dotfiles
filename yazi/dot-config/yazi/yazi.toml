@@ -5,3 +5,9 @@ show_hidden = true
 [preview]
 max_width = 2400
 max_height = 2400
+
+[open]
+prepend_rules = [
+  { url = "*.md", use = "edit" },
+  { url = "*.markdown", use = "edit" },
+]
