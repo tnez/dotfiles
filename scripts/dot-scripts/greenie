@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+interval="${GREENIE_INTERVAL_SECONDS:-60}"
+
+if ! [[ "$interval" =~ ^[0-9]+$ ]] || [[ "$interval" -lt 1 ]]; then
+  printf 'greenie: GREENIE_INTERVAL_SECONDS must be a positive integer\n' >&2
+  exit 1
+fi
+
+caffeinate -d &
+caffeinate_pid=$!
+
+cleanup() {
+  kill "$caffeinate_pid" 2>/dev/null || true
+}
+
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+while true; do
+  osascript -e 'tell application "System Events" to key code 113'
+  sleep "$interval"
+done
