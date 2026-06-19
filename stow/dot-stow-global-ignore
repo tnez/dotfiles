@@ -1,5 +1,6 @@
 # vim: ft=gitignore
 
 .DS_Store
+.gitignore
 README.*
 readme.*
