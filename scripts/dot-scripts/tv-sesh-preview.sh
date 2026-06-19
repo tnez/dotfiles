@@ -51,7 +51,7 @@ if tmux has-session -t "$target" >/dev/null 2>&1; then
     status='running'
     status_color="$yellow"
     case "$current_command" in
-      bash|fish|nu|sh|zsh)
+      bash|sh|zsh)
         status='idle'
         status_color="$green"
         ;;

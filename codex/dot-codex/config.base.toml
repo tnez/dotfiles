@@ -5,14 +5,6 @@ service_tier = "fast"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 
-[mcp_servers.pencil]
-args = [
-  "--app",
-  "desktop",
-]
-command = "/Applications/Pencil.app/Contents/Resources/app.asar.unpacked/out/mcp-server-darwin-arm64"
-enabled = false
-
 [plugins."documents@openai-primary-runtime"]
 enabled = true
 

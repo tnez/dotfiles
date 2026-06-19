@@ -39,26 +39,13 @@ vim.lsp.config("lua_ls", {
   },
 })
 
--- ts_ls for Node/Bun projects, denols for Deno projects (mutually exclusive)
+-- ts_ls for Node/Bun projects.
 vim.lsp.config("ts_ls", {
   cmd = { "typescript-language-server", "--stdio" },
   filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
   root_dir = function(bufnr, on_dir)
-    if vim.fs.root(bufnr, { "deno.json", "deno.jsonc" }) then
-      return
-    end
-
     on_dir(vim.fs.root(bufnr, { "package.json", "tsconfig.json", "jsconfig.json", ".git" }))
   end,
-})
-
-vim.lsp.config("denols", {
-  cmd = { "deno", "lsp" },
-  filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-  root_dir = function(bufnr, on_dir)
-    on_dir(vim.fs.root(bufnr, { "deno.json", "deno.jsonc" }))
-  end,
-  workspace_required = true,
 })
 
 vim.lsp.config("ruff", {
@@ -84,7 +71,7 @@ vim.lsp.config("marksman", {
 })
 
 -- Enable all configured servers
-vim.lsp.enable({ "lua_ls", "ts_ls", "denols", "ruff", "pyright", "marksman" })
+vim.lsp.enable({ "lua_ls", "ts_ls", "ruff", "pyright", "marksman" })
 
 -- LSP keymaps (attached when a server connects)
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -123,7 +110,6 @@ return {
         "ruff",
         "marksman",
         "typescript-language-server",
-        "deno",
         "shellcheck",
         "shfmt",
       },

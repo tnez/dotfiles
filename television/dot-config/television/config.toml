@@ -136,7 +136,6 @@ fallback_channel = "files"
 ]
 "git-log" = ["git log", "git show"]
 "git-repos" = ["code", "hx", "git clone"]
-"docker-images" = ["docker run"]
 "ssh-hosts" = ["ssh", "scp"]
 "make-targets" = ["make"]
 "tmux-sessions" = ["tmux attach", "tmux switch"]
