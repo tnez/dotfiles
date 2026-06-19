@@ -2,8 +2,8 @@
 
 This package is the daily-driver zsh setup.
 
-Environment and PATH live in `profile/dot-profile` so zsh, bash, and Fish can
-share them. Interactive zsh behavior lives in `zsh/dot-zshrc`.
+Environment and PATH live in `profile/dot-profile` so zsh and bash can share
+them. Interactive zsh behavior lives in `zsh/dot-zshrc`.
 
 Migration test:
 
