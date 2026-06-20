@@ -33,6 +33,7 @@
 [core]
   editor = "nvim"
   excludesfile = ~/.gitignore
+  pager = hunk pager
 [diff]
   colorMoved = default
 [fetch]
