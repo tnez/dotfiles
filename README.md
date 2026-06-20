@@ -8,6 +8,16 @@ This is my collection of personal dotfiles.
 1. Hop into directory: `cd dotfiles`
 1. Run the bootstrap script: `./bootstrap.sh`
 
+Some third-party Homebrew taps may require explicit trust on a new machine.
+If `brew bundle` refuses to install a formula from an untrusted tap, inspect the
+formula and trust only the specific formula before rerunning bootstrap. For
+example:
+
+```bash
+brew trust --formula modem-dev/tap/hunk
+./bootstrap.sh
+```
+
 # Managing Homebrew dependencies
 
 Dependencies are tracked in `/Users/tnez/Code/tnez/dotfiles/brew/Brewfile` and managed via `brew bundle`.
