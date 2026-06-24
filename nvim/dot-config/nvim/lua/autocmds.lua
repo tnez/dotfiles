@@ -51,19 +51,27 @@ vim.cmd([[
 
 -- Markdown settings
 autocmd("FileType", {
-  pattern = "markdown",
+  pattern = { "markdown", "markdown.mdx" },
   callback = function()
     vim.opt_local.spell = true
-    vim.opt_local.conceallevel = 2
+
+    -- Keep Markdown source visible while editing; Zen Mode enables conceal for reading.
+    vim.opt_local.conceallevel = 0
+    vim.opt_local.concealcursor = ""
     vim.opt_local.wrap = true
-    vim.opt_local.colorcolumn = "80"
-    vim.opt_local.textwidth = 80
+    vim.opt_local.colorcolumn = ""
+    vim.opt_local.textwidth = 0
     vim.opt_local.linebreak = true
     vim.opt_local.breakindent = true
     vim.opt_local.breakindentopt = "shift:2"
     vim.opt_local.showbreak = "↪ "
     vim.opt_local.list = false
     vim.opt_local.formatoptions:remove("t")
+    vim.opt_local.formatoptions:remove("a")
+
+    vim.keymap.set("n", "<leader>uc", function()
+      vim.wo.conceallevel = vim.wo.conceallevel == 0 and 2 or 0
+    end, { buffer = true, silent = true, desc = "Toggle Markdown Conceal" })
 
     -- Navigate wrapped lines naturally
     vim.keymap.set("n", "j", "gj", { buffer = true, silent = true })

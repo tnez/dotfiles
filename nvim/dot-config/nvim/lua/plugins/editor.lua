@@ -1,3 +1,5 @@
+local zen_markdown_conceallevel
+
 return {
   -- File explorer
   {
@@ -58,6 +60,34 @@ return {
     },
   },
 
+  -- Fixed-width focus view for prose without hard-wrapping files
+  {
+    "folke/zen-mode.nvim",
+    cmd = "ZenMode",
+    keys = {
+      { "<leader>uz", "<cmd>ZenMode<CR>", desc = "Toggle Focus Width" },
+    },
+    opts = {
+      window = {
+        width = 100,
+      },
+      on_open = function()
+        if vim.bo.filetype == "markdown" or vim.bo.filetype == "markdown.mdx" then
+          zen_markdown_conceallevel = vim.wo.conceallevel
+          vim.wo.conceallevel = 2
+        else
+          zen_markdown_conceallevel = nil
+        end
+      end,
+      on_close = function()
+        if zen_markdown_conceallevel ~= nil then
+          vim.wo.conceallevel = zen_markdown_conceallevel
+          zen_markdown_conceallevel = nil
+        end
+      end,
+    },
+  },
+
   -- Which-key for discoverability
   {
     "folke/which-key.nvim",
@@ -68,6 +98,7 @@ return {
         { "<leader>c", group = "code" },
         { "<leader>f", group = "find" },
         { "<leader>g", group = "git" },
+        { "<leader>u", group = "ui/ux" },
         { "<leader>a", group = "ai" },
       },
     },
