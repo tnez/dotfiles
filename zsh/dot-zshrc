@@ -207,7 +207,17 @@ fi
 if (( ${+commands[tv]} )); then
   eval "$(tv init zsh)"
 
+  alias to='~/.scripts/tv-file-open.sh'
   alias tsesh='~/.scripts/tv-sesh-connect.sh'
+
+  tv-file-open-widget() {
+    BUFFER='~/.scripts/tv-file-open.sh'
+    zle accept-line
+  }
+  zle -N tv-file-open-widget
+  bindkey -M emacs '^O' tv-file-open-widget
+  bindkey -M viins '^O' tv-file-open-widget
+  bindkey -M vicmd '^O' tv-file-open-widget
 
   tv-sesh-widget() {
     BUFFER='~/.scripts/tv-sesh-connect.sh'

@@ -141,5 +141,5 @@ fallback_channel = "files"
 "tmux-sessions" = ["tmux attach", "tmux switch"]
 
 [shell_integration.keybindings]
-"smart_autocomplete" = "ctrl-o"
+"smart_autocomplete" = "alt-o"
 "command_history" = "ctrl-r"
