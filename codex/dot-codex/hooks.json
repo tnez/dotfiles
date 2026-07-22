@@ -1,16 +1,5 @@
 {
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "'/Users/tnez/.codex/hooks/redirect-memory.sh'"
-          }
-        ]
-      }
-    ],
     "SessionStart": [
       {
         "hooks": [

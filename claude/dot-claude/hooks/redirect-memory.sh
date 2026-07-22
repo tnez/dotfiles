@@ -1,1 +1,0 @@
-../../../agents/dot-agents/hooks/redirect-memory.sh
