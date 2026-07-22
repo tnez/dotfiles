@@ -16,7 +16,7 @@ if [[ -n "$herdr_pane" ]]; then
 
   case "$foreground_process" in
     sh | bash | dash | fish | ksh | nu | xonsh | zsh) ;;
-    *) exec herdr pane send-keys "$herdr_pane" ctrl+o ;;
+    *) exec herdr pane send-keys "$herdr_pane" ctrl+f ;;
   esac
 
   export TV_FILE_OPEN_HERDR_PANE="$herdr_pane"

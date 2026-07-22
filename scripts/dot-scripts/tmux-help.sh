@@ -17,7 +17,8 @@ Prefix
 Sessions
 --------
 
-  Ctrl-t          Open sesh picker in a popup
+  Ctrl-o          Open sesh picker in a popup
+  Ctrl-f          Open file picker in a popup
 
 Panes
 -----

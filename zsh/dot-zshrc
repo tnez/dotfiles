@@ -35,10 +35,6 @@ zstyle ':completion:*' menu select
 bindkey -v
 KEYTIMEOUT=10
 bindkey -M viins 'kj' vi-cmd-mode
-bindkey '^F' forward-char
-
-bindkey -M viins '^F' forward-char
-bindkey -M vicmd '^F' forward-char
 
 # Aliases
 alias cc='claude --permission-mode bypassPermissions'
@@ -220,18 +216,18 @@ if (( ${+commands[tv]} )); then
     zle accept-line
   }
   zle -N tv-file-open-widget
-  bindkey -M emacs '^O' tv-file-open-widget
-  bindkey -M viins '^O' tv-file-open-widget
-  bindkey -M vicmd '^O' tv-file-open-widget
+  bindkey -M emacs '^F' tv-file-open-widget
+  bindkey -M viins '^F' tv-file-open-widget
+  bindkey -M vicmd '^F' tv-file-open-widget
 
   tv-sesh-widget() {
     BUFFER='~/.scripts/tv-sesh-connect.sh'
     zle accept-line
   }
   zle -N tv-sesh-widget
-  bindkey -M emacs '^T' tv-sesh-widget
-  bindkey -M viins '^T' tv-sesh-widget
-  bindkey -M vicmd '^T' tv-sesh-widget
+  bindkey -M emacs '^O' tv-sesh-widget
+  bindkey -M viins '^O' tv-sesh-widget
+  bindkey -M vicmd '^O' tv-sesh-widget
 fi
 
 if (( ${+commands[direnv]} )); then
