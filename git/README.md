@@ -1,12 +1,34 @@
 # Personal git workflow
 
-1. Get up-to-date with remotes: `g f`
-1. Browse open issues (applies for some projects): `ghi`
-1. Show details of issue (sometimes): `ghi show 42`
-1. Spin-up a new branch: `g co -b new-feature`
-1. _Do work_
-1. Review, add, and commit changes: `g d <master> , g aa, g c`
-1. (Optionally) clean up local commits: `g ri <master | HEAD~n>`
-1. Push: `g p`
-1. (Optionally) check **CI** status `ghs`
-1. Open pull-request: `ghp`
+Repositories that use worktrees have a persistent primary checkout with sibling
+worktrees organized by branch prefix:
+
+```text
+project/
+|-- main/.git/
+|-- feat/...
+|-- review/...
+|-- chore/...
+`-- docs/...
+```
+
+Initialize `wtp` from the primary checkout:
+
+```bash
+cd project/main
+wtp-init.sh
+git add .wtp.yml
+git commit -m 'chore: configure worktrees'
+```
+
+Typical workflow:
+
+1. Update remote-tracking branches: `g f`
+2. Create a branch from main: `wtp add -b feat/example main`
+3. Return to main: `wtp cd @`
+4. List worktrees: `wtp list`
+5. Remove a merged worktree and branch: `wtp remove --with-branch feat/example`
+
+Existing remote branches can be checked out with `wtp add feat/example`. If the
+same branch exists on multiple remotes, create the desired local tracking branch
+first so `wtp` can resolve it unambiguously.

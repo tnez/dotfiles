@@ -205,6 +205,10 @@ if (( ${+commands[fzf]} )); then
   source <(fzf --zsh) 2>/dev/null
 fi
 
+if (( ${+commands[wtp]} )); then
+  eval "$(wtp shell-init zsh)"
+fi
+
 if (( ${+commands[tv]} )); then
   eval "$(tv init zsh)"
 

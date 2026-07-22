@@ -16,6 +16,7 @@
   co = checkout
   copr = pr checkout
   d = diff
+  f = fetch --all --prune
   l = log --oneline --graph
   m = merge
   p = !git_publish.sh
