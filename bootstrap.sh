@@ -71,6 +71,51 @@ install_pi_agent() {
   fi
 }
 
+install_herdr_extras() {
+  local command herdr_version integration integration_status plugin_commit
+  local server_status
+
+  if ! command -v herdr &>/dev/null; then
+    return
+  fi
+
+  herdr_version="$(herdr --version)"
+  herdr_version="${herdr_version##* }"
+  server_status="$(herdr status server 2>/dev/null || true)"
+  if grep -qx "version: $herdr_version" <<<"$server_status"; then
+    brew services start herdr >/dev/null
+  else
+    brew services restart herdr >/dev/null
+  fi
+
+  plugin_commit=548607d0e417fdb30966846fce7436aa05a6738d
+  if ! herdr plugin list --plugin vim-herdr-navigation --json |
+    jq -e --arg commit "$plugin_commit" \
+      '.result.plugins
+       | any(.enabled and .source.resolved_commit == $commit)' &>/dev/null; then
+    herdr plugin install \
+      paulbkim-dev/vim-herdr-navigation \
+      --ref "$plugin_commit" \
+      --yes
+  fi
+
+  integration_status="$(herdr integration status)"
+  while read -r command integration; do
+    if command -v "$command" &>/dev/null &&
+      ! grep -q "^${integration}: current" \
+        <<<"$integration_status"; then
+      herdr integration install "$integration"
+    fi
+  done <<'EOF'
+pi pi
+claude claude
+codex codex
+opencode opencode
+EOF
+
+  herdr server reload-config >/dev/null
+}
+
 stow_package() {
   local package=$1
 
@@ -166,3 +211,4 @@ for package in */; do
 done
 
 materialize_codex_skills
+install_herdr_extras

@@ -1,5 +1,60 @@
 local zen_markdown_conceallevel
 
+local function move_or_focus_herdr(wincmd, direction)
+  local previous_window = vim.api.nvim_get_current_win()
+
+  vim.cmd("wincmd " .. wincmd)
+  if vim.api.nvim_get_current_win() ~= previous_window then
+    return
+  end
+
+  local herdr = vim.env.HERDR_BIN_PATH or "herdr"
+  local pane = vim.env.HERDR_PANE_ID
+  vim.fn.system({ herdr, "pane", "focus", "--direction", direction, "--pane", pane })
+end
+
+local function tab_window_sizes()
+  local sizes = {}
+
+  for _, window in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.api.nvim_win_get_config(window).relative == "" then
+      local position = vim.api.nvim_win_get_position(window)
+      sizes[window] = table.concat({
+        vim.api.nvim_win_get_width(window),
+        vim.api.nvim_win_get_height(window),
+        position[1],
+        position[2],
+      }, ":")
+    end
+  end
+
+  return sizes
+end
+
+local function resize_herdr(direction)
+  local herdr = vim.env.HERDR_BIN_PATH or "herdr"
+  local pane = vim.env.HERDR_PANE_ID
+  vim.fn.system({ herdr, "pane", "resize", "--direction", direction, "--pane", pane })
+end
+
+local function resize_or_resize_herdr(method, direction)
+  local before = tab_window_sizes()
+
+  if vim.tbl_count(before) == 1 then
+    resize_herdr(direction)
+    return
+  end
+
+  require("smart-splits")[method]()
+  for window, size in pairs(tab_window_sizes()) do
+    if before[window] ~= size then
+      return
+    end
+  end
+
+  resize_herdr(direction)
+end
+
 return {
   -- File explorer
   {
@@ -38,7 +93,7 @@ return {
     },
   },
 
-  -- Smart split navigation (works with tmux/wezterm)
+  -- Smart split navigation (works with tmux/wezterm/herdr)
   -- IMPORTANT: must not be lazy-loaded — the @pane-is-vim tmux variable is
   -- set on plugin load and tmux's smart pane switching depends on it.
   {
@@ -49,14 +104,94 @@ return {
       multiplexer_integration = "tmux",
     },
     keys = {
-      { "<C-h>", function() require("smart-splits").move_cursor_left() end, desc = "Move left" },
-      { "<C-j>", function() require("smart-splits").move_cursor_down() end, desc = "Move down" },
-      { "<C-k>", function() require("smart-splits").move_cursor_up() end, desc = "Move up" },
-      { "<C-l>", function() require("smart-splits").move_cursor_right() end, desc = "Move right" },
-      { "<M-h>", function() require("smart-splits").resize_left() end, desc = "Resize left" },
-      { "<M-j>", function() require("smart-splits").resize_down() end, desc = "Resize down" },
-      { "<M-k>", function() require("smart-splits").resize_up() end, desc = "Resize up" },
-      { "<M-l>", function() require("smart-splits").resize_right() end, desc = "Resize right" },
+      {
+        "<C-h>",
+        function()
+          if vim.env.HERDR_PANE_ID then
+            move_or_focus_herdr("h", "left")
+          else
+            require("smart-splits").move_cursor_left()
+          end
+        end,
+        desc = "Move left",
+      },
+      {
+        "<C-j>",
+        function()
+          if vim.env.HERDR_PANE_ID then
+            move_or_focus_herdr("j", "down")
+          else
+            require("smart-splits").move_cursor_down()
+          end
+        end,
+        desc = "Move down",
+      },
+      {
+        "<C-k>",
+        function()
+          if vim.env.HERDR_PANE_ID then
+            move_or_focus_herdr("k", "up")
+          else
+            require("smart-splits").move_cursor_up()
+          end
+        end,
+        desc = "Move up",
+      },
+      {
+        "<C-l>",
+        function()
+          if vim.env.HERDR_PANE_ID then
+            move_or_focus_herdr("l", "right")
+          else
+            require("smart-splits").move_cursor_right()
+          end
+        end,
+        desc = "Move right",
+      },
+      {
+        "<M-h>",
+        function()
+          if vim.env.HERDR_PANE_ID then
+            resize_or_resize_herdr("resize_left", "left")
+          else
+            require("smart-splits").resize_left()
+          end
+        end,
+        desc = "Resize left",
+      },
+      {
+        "<M-j>",
+        function()
+          if vim.env.HERDR_PANE_ID then
+            resize_or_resize_herdr("resize_down", "down")
+          else
+            require("smart-splits").resize_down()
+          end
+        end,
+        desc = "Resize down",
+      },
+      {
+        "<M-k>",
+        function()
+          if vim.env.HERDR_PANE_ID then
+            resize_or_resize_herdr("resize_up", "up")
+          else
+            require("smart-splits").resize_up()
+          end
+        end,
+        desc = "Resize up",
+      },
+      {
+        "<M-l>",
+        function()
+          if vim.env.HERDR_PANE_ID then
+            resize_or_resize_herdr("resize_right", "right")
+          else
+            require("smart-splits").resize_right()
+          end
+        end,
+        desc = "Resize right",
+      },
     },
   },
 

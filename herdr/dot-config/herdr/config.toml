@@ -1,0 +1,217 @@
+onboarding = false
+
+[theme]
+name = "terminal"
+
+[terminal]
+default_shell = "/bin/zsh"
+shell_mode = "auto"
+new_cwd = "follow"
+
+[keys]
+prefix = "ctrl+space"
+detach = "prefix+d"
+help = "prefix+shift+h"
+goto = "prefix+backtick"
+workspace_picker = "prefix+w"
+new_worktree = "prefix+alt+g"
+new_tab = "prefix+c"
+rename_tab = "prefix+r"
+previous_tab = "prefix+h"
+next_tab = "prefix+l"
+copy_mode = "prefix+v"
+rename_pane = "prefix+alt+p"
+focus_pane_left = "prefix+left"
+focus_pane_down = "prefix+down"
+focus_pane_up = "prefix+up"
+focus_pane_right = "prefix+right"
+swap_pane_left = "prefix+alt+h"
+swap_pane_down = "prefix+alt+j"
+swap_pane_up = "prefix+alt+k"
+swap_pane_right = "prefix+alt+l"
+split_vertical = "prefix+/"
+split_horizontal = "prefix+minus"
+close_pane = "prefix+x"
+resize_mode = "prefix+plus"
+
+[ui]
+mouse_capture = true
+copy_on_select = true
+confirm_close = false
+prompt_new_tab_name = false
+pane_borders = true
+pane_gaps = false
+show_agent_labels_on_pane_borders = true
+agent_panel_sort = "spaces"
+accent = "blue"
+
+[ui.toast]
+delivery = "terminal"
+delay_seconds = 1
+
+[ui.sound]
+enabled = false
+
+[session]
+resume_agents_on_restore = true
+
+[experimental]
+pane_history = false
+
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "vim-herdr-navigation.left"
+description = "navigate left (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "vim-herdr-navigation.down"
+description = "navigate down (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "vim-herdr-navigation.up"
+description = "navigate up (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "vim-herdr-navigation.right"
+description = "navigate right (vim/herdr)"
+
+[[keys.command]]
+key = "alt+h"
+type = "shell"
+command = "$HOME/.scripts/herdr-resize.sh left"
+description = "resize left (vim/herdr)"
+
+[[keys.command]]
+key = "alt+j"
+type = "shell"
+command = "$HOME/.scripts/herdr-resize.sh down"
+description = "resize down (vim/herdr)"
+
+[[keys.command]]
+key = "alt+k"
+type = "shell"
+command = "$HOME/.scripts/herdr-resize.sh up"
+description = "resize up (vim/herdr)"
+
+[[keys.command]]
+key = "alt+l"
+type = "shell"
+command = "$HOME/.scripts/herdr-resize.sh right"
+description = "resize right (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+t"
+type = "popup"
+command = "$HOME/.scripts/tv-herdr-connect.sh"
+description = "workspace picker"
+width = "90%"
+height = "80%"
+
+[[keys.command]]
+key = "ctrl+o"
+type = "popup"
+command = "$HOME/.scripts/tv-file-open-popup.sh"
+description = "file picker"
+width = "95%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+m"
+type = "popup"
+command = "$HOME/.scripts/mission-control.sh --watch"
+description = "mission control"
+width = "95%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+comma"
+type = "shell"
+command = "$HOME/.scripts/herdr-session.sh plan dottie"
+description = "plan agent"
+
+[[keys.command]]
+key = "prefix+g"
+type = "popup"
+command = "$HOME/.scripts/quick-git.sh"
+description = "lazygit"
+width = "80%"
+height = "80%"
+
+[[keys.command]]
+key = "prefix+shift+g"
+type = "popup"
+command = "$HOME/.scripts/tv-gh-workbench-help.sh"
+description = "GitHub workbench"
+width = "80%"
+height = "80%"
+
+[[keys.command]]
+key = "prefix+i"
+type = "popup"
+command = "$HOME/.scripts/quick-gh-dashboard.sh"
+description = "GitHub dashboard"
+width = "90%"
+height = "85%"
+
+[[keys.command]]
+key = "prefix+shift+p"
+type = "popup"
+command = "tv gh-all-prs"
+description = "all pull requests"
+width = "90%"
+height = "85%"
+
+[[keys.command]]
+key = "prefix+p"
+type = "popup"
+command = "tv gh-review"
+description = "review queue"
+width = "90%"
+height = "85%"
+
+[[keys.command]]
+key = "prefix+ctrl+p"
+type = "popup"
+command = "tv gh-changes-requested"
+description = "changes requested"
+width = "90%"
+height = "85%"
+
+[[keys.command]]
+key = "prefix+y"
+type = "popup"
+command = "tv gh-ready"
+description = "ready issues"
+width = "90%"
+height = "85%"
+
+[[keys.command]]
+key = "prefix+shift+i"
+type = "popup"
+command = "$HOME/.scripts/quick-inbox.sh"
+description = "desktop inbox"
+width = "80%"
+height = "80%"
+
+[[keys.command]]
+key = "prefix+n"
+type = "popup"
+command = "$HOME/.scripts/quick-note.sh"
+description = "notes"
+width = "80%"
+height = "80%"
+
+[[keys.command]]
+key = "prefix+t"
+type = "popup"
+command = "$HOME/.scripts/quick-top.sh"
+description = "htop"
+width = "80%"
+height = "80%"

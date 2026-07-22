@@ -78,7 +78,12 @@ open_file() {
     command_args=("${editor_cmd[@]}" "$file")
   fi
 
-  if [[ -n "${TV_FILE_OPEN_TARGET_PANE:-}" ]]; then
+  if [[ -n "${TV_FILE_OPEN_HERDR_PANE:-}" ]]; then
+    herdr pane run \
+      "$TV_FILE_OPEN_HERDR_PANE" \
+      "$(shell_join "${command_args[@]}")"
+    return
+  elif [[ -n "${TV_FILE_OPEN_TARGET_PANE:-}" ]]; then
     tmux set-buffer -b tv-file-open "$(shell_join "${command_args[@]}")"
     tmux paste-buffer -b tv-file-open -t "$TV_FILE_OPEN_TARGET_PANE"
     tmux send-keys -t "$TV_FILE_OPEN_TARGET_PANE" Enter
