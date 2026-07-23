@@ -11,6 +11,9 @@ HOME_TEST=$TMPDIR_TEST/home
 GIT_PRIMARY=$TMPDIR_TEST/git-primary
 GIT_LINKED=$TMPDIR_TEST/git-linked
 GIT_HOME=$TMPDIR_TEST/git-home
+FIXTURE_BIN=$TMPDIR_TEST/fixture-bin
+LINKED_BIN=$TMPDIR_TEST/linked-bin
+HOST_MUTATION_MARKER=$TMPDIR_TEST/host-mutation-attempted
 OUTPUT=
 STATUS=0
 FAILURES=0
@@ -25,6 +28,33 @@ trap cleanup EXIT HUP INT TERM
 run_command() {
   OUTPUT=$("$@" 2>&1)
   STATUS=$?
+}
+
+run_fixture() {
+  run_command env -i \
+    HOME="$HOME_TEST" \
+    PATH="$FIXTURE_BIN:/usr/bin:/bin" \
+    TMPDIR="$TMPDIR_TEST" \
+    DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
+    "$FIXTURE_BIN/dotfiles" "$@"
+}
+
+run_linked() {
+  run_command env -i \
+    HOME="$GIT_HOME" \
+    PATH="$LINKED_BIN:/usr/bin:/bin" \
+    TMPDIR="$TMPDIR_TEST" \
+    DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
+    "$GIT_LINKED/dotfiles" "$@"
+}
+
+run_linked_installer() {
+  run_command env -i \
+    HOME="$GIT_HOME" \
+    PATH="$LINKED_BIN:/usr/bin:/bin" \
+    TMPDIR="$TMPDIR_TEST" \
+    DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
+    "$GIT_LINKED/install.sh" --path "$GIT_LINKED" --non-interactive
 }
 
 assert_status() {
@@ -53,12 +83,12 @@ assert_contains() {
 }
 
 mkdir -p "$FIXTURE/.git" "$FIXTURE/brew" "$HOME_TEST" \
-  "$TMPDIR_TEST/bin" "$FIXTURE/sample" \
+  "$FIXTURE_BIN" "$LINKED_BIN" "$FIXTURE/sample" \
   "$FIXTURE/codex/dot-codex" \
   "$FIXTURE/agents/dot-agents/skills/managed" || exit 1
 cp "$REPO_ROOT/dotfiles" "$FIXTURE/dotfiles" || exit 1
-cp "$REPO_ROOT/dotfiles-trusted-formulae" \
-  "$FIXTURE/dotfiles-trusted-formulae" || exit 1
+printf '# no reviewed formulae in primary fixture\n' > \
+  "$FIXTURE/dotfiles-trusted-formulae"
 : > "$FIXTURE/brew/Brewfile"
 printf 'agents no-folding\nsample standard\n' > \
   "$FIXTURE/dotfiles-packages"
@@ -67,11 +97,16 @@ printf 'fixture = true\n' > "$FIXTURE/codex/dot-codex/config.base.toml"
 printf 'managed v1\n' > \
   "$FIXTURE/agents/dot-agents/skills/managed/SKILL.md"
 chmod +x "$FIXTURE/dotfiles"
-ln -s ../repo/dotfiles "$TMPDIR_TEST/bin/dotfiles"
+ln -s "$REPO_ROOT/tests/fake-brew.sh" "$FIXTURE_BIN/brew"
+ln -s "$REPO_ROOT/tests/fake-brew.sh" "$LINKED_BIN/brew"
+for command in bun curl gh git herdr jq launchctl npm opencode pi stow; do
+  ln -s "$REPO_ROOT/tests/fail-command.sh" "$LINKED_BIN/$command"
+done
+ln -s "$FIXTURE/dotfiles" "$FIXTURE_BIN/dotfiles"
 FIXTURE_PHYSICAL=$(cd -P "$FIXTURE" >/dev/null 2>&1 && pwd)
 
 for command in bootstrap doctor plan apply provision upgrade; do
-  run_command "$FIXTURE/dotfiles" "$command" --help
+  run_fixture "$command" --help
   assert_status 0 "$command help exits successfully"
 done
 
@@ -97,8 +132,7 @@ else
   printf 'ok - live runtime config uses checkout-independent paths\n'
 fi
 
-run_command env HOME="$HOME_TEST" PATH=/usr/bin:/bin \
-  "$TMPDIR_TEST/bin/dotfiles" doctor
+run_fixture doctor
 assert_status 1 "doctor reports convergence without optional dependencies"
 assert_contains "Repository: $FIXTURE_PHYSICAL" \
   "CLI resolves its own relative symlink"
@@ -106,12 +140,13 @@ assert_contains "GNU Stow is unavailable" "doctor explains missing Stow"
 
 mkdir -p "$GIT_PRIMARY/brew" "$GIT_HOME/.local/bin"
 cp "$REPO_ROOT/dotfiles" "$GIT_PRIMARY/dotfiles"
+cp "$REPO_ROOT/install.sh" "$GIT_PRIMARY/install.sh"
 printf '# no reviewed formulae in launcher fixture\n' > \
   "$GIT_PRIMARY/dotfiles-trusted-formulae"
 printf '# no Stow packages in launcher fixture\n' > \
   "$GIT_PRIMARY/dotfiles-packages"
 : > "$GIT_PRIMARY/brew/Brewfile"
-chmod +x "$GIT_PRIMARY/dotfiles"
+chmod +x "$GIT_PRIMARY/dotfiles" "$GIT_PRIMARY/install.sh"
 git -C "$GIT_PRIMARY" init -q
 git -C "$GIT_PRIMARY" add .
 git -C "$GIT_PRIMARY" -c user.name=Test -c user.email=test@example.com \
@@ -119,39 +154,31 @@ git -C "$GIT_PRIMARY" -c user.name=Test -c user.email=test@example.com \
 git -C "$GIT_PRIMARY" worktree add -qb feature "$GIT_LINKED"
 ln -s "$GIT_PRIMARY/dotfiles" "$GIT_HOME/.local/bin/dotfiles"
 
-run_command env HOME="$GIT_HOME" PATH=/usr/bin:/bin \
-  "$GIT_LINKED/dotfiles" doctor
+run_linked doctor
 assert_status 1 "linked doctor accepts the primary-checkout launcher"
 assert_contains "launcher targets the primary checkout" \
   "linked doctor recognizes the same Git repository primary"
-run_command env HOME="$GIT_HOME" PATH=/usr/bin:/bin \
-  "$GIT_LINKED/dotfiles" plan
+run_linked plan
 assert_status 0 "linked plan accepts the primary-checkout launcher"
 assert_contains "repository primary checkout" \
   "linked plan reports the canonical launcher"
+assert_contains "defer Stow simulation" \
+  "linked-worktree plan remains read-only"
 
 rm -f "$GIT_HOME/.local/bin/dotfiles"
 ln -s "$FIXTURE/dotfiles" "$GIT_HOME/.local/bin/dotfiles"
-run_command env HOME="$GIT_HOME" PATH=/usr/bin:/bin \
-  "$GIT_LINKED/dotfiles" doctor
+run_linked doctor
 assert_status 1 "linked doctor rejects an unrelated checkout launcher"
 assert_contains "[CONFLICT] launcher" \
   "unrelated checkout remains a launcher conflict"
 
-run_command env HOME="$HOME_TEST" "$REPO_ROOT/dotfiles" plan
-assert_status 0 "linked-worktree plan remains read-only"
-assert_contains "defer Stow simulation" \
-  "linked-worktree plan defers misleading Stow checks"
-
-run_command env HOME="$HOME_TEST" PATH=/usr/bin:/bin \
-  "$FIXTURE/dotfiles" plan
+run_fixture plan
 assert_status 0 "primary-checkout plan works without dependencies"
 assert_contains "provision GNU Stow" "plan explains deferred Stow simulation"
 
 if [ -n "$STOW_BIN" ]; then
-  ln -s "$STOW_BIN" "$TMPDIR_TEST/bin/stow"
-  run_command env HOME="$HOME_TEST" PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
-    "$FIXTURE/dotfiles" plan
+  ln -s "$STOW_BIN" "$FIXTURE_BIN/stow"
+  run_fixture plan
   assert_status 0 \
     "primary-checkout Stow simulation succeeds in temporary home"
   assert_contains "STOW PLAN: sample" \
@@ -160,8 +187,7 @@ if [ -n "$STOW_BIN" ]; then
   mkdir -p "$HOME_TEST/.agents/skills/private"
   printf 'unmanaged skill\n' > \
     "$HOME_TEST/.agents/skills/private/SKILL.md"
-  run_command env HOME="$HOME_TEST" PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
-    "$FIXTURE/dotfiles" apply
+  run_fixture apply
   assert_status 0 "apply converges a primary checkout in temporary home"
   if [ "$(readlink "$HOME_TEST/.local/bin/dotfiles")" = \
     "$FIXTURE_PHYSICAL/dotfiles" ]; then
@@ -186,8 +212,7 @@ if [ -n "$STOW_BIN" ]; then
 
   printf 'managed v2\n' > \
     "$FIXTURE/agents/dot-agents/skills/managed/SKILL.md"
-  run_command env HOME="$HOME_TEST" PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
-    "$FIXTURE/dotfiles" apply
+  run_fixture apply
   assert_status 0 "second apply updates a state-owned materialized skill"
   if [ "$(< "$HOME_TEST/.agents/skills/managed/SKILL.md")" = \
     "managed v2" ]; then
@@ -198,8 +223,7 @@ if [ -n "$STOW_BIN" ]; then
   fi
 
   rm -f "$FIXTURE/agents/dot-agents/skills/managed/SKILL.md"
-  run_command env HOME="$HOME_TEST" PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
-    "$FIXTURE/dotfiles" apply
+  run_fixture apply
   assert_status 0 "apply removes an unchanged stale state-owned skill"
   if [ ! -e "$HOME_TEST/.agents/skills/managed/SKILL.md" ] &&
     [ ! -L "$HOME_TEST/.agents/skills/managed/SKILL.md" ]; then
@@ -211,13 +235,11 @@ if [ -n "$STOW_BIN" ]; then
 
   printf 'managed v3\n' > \
     "$FIXTURE/agents/dot-agents/skills/managed/SKILL.md"
-  run_command env HOME="$HOME_TEST" PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
-    "$FIXTURE/dotfiles" apply
+  run_fixture apply
   assert_status 0 "apply rematerializes a restored managed skill"
   printf 'user modified\n' > \
     "$HOME_TEST/.agents/skills/managed/SKILL.md"
-  run_command env HOME="$HOME_TEST" PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
-    "$FIXTURE/dotfiles" apply
+  run_fixture apply
   assert_status 1 "apply refuses a user-modified state-owned skill"
   assert_contains "managed skill was modified" \
     "modified state-owned skill is reported precisely"
@@ -237,8 +259,7 @@ if [ -n "$STOW_BIN" ]; then
     "$FIXTURE/agents/dot-agents/skills/unmanaged/SKILL.md"
   printf 'unmanaged version\n' > \
     "$HOME_TEST/.agents/skills/unmanaged/SKILL.md"
-  run_command env HOME="$HOME_TEST" PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
-    "$FIXTURE/dotfiles" apply
+  run_fixture apply
   assert_status 1 "apply refuses an unmanaged conflicting skill"
   assert_contains "unmanaged skill file blocks activation" \
     "unmanaged skill conflict is reported"
@@ -252,16 +273,17 @@ if [ -n "$STOW_BIN" ]; then
   rm -rf "$FIXTURE/agents/dot-agents/skills/unmanaged" \
     "$HOME_TEST/.agents/skills/unmanaged"
 
-  ln -s "$REPO_ROOT/tests/fake-brew.sh" "$TMPDIR_TEST/bin/brew"
   if [ -n "$JQ_BIN" ]; then
-    ln -s "$REPO_ROOT/tests/fake-herdr.sh" "$TMPDIR_TEST/bin/herdr"
-    ln -s "$JQ_BIN" "$TMPDIR_TEST/bin/jq"
+    ln -s "$REPO_ROOT/tests/fake-herdr.sh" "$FIXTURE_BIN/herdr"
+    ln -s "$JQ_BIN" "$FIXTURE_BIN/jq"
     rm -f "$TMPDIR_TEST/herdr-plugin-installed"
-    run_command env HOME="$HOME_TEST" \
-      PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
+    run_command env -i HOME="$HOME_TEST" \
+      PATH="$FIXTURE_BIN:/usr/bin:/bin" \
+      TMPDIR="$TMPDIR_TEST" \
+      DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
       FAKE_HERDR_PLUGIN_ENABLED=false \
       FAKE_HERDR_PLUGIN_MARKER="$TMPDIR_TEST/herdr-plugin-installed" \
-      "$FIXTURE/dotfiles" apply
+      "$FIXTURE_BIN/dotfiles" apply
     assert_status 0 "apply converges a disabled pinned Herdr plugin"
     if [ -e "$TMPDIR_TEST/herdr-plugin-installed" ]; then
       printf 'ok - disabled pinned Herdr plugin is reinstalled\n'
@@ -271,12 +293,14 @@ if [ -n "$STOW_BIN" ]; then
     fi
 
     rm -f "$TMPDIR_TEST/herdr-plugin-installed"
-    run_command env HOME="$HOME_TEST" \
-      PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
+    run_command env -i HOME="$HOME_TEST" \
+      PATH="$FIXTURE_BIN:/usr/bin:/bin" \
+      TMPDIR="$TMPDIR_TEST" \
+      DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
       FAKE_HERDR_PLUGIN_ENABLED=true \
       FAKE_HERDR_PLUGIN_COMMIT=0000000000000000000000000000000000000000 \
       FAKE_HERDR_PLUGIN_MARKER="$TMPDIR_TEST/herdr-plugin-installed" \
-      "$FIXTURE/dotfiles" apply
+      "$FIXTURE_BIN/dotfiles" apply
     assert_status 0 \
       "apply converges an enabled Herdr plugin at the wrong commit"
     if [ -e "$TMPDIR_TEST/herdr-plugin-installed" ]; then
@@ -287,11 +311,13 @@ if [ -n "$STOW_BIN" ]; then
     fi
 
     rm -f "$TMPDIR_TEST/herdr-plugin-installed"
-    run_command env HOME="$HOME_TEST" \
-      PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
+    run_command env -i HOME="$HOME_TEST" \
+      PATH="$FIXTURE_BIN:/usr/bin:/bin" \
+      TMPDIR="$TMPDIR_TEST" \
+      DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
       FAKE_HERDR_PLUGIN_ENABLED=true \
       FAKE_HERDR_PLUGIN_MARKER="$TMPDIR_TEST/herdr-plugin-installed" \
-      "$FIXTURE/dotfiles" apply
+      "$FIXTURE_BIN/dotfiles" apply
     assert_status 0 "apply accepts an enabled pinned Herdr plugin"
     if [ ! -e "$TMPDIR_TEST/herdr-plugin-installed" ]; then
       printf 'ok - enabled pinned Herdr plugin is left unchanged\n'
@@ -299,25 +325,24 @@ if [ -n "$STOW_BIN" ]; then
       printf 'not ok - enabled pinned Herdr plugin was reinstalled\n'
       FAILURES=$((FAILURES + 1))
     fi
-    rm -f "$TMPDIR_TEST/bin/herdr" "$TMPDIR_TEST/bin/jq"
+    rm -f "$FIXTURE_BIN/herdr" "$FIXTURE_BIN/jq"
   else
     printf 'ok - Herdr plugin condition test skipped (jq unavailable)\n'
   fi
 
-  run_command env HOME="$HOME_TEST" \
-    PATH="$TMPDIR_TEST/bin:/usr/bin:/bin" \
-    FAKE_BREW_MARKER="$TMPDIR_TEST/brew-mutated" \
-    "$FIXTURE/dotfiles" bootstrap --non-interactive --yes
+  printf 'modem-dev/tap/hunk\n' > "$FIXTURE/dotfiles-trusted-formulae"
+  run_fixture bootstrap --non-interactive --yes
   assert_status 3 "noninteractive bootstrap stops for formula trust"
   assert_contains "ACTION_REQUIRED: review formula trust" \
     "generic --yes does not grant formula trust"
-  if [ ! -e "$TMPDIR_TEST/brew-mutated" ]; then
+  if [ ! -e "$HOST_MUTATION_MARKER" ]; then
     printf 'ok - trust policy stops before provisioning changes\n'
   else
     printf 'not ok - provisioning ran before formula trust approval\n'
     FAILURES=$((FAILURES + 1))
   fi
-  rm -f "$TMPDIR_TEST/bin/brew"
+  printf '# no reviewed formulae in primary fixture\n' > \
+    "$FIXTURE/dotfiles-trusted-formulae"
 else
   printf 'ok - Stow convergence test skipped (stow unavailable)\n'
 fi
@@ -325,8 +350,7 @@ fi
 rm -rf "$HOME_TEST/.local"
 mkdir -p "$HOME_TEST/.local/bin"
 printf 'unmanaged\n' > "$HOME_TEST/.local/bin/dotfiles"
-run_command env HOME="$HOME_TEST" PATH=/usr/bin:/bin \
-  "$FIXTURE/dotfiles" plan
+run_fixture plan
 assert_status 1 "plan fails on an unmanaged launcher"
 assert_contains "CONFLICT: launcher" "plan exposes launcher conflict"
 rm -rf "$HOME_TEST/.local"
@@ -334,16 +358,13 @@ rm -rf "$HOME_TEST/.local"
 for command in bootstrap apply provision upgrade; do
   case "$command" in
     bootstrap)
-      run_command env HOME="$HOME_TEST" \
-        "$REPO_ROOT/dotfiles" bootstrap --non-interactive --yes
+      run_linked bootstrap --non-interactive --yes
       ;;
     provision|upgrade)
-      run_command env HOME="$HOME_TEST" \
-        "$REPO_ROOT/dotfiles" "$command" --non-interactive \
-        --trust-formula modem-dev/tap/hunk
+      run_linked "$command" --non-interactive
       ;;
     *)
-      run_command env HOME="$HOME_TEST" "$REPO_ROOT/dotfiles" "$command"
+      run_linked "$command"
       ;;
   esac
   assert_status 3 "$command refuses a linked worktree"
@@ -351,22 +372,24 @@ for command in bootstrap apply provision upgrade; do
     "$command explains linked-worktree refusal"
 done
 
-[ ! -e "$HOME_TEST/.local" ] || {
-  printf 'not ok - refused commands changed the temporary home\n'
-  FAILURES=$((FAILURES + 1))
-}
-
-run_command "$FIXTURE/dotfiles" apply --unknown
+run_fixture apply --unknown
 assert_status 2 "unknown command options fail as usage errors"
 
-run_command "$FIXTURE/dotfiles" provision --non-interactive \
+run_fixture provision --non-interactive \
   --trust-formula example/tap/unreviewed
 assert_status 3 "unreviewed formula trust requires action"
 assert_contains "not in dotfiles-trusted-formulae" \
   "formula trust is constrained by the manifest"
 
-run_command "$REPO_ROOT/install.sh" --path "$REPO_ROOT" --non-interactive
+run_linked_installer
 assert_status 3 "installer refuses a linked checkout"
+
+if [ -e "$HOST_MUTATION_MARKER" ]; then
+  printf 'not ok - a test attempted a guarded host mutation\n'
+  FAILURES=$((FAILURES + 1))
+else
+  printf 'ok - no test attempted a guarded host mutation\n'
+fi
 
 if [ "$FAILURES" -ne 0 ]; then
   printf '%s lifecycle test(s) failed\n' "$FAILURES" >&2

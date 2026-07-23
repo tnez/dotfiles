@@ -7,7 +7,10 @@ case "${1:-} ${2:-}" in
   'trust --json=v1')
     printf '{"taps":[],"formulae":[],"casks":[],"commands":[]}\n'
     ;;
-  'trust --formula'|'bundle install')
-    : > "${FAKE_BREW_MARKER:?}"
+  'services start'|'services restart') exit 0 ;;
+  *)
+    : > "${DOTFILES_TEST_HOST_MUTATION_MARKER:?}"
+    printf 'TEST GUARD: blocked Homebrew mutation: %s\n' "$*" >&2
+    exit 97
     ;;
 esac
