@@ -25,26 +25,19 @@ if [[ -e "$config_path" ]]; then
   exit 1
 fi
 
-cat >"$config_path" <<'EOF'
-version: "1.0"
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+template_path="$script_dir/wtp-template.yml"
+if [[ ! -f "$template_path" ]]; then
+  echo "Error: template not found at $template_path" >&2
+  exit 1
+fi
 
-defaults:
-  # Keep main/ as the primary worktree and preserve branch prefixes as paths.
-  base_dir: ..
+cp "$template_path" "$config_path"
 
-hooks:
-  post_create:
-    # Copy local environment files without failing when a project has none.
-    - type: command
-      command: |
-        for source in "$GIT_WTP_REPO_ROOT"/.env*; do
-          [ -f "$source" ] || continue
-          name=${source##*/}
-          git -C "$GIT_WTP_REPO_ROOT" check-ignore -q -- "$name" || continue
-          destination="$GIT_WTP_WORKTREE_PATH/$name"
-          [ -e "$destination" ] || cp -p "$source" "$destination"
-        done
-EOF
+exclude_path="$common_dir/info/exclude"
+if ! grep -Fqx '.wtp.yml' "$exclude_path"; then
+  printf '\n.wtp.yml\n' >>"$exclude_path"
+fi
 
 echo "Created $config_path"
-echo "Review and commit it before creating worktrees."
+echo "Excluded .wtp.yml from this repository."

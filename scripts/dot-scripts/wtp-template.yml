@@ -1,0 +1,18 @@
+version: "1.0"
+
+defaults:
+  # Keep main/ as the primary worktree and preserve branch prefixes as paths.
+  base_dir: ..
+
+hooks:
+  post_create:
+    # Copy local environment files without failing when a project has none.
+    - type: command
+      command: |
+        for source in "$GIT_WTP_REPO_ROOT"/.env*; do
+          [ -f "$source" ] || continue
+          name=${source##*/}
+          git -C "$GIT_WTP_REPO_ROOT" check-ignore -q -- "$name" || continue
+          destination="$GIT_WTP_WORKTREE_PATH/$name"
+          [ -e "$destination" ] || cp -p "$source" "$destination"
+        done
