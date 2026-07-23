@@ -4,7 +4,6 @@
 set -Eeuo pipefail
 
 creating_workspace=""
-workspace_aliases="${XDG_CONFIG_HOME:-$HOME/.config}/herdr/workspace-aliases.conf"
 
 cleanup_partial_session() {
   local status=$1
@@ -45,6 +44,7 @@ list_directories() {
     fi
   } | while IFS= read -r directory; do
     [[ "$directory" == / ]] || directory=${directory%/}
+    directory="$(display_directory "$directory")"
     case "$directory" in
       "$HOME") printf '%s\n' "$tilde" ;;
       "$HOME"/*)
@@ -81,7 +81,8 @@ resolve_directory() {
   fi
 
   [[ -d "$directory" ]] || return 1
-  (cd "$directory" && pwd -P)
+  directory="$(cd "$directory" && pwd -P)"
+  canonical_project_directory "$directory"
 }
 
 primary_worktree() {
@@ -103,38 +104,58 @@ primary_worktree() {
   [[ -z "$candidate" ]] || printf '%s\n' "$candidate"
 }
 
-repository_token() {
-  local key part repository=$1 token="" value
-  local -a parts
+canonical_project_directory() {
+  local directory=$1 main primary toplevel
 
-  if [[ -r "$workspace_aliases" ]]; then
-    while IFS='=' read -r key value; do
-      [[ -n "$key" && "$key" != '#'* ]] || continue
-      if [[ "$key" == "$repository" && -n "$value" ]]; then
-        printf '%s\n' "$value"
-        return 0
-      fi
-    done <"$workspace_aliases"
+  main="$directory/main"
+  if [[ ! -d "$main" ]]; then
+    printf '%s\n' "$directory"
+    return
   fi
 
-  if (( ${#repository} <= 12 )); then
-    printf '%s\n' "$repository"
-    return 0
+  toplevel="$(git -C "$main" rev-parse --show-toplevel 2>/dev/null || true)"
+  [[ -n "$toplevel" ]] || {
+    printf '%s\n' "$directory"
+    return
+  }
+  toplevel="$(cd "$toplevel" && pwd -P)"
+  main="$(cd "$main" && pwd -P)"
+  primary="$(primary_worktree "$toplevel")"
+  [[ -z "$primary" ]] || primary="$(cd "$primary" && pwd -P)"
+
+  if [[ "$toplevel" == "$main" && "$primary" == "$main" ]]; then
+    printf '%s\n' "$main"
+  else
+    printf '%s\n' "$directory"
+  fi
+}
+
+display_directory() {
+  local directory=$1 primary toplevel
+
+  if [[ "${directory##*/}" != main ]]; then
+    printf '%s\n' "$directory"
+    return
   fi
 
-  IFS='-' read -r -a parts <<<"$repository"
-  for part in "${parts[@]}"; do
-    [[ -z "$part" ]] || token+="${part:0:1}"
-  done
+  toplevel="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null || true)"
+  [[ -n "$toplevel" ]] || {
+    printf '%s\n' "$directory"
+    return
+  }
+  toplevel="$(cd "$toplevel" && pwd -P)"
+  primary="$(primary_worktree "$toplevel")"
+  [[ -z "$primary" ]] || primary="$(cd "$primary" && pwd -P)"
 
-  if (( ${#token} < 2 )); then
-    token=${repository:0:12}
+  if [[ "$directory" == "$toplevel" && "$directory" == "$primary" ]]; then
+    printf '%s\n' "${directory%/*}"
+  else
+    printf '%s\n' "$directory"
   fi
-  printf '%s\n' "$token"
 }
 
 directory_workspace_label() {
-  local branch directory=$1 parent primary repository token toplevel
+  local directory=$1 parent primary repository toplevel
 
   toplevel="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null || true)"
   if [[ -z "$toplevel" ]]; then
@@ -143,32 +164,53 @@ directory_workspace_label() {
   fi
   toplevel="$(cd "$toplevel" && pwd -P)"
 
-  # Preserve useful labels for zoxide entries inside a repository.
-  if [[ "$directory" != "$toplevel" ]]; then
-    printf '%s\n' "${directory##*/}"
-    return 0
-  fi
-
   primary="$(primary_worktree "$directory")"
   primary="$(cd "$primary" && pwd -P)"
   parent=${primary%/*}
   repository=${primary##*/}
-  if [[ "$repository" == main &&
-    ( -f "$primary/.wtp.yml" || -d "$parent/.bare" ) ]]; then
+  if [[ "$repository" == main ]]; then
     repository=${parent##*/}
   fi
 
-  if [[ "$directory" == "$primary" ]]; then
-    printf '%s\n' "$repository"
-    return 0
-  fi
+  printf '%s\n' "$repository"
+}
 
-  branch="$(git -C "$directory" branch --show-current)"
+compact_label() {
+  local label=$1 max_length=32
+
+  if (( ${#label} <= max_length )); then
+    printf '%s\n' "$label"
+  else
+    printf '%s...\n' "${label:0:max_length-3}"
+  fi
+}
+
+worktree_tab_label() {
+  local branch directory=$1
+
+  branch="$(git -C "$directory" branch --show-current 2>/dev/null || true)"
   if [[ -z "$branch" ]]; then
     branch="detached-$(git -C "$directory" rev-parse --short HEAD)"
   fi
-  token="$(repository_token "$repository")"
-  printf '%s@%s\n' "$branch" "$token"
+  compact_label "$branch"
+}
+
+tab_for_directory() {
+  local candidate directory=$1 panes tab toplevel workspace=$2
+
+  panes="$(herdr pane list --workspace "$workspace")" || return
+  while IFS=$'\t' read -r tab candidate; do
+    [[ -n "$tab" && -d "$candidate" ]] || continue
+    candidate="$(cd "$candidate" && pwd -P)"
+    toplevel="$(git -C "$candidate" rev-parse --show-toplevel 2>/dev/null || true)"
+    if [[ -n "$toplevel" ]]; then
+      candidate="$(cd "$toplevel" && pwd -P)"
+    fi
+    if [[ "$candidate" == "$directory" ]]; then
+      printf '%s\n' "$tab"
+      return
+    fi
+  done < <(jq -r '.result.panes[]? | [.tab_id, .cwd] | @tsv' <<<"$panes")
 }
 
 configure_session() {
@@ -280,6 +322,32 @@ focus_tab() {
   [[ -z "$tab" ]] || herdr tab focus "$tab" >/dev/null
 }
 
+focus_primary_tab() {
+  local directory expected_label=$2 primary tab toplevel workspace=$1
+
+  while IFS=$'\t' read -r tab directory; do
+    [[ -n "$tab" && -d "$directory" ]] || continue
+    toplevel="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null || true)"
+    [[ -n "$toplevel" ]] || continue
+    toplevel="$(cd "$toplevel" && pwd -P)"
+    primary="$(primary_worktree "$toplevel")"
+    [[ -n "$primary" ]] || continue
+    primary="$(cd "$primary" && pwd -P)"
+    [[ "$toplevel" == "$primary" ]] || continue
+    [[ "$(directory_workspace_label "$toplevel")" == "$expected_label" ]] ||
+      continue
+
+    herdr tab rename "$tab" "$(worktree_tab_label "$toplevel")" >/dev/null
+    herdr tab focus "$tab" >/dev/null
+    return 0
+  done < <(
+    herdr pane list --workspace "$workspace" |
+      jq -r '.result.panes[]? | [.tab_id, .cwd] | @tsv'
+  )
+
+  return 1
+}
+
 preview_session() {
   local directory name=$1 workspace
 
@@ -303,22 +371,48 @@ preview_session() {
 }
 
 create_directory_workspace() {
-  local directory label target=$1 workspace
+  local directory label result tab tab_label target=$1 toplevel workspace
 
   directory="$(resolve_directory "$target")" || return 1
+  toplevel="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null || true)"
+  if [[ -n "$toplevel" ]]; then
+    directory="$(cd "$toplevel" && pwd -P)"
+    tab_label="$(worktree_tab_label "$directory")"
+  else
+    tab_label=${directory##*/}
+  fi
+  [[ -n "$tab_label" ]] || tab_label=root
   label="$(directory_workspace_label "$directory")"
   [[ -n "$label" ]] || label=root
 
   workspace="$(workspace_id "$label")"
   if [[ -n "$workspace" ]]; then
     herdr workspace focus "$workspace" >/dev/null
+    if [[ -z "$toplevel" ]]; then
+      return 0
+    fi
+    tab="$(tab_for_directory "$directory" "$workspace")"
+    if [[ -n "$tab" ]]; then
+      herdr tab rename "$tab" "$tab_label" >/dev/null
+      herdr tab focus "$tab" >/dev/null
+    else
+      herdr tab create \
+        --workspace "$workspace" \
+        --cwd "$directory" \
+        --label "$tab_label" \
+        --focus >/dev/null
+    fi
     return
   fi
 
-  herdr workspace create \
-    --cwd "$directory" \
-    --label "$label" \
-    --focus >/dev/null
+  result="$(
+    herdr workspace create \
+      --cwd "$directory" \
+      --label "$label" \
+      --focus
+  )"
+  tab="$(jq -r '.result.tab.tab_id' <<<"$result")"
+  herdr tab rename "$tab" "$tab_label" >/dev/null
 }
 
 create_session() {
@@ -329,7 +423,11 @@ create_session() {
   workspace="$(workspace_id "$name")"
   if [[ -n "$workspace" ]]; then
     herdr workspace focus "$workspace" >/dev/null
-    focus_tab "$workspace" "$requested_tab"
+    if [[ -n "$requested_tab" ]]; then
+      focus_tab "$workspace" "$requested_tab"
+    elif ! configure_session "$name"; then
+      focus_primary_tab "$workspace" "$name" || true
+    fi
     return
   fi
 
@@ -381,6 +479,9 @@ case "${1:-}" in
     ;;
   --preview)
     preview_session "${2:-}"
+    ;;
+  --resolve)
+    resolve_directory "${2:-}"
     ;;
   '')
     printf 'Usage: %s <session> [tab]\n' "${0##*/}" >&2

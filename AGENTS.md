@@ -40,6 +40,12 @@ This repository contains my personal dotfiles managed via GNU Stow. Each directo
 - Verify symlinks point to correct locations
 - Check that unstowing doesn't break existing configs
 
+## Integration Policy
+
+- After orchestrator review and verification, prepare cohesive commits
+- Fast-forward integration into local `main` is permitted
+- Never push unless explicitly requested
+
 ## Adding New Configurations
 
 1. Create new directory named after the tool

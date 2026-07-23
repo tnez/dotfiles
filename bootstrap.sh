@@ -116,6 +116,16 @@ EOF
   herdr server reload-config >/dev/null
 }
 
+remove_stale_herdr_files() {
+  local aliases="$HOME/.config/herdr/workspace-aliases.conf" target
+
+  [[ -L "$aliases" ]] || return
+  target="$(readlink "$aliases")"
+  case "$target" in
+    */herdr/dot-config/herdr/workspace-aliases.conf) rm -f "$aliases" ;;
+  esac
+}
+
 stow_package() {
   local package=$1
 
@@ -131,6 +141,10 @@ stow_package() {
       ;;
     pi)
       stow --target="$HOME" --dotfiles --no-folding "$package"
+      ;;
+    herdr)
+      remove_stale_herdr_files
+      stow --target="$HOME" --dotfiles "$package"
       ;;
     *)
       stow --target="$HOME" --dotfiles "$package"
