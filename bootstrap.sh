@@ -119,7 +119,7 @@ EOF
 remove_stale_herdr_files() {
   local aliases="$HOME/.config/herdr/workspace-aliases.conf" target
 
-  [[ -L "$aliases" ]] || return
+  [[ -L "$aliases" ]] || return 0
   target="$(readlink "$aliases")"
   case "$target" in
     */herdr/dot-config/herdr/workspace-aliases.conf) rm -f "$aliases" ;;
