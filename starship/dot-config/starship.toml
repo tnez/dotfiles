@@ -1,18 +1,43 @@
 # Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# Inserts a blank line between shell prompts
-add_newline = true
+# Keep the input position stable and let secondary context yield in narrow panes.
+add_newline = false
+format = '$directory$character'
+right_format = '${custom.git_context}$git_status$bun$gcloud'
 
-[custom.shell]
-command = "sh -c 'basename $STARSHIP_SHELL'"
-when = "true"
-format = '\([/>:$output]($style)\)'
+[directory]
+truncation_length = 1
+
+[custom.git_context]
+command = '''
+branch=$(git branch --show-current 2>/dev/null) || exit 1
+if [ -z "$branch" ]; then
+  commit=$(git rev-parse --short HEAD 2>/dev/null) || exit 1
+  printf '@%s' "$commit"
+elif [ "$branch" = "${PWD##*/}" ]; then
+  printf ''
+else
+  printf ' %s' "$branch"
+fi
+'''
+when = true
+format = '[$output]($style) '
+style = 'bold purple'
+
+[git_status]
+format = '[$all_status$ahead_behind]($style) '
+
+[bun]
+format = '[$symbol$version]($style) '
+symbol = '🥟'
+version_format = '${major}.${minor}'
 
 [gcloud]
-format = '\[[gcp:$account(@$domain)(:$project)]($style)\] '
+format = '[$symbol$project]($style) '
+symbol = '☁'
+project_aliases = { 'testing-501614' = 'test' }
 
 # Disable the package module, hiding it from the prompt completely
 [package]
 disabled = true
-
