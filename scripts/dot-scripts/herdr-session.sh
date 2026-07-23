@@ -4,6 +4,7 @@
 set -Eeuo pipefail
 
 creating_workspace=""
+workspace_aliases="${XDG_CONFIG_HOME:-$HOME/.config}/herdr/workspace-aliases.conf"
 
 cleanup_partial_session() {
   local status=$1
@@ -36,6 +37,7 @@ list_directories() {
     if command -v fd >/dev/null 2>&1; then
       fd --type d --min-depth 1 --max-depth 2 \
         --exclude .git . "$HOME/Code" 2>/dev/null || true
+      list_git_roots
       fd --type d --min-depth 1 --max-depth 1 \
         . "$HOME/PARA/PROJECTS" 2>/dev/null || true
       fd --type d --min-depth 1 --max-depth 1 \
@@ -53,6 +55,18 @@ list_directories() {
   done
 }
 
+list_git_roots() {
+  local marker
+
+  [[ -d "$HOME/Code" ]] || return 0
+
+  fd --hidden --type f --type d --prune '^\.git$' \
+    "$HOME/Code" 2>/dev/null | while IFS= read -r marker; do
+    marker=${marker%/}
+    printf '%s\n' "${marker%/.git}"
+  done || true
+}
+
 resolve_directory() {
   local directory=$1 tilde='~'
 
@@ -68,6 +82,93 @@ resolve_directory() {
 
   [[ -d "$directory" ]] || return 1
   (cd "$directory" && pwd -P)
+}
+
+primary_worktree() {
+  local candidate="" directory=$1 line
+
+  while IFS= read -r line; do
+    case "$line" in
+      'worktree '*) candidate=${line#worktree } ;;
+      bare) candidate="" ;;
+      '')
+        if [[ -n "$candidate" ]]; then
+          printf '%s\n' "$candidate"
+          return 0
+        fi
+        ;;
+    esac
+  done < <(git -C "$directory" worktree list --porcelain)
+
+  [[ -z "$candidate" ]] || printf '%s\n' "$candidate"
+}
+
+repository_token() {
+  local key part repository=$1 token="" value
+  local -a parts
+
+  if [[ -r "$workspace_aliases" ]]; then
+    while IFS='=' read -r key value; do
+      [[ -n "$key" && "$key" != '#'* ]] || continue
+      if [[ "$key" == "$repository" && -n "$value" ]]; then
+        printf '%s\n' "$value"
+        return 0
+      fi
+    done <"$workspace_aliases"
+  fi
+
+  if (( ${#repository} <= 12 )); then
+    printf '%s\n' "$repository"
+    return 0
+  fi
+
+  IFS='-' read -r -a parts <<<"$repository"
+  for part in "${parts[@]}"; do
+    [[ -z "$part" ]] || token+="${part:0:1}"
+  done
+
+  if (( ${#token} < 2 )); then
+    token=${repository:0:12}
+  fi
+  printf '%s\n' "$token"
+}
+
+directory_workspace_label() {
+  local branch directory=$1 parent primary repository token toplevel
+
+  toplevel="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null || true)"
+  if [[ -z "$toplevel" ]]; then
+    printf '%s\n' "${directory##*/}"
+    return 0
+  fi
+  toplevel="$(cd "$toplevel" && pwd -P)"
+
+  # Preserve useful labels for zoxide entries inside a repository.
+  if [[ "$directory" != "$toplevel" ]]; then
+    printf '%s\n' "${directory##*/}"
+    return 0
+  fi
+
+  primary="$(primary_worktree "$directory")"
+  primary="$(cd "$primary" && pwd -P)"
+  parent=${primary%/*}
+  repository=${primary##*/}
+  if [[ "$repository" == main &&
+    ( -f "$primary/.wtp.yml" || -d "$parent/.bare" ) ]]; then
+    repository=${parent##*/}
+  fi
+
+  if [[ "$directory" == "$primary" ]]; then
+    printf '%s\n' "$repository"
+    return 0
+  fi
+
+  branch="$(git -C "$directory" branch --show-current)"
+  if [[ -z "$branch" ]]; then
+    branch="detached-$(git -C "$directory" rev-parse --short HEAD)"
+  fi
+  token="$(repository_token "$repository")"
+  printf '%s@%s\n' "$branch" "$token"
 }
 
 configure_session() {
@@ -205,7 +306,7 @@ create_directory_workspace() {
   local directory label target=$1 workspace
 
   directory="$(resolve_directory "$target")" || return 1
-  label=${directory##*/}
+  label="$(directory_workspace_label "$directory")"
   [[ -n "$label" ]] || label=root
 
   workspace="$(workspace_id "$label")"
