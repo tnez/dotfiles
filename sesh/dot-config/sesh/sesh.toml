@@ -28,7 +28,7 @@ startup_script = "~/.scripts/gh-dashboard.sh"
 
 [[window]]
 name = "mission-control"
-startup_script = "hud --config ~/Code/tnez/dotfiles/hud/dot-config/hud/mission-control.toml"
+startup_script = "hud --config ~/.config/hud/mission-control.toml"
 
 [[window]]
 name = "calendar"

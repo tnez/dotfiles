@@ -1,67 +1,135 @@
-`@tnez/dotfiles`
+# `@tnez/dotfiles`
 
-This is my collection of personal dotfiles.
+Personal macOS dotfiles managed with GNU Stow. The root `dotfiles` executable is
+the canonical lifecycle interface.
 
-# Setting up on a new machine
+## New Machine
 
-1. Clone this repo: `git clone https://github.com/tnez/dotfiles.git`
-1. Hop into directory: `cd dotfiles`
-1. Run the bootstrap script: `./bootstrap.sh`
+The default zsh install path uses process substitution so the installer can
+read prompts from the terminal instead of consuming a script from standard
+input:
 
-Some third-party Homebrew taps may require explicit trust on a new machine.
-If `brew bundle` refuses to install a formula from an untrusted tap, inspect the
-formula and trust only the specific formula before rerunning bootstrap. For
-example:
-
-```bash
-brew trust --formula modem-dev/tap/hunk
-./bootstrap.sh
+```zsh
+/bin/bash <(curl --proto '=https' --tlsv1.2 -fsSL \
+  https://raw.githubusercontent.com/tnez/dotfiles/main/install.sh)
 ```
 
-# Managing Homebrew dependencies
+The installer defaults to `$HOME/Code/tnez/dotfiles/main`. It safely reuses a
+primary checkout at that path or clones the repository, then runs the local
+`dotfiles bootstrap` command.
 
-Dependencies are tracked in `/Users/tnez/Code/tnez/dotfiles/brew/Brewfile` and managed via `brew bundle`.
-
-## Adding a new package
-
-```bash
-./scripts/brew-add.sh <package>          # For formulas
-./scripts/brew-add.sh <package> --cask   # For casks
-```
-
-Then manually:
-1. Edit `/Users/tnez/Code/tnez/dotfiles/brew/Brewfile` to add description comment
-2. Place entry alphabetically within its section
-3. Commit: `git add brew/Brewfile && git commit -m 'chore(brew): add <package>'`
-
-## Upgrading packages
-
-Weekly or as needed:
+For an inspect-first installation:
 
 ```bash
-./scripts/brew-upgrade.sh
+installer="$(mktemp -t dotfiles-install.XXXXXX)"
+curl --proto '=https' --tlsv1.2 -fsSL \
+  https://raw.githubusercontent.com/tnez/dotfiles/main/install.sh \
+  -o "$installer"
+less "$installer"
+/bin/bash "$installer"
+rm -f "$installer"
 ```
 
-This upgrades all installed packages.
-
-- **Brewfile**: Desired packages (manually curated, commented, alphabetized)
-- Run `brew bundle install --global` to converge the machine on the Brewfile
-- Run `brew bundle cleanup --force --file=brew/Brewfile` when you intentionally want to prune packages not listed there
-
-# Managing stow packages
-
-All packages use the `--dotfiles` flag to convert `dot-` prefixes:
+Agents use an explicit path and noninteractive mode. `--yes` approves only
+routine convergence; it never grants third-party formula trust:
 
 ```bash
-stow --target=$HOME --dotfiles profile # Links profile/dot-profile → ~/.profile
-stow --target=$HOME --dotfiles zsh     # Links zsh/dot-zshrc → ~/.zshrc
-stow --target=$HOME --dotfiles nvim    # Links nvim/dot-config/nvim → ~/.config/nvim
-stow --target=$HOME --dotfiles vim     # Links vim/dot-vimrc → ~/.vimrc
-stow --target=$HOME --dotfiles git     # Links git/dot-gitconfig → ~/.gitconfig
+/bin/bash "$installer" \
+  --path "$HOME/Code/tnez/dotfiles/main" \
+  --non-interactive \
+  --yes
 ```
 
-To unstow a package:
+If bootstrap reports `ACTION_REQUIRED` for a formula, stop and have a human
+review it. Reviewed formulae can be approved explicitly on retry:
 
 ```bash
-stow --target=$HOME -D --dotfiles zsh  # Removes zsh symlinks
+/bin/bash "$installer" \
+  --path "$HOME/Code/tnez/dotfiles/main" \
+  --non-interactive \
+  --yes \
+  --trust-formula modem-dev/tap/hunk \
+  --trust-formula satococoa/tap/wtp
 ```
+
+## Lifecycle
+
+```text
+dotfiles bootstrap   preflight, plan, provision, apply, final doctor
+dotfiles doctor      read-only health and conflict checks
+dotfiles plan        read-only provisioning and Stow simulation
+dotfiles apply       fast configuration and integration convergence
+dotfiles provision   install missing dependencies without routine upgrades
+dotfiles upgrade     slow, explicit update/upgrade/cleanup
+```
+
+Run `dotfiles <command> --help` for command-specific details. After the first
+successful apply, `~/.local/bin/dotfiles` points to the canonical checkout, and
+`~/.local/bin` is loaded by `profile/dot-profile`.
+
+`doctor` and `plan` are safe in candidate linked worktrees. Every mutating
+command refuses a checkout whose `.git` is a file. Merge the change first, then
+activate it from the primary checkout whose `.git` is a directory.
+
+Most edits to already-stowed files are immediately live through their existing
+symlinks. Run:
+
+- `dotfiles apply` after adding/removing paths, changing copied files, or
+  changing service/integration state
+- `dotfiles provision` after adding a dependency or when doctor reports one
+  missing
+- `dotfiles upgrade` only when intentionally updating installed packages
+- `dotfiles bootstrap` for first-time setup or full convergence
+
+`provision` uses this repository's `brew/Brewfile` explicitly, suppresses
+Homebrew auto-update in the convergence path, and passes `--no-upgrade`.
+Third-party trust is declared formula-by-formula in
+`dotfiles-trusted-formulae`; no tap-wide trust is granted.
+
+## Stow Packages
+
+`dotfiles-packages` is the explicit activation manifest. It records every Stow
+package and whether it needs `--no-folding`. For packages that remain listed,
+apply uses restow semantics to converge links and prune paths removed from that
+package without deleting unmanaged regular files.
+
+Removing an entire package from the manifest cannot identify links previously
+owned by that package. Before deleting its manifest entry, unstow it from the
+primary checkout with the same folding mode recorded in the manifest, verify
+the result, then remove the entry:
+
+```bash
+stow --dir="$HOME/Code/tnez/dotfiles/main" \
+  --target="$HOME" --dotfiles --delete <package>
+```
+
+Include `--no-folding` in that command when the manifest records that mode.
+
+Shared agent `SKILL.md` files are materialized because Codex does not reliably
+load symlinked entrypoints. Ownership and checksums are recorded in
+`~/.local/state/dotfiles/materialized-skills`. Apply removes stale copies only
+when that state proves ownership and the file is unchanged. A regular file or
+unmanaged symlink at any managed target is reported as a conflict, not
+overwritten.
+
+Manual Stow operations still require `--dotfiles`, for example:
+
+```bash
+stow --dir="$HOME/Code/tnez/dotfiles/main" \
+  --target="$HOME" --dotfiles --restow zsh
+```
+
+## Homebrew Dependencies
+
+Dependencies are curated in `brew/Brewfile`.
+
+```bash
+./scripts/brew-add.sh <formula>
+./scripts/brew-add.sh <cask> --cask
+dotfiles provision
+dotfiles upgrade
+```
+
+`dotfiles upgrade` updates Homebrew metadata, upgrades Brewfile dependencies,
+and cleans old Homebrew artifacts. It does not prune unrelated installed
+packages.

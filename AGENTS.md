@@ -1,14 +1,39 @@
 # DOTFILES PROJECT REFERENCE
 
-This repository contains my personal dotfiles managed via GNU Stow. Each directory represents a stow package for a specific tool or application.
+This repository contains my personal dotfiles managed via GNU Stow.
 
-## Quick Start Commands
+## Lifecycle Commands
 
-- `./bootstrap.sh` - Initial setup of dotfiles on new machine
+- `./dotfiles doctor` - Read-only prerequisite and conflict checks
+- `./dotfiles plan` - Read-only provisioning and activation simulation
+- `./dotfiles apply` - Fast Stow, copied-file, and integration convergence
+- `./dotfiles provision` - Install missing dependencies without upgrading all
+- `./dotfiles upgrade` - Explicit slow package update, upgrade, and cleanup
+- `./dotfiles bootstrap` - Doctor, plan, provision, apply, and final doctor
 - `stow --dotfiles <package>` - Symlink specific config package to ~
   - Uses `dot-` prefix convention (e.g., `dot-config` → `.config`)
 - `stow --dotfiles -D <package>` - Remove package symlinks
 - `brew bundle --file=brew/Brewfile` - Install dependencies from Brewfile
+
+## Agent Driving Contract
+
+1. Run `./dotfiles doctor` and `./dotfiles plan` before proposing or running a
+   mutating lifecycle command. Both are safe in linked worktrees.
+2. Never run `bootstrap`, `apply`, `provision`, or `upgrade` from a disposable
+   checkout. A `.git` file means linked/disposable; activation is allowed only
+   from the canonical primary checkout with a `.git` directory.
+3. After a candidate change is merged, run the needed command from the updated
+   primary checkout. Existing stowed-file edits are usually already live; use
+   `apply` for path/copy/integration changes, `provision` for missing
+   dependencies, and `upgrade` only when package upgrades are intended.
+4. On a new machine, inspect and run `install.sh`, or invoke it with
+   `--path "$HOME/Code/tnez/dotfiles/main" --non-interactive --yes`. The
+   installer clones or reuses the canonical checkout and calls local
+   `dotfiles bootstrap`.
+5. If any command emits `ACTION_REQUIRED`, stop. Report the exact action and
+   obtain a human policy/destructive decision. Never infer consent from
+   `--yes`. Formula trust requires the explicit reviewed
+   `--trust-formula <name>` option after review.
 
 ## Project-Specific Style
 
@@ -28,7 +53,7 @@ This repository contains my personal dotfiles managed via GNU Stow. Each directo
 ## Repository Structure
 
 - Organized by tool/application name
-- Each directory = stow package
+- Stow packages are explicitly listed in `dotfiles-packages`
 - XDG-compliant where possible (`dot-config/` maps to `~/.config/`)
 - Special packages:
   - `brew/` - Homebrew dependencies
@@ -50,5 +75,6 @@ This repository contains my personal dotfiles managed via GNU Stow. Each directo
 
 1. Create new directory named after the tool
 2. Use `dot-` prefix for dotfiles (e.g., `dot-vimrc` → `~/.vimrc`)
-3. Test with `stow --dotfiles --no-folding <package>` first
-4. Add any dependencies to `brew/Brewfile` if needed
+3. Add the package and its folding mode to `dotfiles-packages`
+4. Test with `./dotfiles plan` first
+5. Add any dependencies to `brew/Brewfile` if needed

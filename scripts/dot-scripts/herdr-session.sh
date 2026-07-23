@@ -259,7 +259,7 @@ configure_session() {
       ;;
     mission-control)
       path="$HOME/Code/dottie-weaver/identity"
-      mission_config="$HOME/Code/tnez/dotfiles/hud/dot-config/hud"
+      mission_config="$HOME/.config/hud"
       tabs=(mission-control dottie notes)
       commands=(
         "hud --config \"$mission_config/mission-control.toml\""

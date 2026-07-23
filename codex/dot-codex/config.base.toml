@@ -34,9 +34,6 @@ trust_level = "trusted"
 [projects."/Users/tnez/Code/dottie-weaver/identity"]
 trust_level = "trusted"
 
-[projects."/Users/tnez/Code/tnez/dotfiles"]
-trust_level = "trusted"
-
 [projects."/Users/tnez/PARA"]
 trust_level = "trusted"
 

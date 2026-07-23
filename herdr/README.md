@@ -90,8 +90,9 @@ remove the validation worktree if its status is not clean.
 
 ## Activate after merge
 
-From the updated primary dotfiles checkout, run `./bootstrap.sh` to install the
-new script and shared skill and reload Herdr configuration. Restart any running
-agent application afterward so it discovers the new skill and global agent
-instructions. If the behavior needs to be reverted, revert the dotfiles change,
-rerun `./bootstrap.sh`, and reload or restart the affected agent applications.
+From the updated primary dotfiles checkout, run `./dotfiles apply` to install
+the new script and shared skill and reload Herdr configuration. Restart any
+running agent application afterward so it discovers the new skill and global
+agent instructions. If the behavior needs to be reverted, revert the dotfiles
+change, rerun `./dotfiles apply`, and reload or restart the affected agent
+applications.

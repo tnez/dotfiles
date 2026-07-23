@@ -1,0 +1,1075 @@
+#!/bin/bash
+
+set -u
+set -o pipefail
+
+resolve_path() {
+  local path=$1
+  local directory target
+
+  while [ -L "$path" ]; do
+    directory=$(cd -P "$(dirname "$path")" >/dev/null 2>&1 && pwd)
+    target=$(readlink "$path")
+    case "$target" in
+      /*) path=$target ;;
+      *) path=$directory/$target ;;
+    esac
+  done
+
+  directory=$(cd -P "$(dirname "$path")" >/dev/null 2>&1 && pwd)
+  printf '%s/%s\n' "$directory" "$(basename "$path")"
+}
+
+CLI_PATH=$(resolve_path "$0") || {
+  printf 'ERROR: cannot resolve dotfiles CLI path: %s\n' "$0" >&2
+  exit 1
+}
+REPO_ROOT=${CLI_PATH%/*}
+BREWFILE=$REPO_ROOT/brew/Brewfile
+PACKAGE_MANIFEST=$REPO_ROOT/dotfiles-packages
+TRUST_MANIFEST=$REPO_ROOT/dotfiles-trusted-formulae
+LAUNCHER=$HOME/.local/bin/dotfiles
+STATE_DIR=$HOME/.local/state/dotfiles
+SKILL_STATE=$STATE_DIR/materialized-skills
+ACTION_REQUIRED=3
+BREW_BIN=
+NON_INTERACTIVE=0
+ASSUME_YES=0
+TRUST_FORMULAE=()
+
+usage() {
+  cat <<'EOF'
+Usage: dotfiles <command> [options]
+
+Manage this macOS dotfiles checkout.
+
+Commands:
+  bootstrap   Preflight, plan, provision, apply, and verify a new machine
+  doctor      Report prerequisites, conflicts, and convergence state
+  plan        Show provisioning and activation work without changing anything
+  apply       Converge Stow links, managed copies, and integrations
+  provision   Install missing dependencies without routine upgrades
+  upgrade     Explicitly update, upgrade, and clean up Homebrew packages
+
+Run "dotfiles <command> --help" for command-specific help.
+
+Exit status 3 means ACTION_REQUIRED: a person or agent must make an explicit
+policy decision before retrying.
+EOF
+}
+
+bootstrap_usage() {
+  cat <<'EOF'
+Usage: dotfiles bootstrap [options]
+
+Run doctor, plan, provision, apply, and a final doctor in order.
+
+Options:
+  --non-interactive       Never prompt; stop at policy decisions
+  --yes                   Skip routine confirmation (does not grant trust)
+  --trust-formula NAME    Explicitly trust one reviewed formula
+  -h, --help              Show this help
+EOF
+}
+
+doctor_usage() {
+  cat <<'EOF'
+Usage: dotfiles doctor
+
+Read-only checks for checkout safety, prerequisites, managed-target conflicts,
+and Homebrew bundle convergence. Safe to run in linked worktrees.
+EOF
+}
+
+plan_usage() {
+  cat <<'EOF'
+Usage: dotfiles plan
+
+Show work needed to provision and apply this checkout. In a primary checkout,
+also run Stow simulation when available. Safe to run in linked worktrees.
+EOF
+}
+
+apply_usage() {
+  cat <<'EOF'
+Usage: dotfiles apply
+
+Converge configuration links, repository-owned materialized files, the CLI
+launcher, and service integrations. Does not install or upgrade packages.
+Refuses linked/disposable Git worktrees.
+EOF
+}
+
+provision_usage() {
+  cat <<'EOF'
+Usage: dotfiles provision [options]
+
+Install missing dependencies from brew/Brewfile with --no-upgrade. Also install
+missing user-level tools. Refuses linked/disposable Git worktrees.
+
+Options:
+  --non-interactive       Never prompt; stop at policy decisions
+  --trust-formula NAME    Explicitly trust one reviewed formula
+  -h, --help              Show this help
+EOF
+}
+
+upgrade_usage() {
+  cat <<'EOF'
+Usage: dotfiles upgrade [options]
+
+Run the explicit slow Homebrew update, bundle upgrade, and cleanup operation.
+Refuses linked/disposable Git worktrees.
+
+Options:
+  --non-interactive       Never prompt; stop at policy decisions
+  --trust-formula NAME    Explicitly trust one reviewed formula
+  -h, --help              Show this help
+EOF
+}
+
+action_required() {
+  printf 'ACTION_REQUIRED: %s\n' "$*" >&2
+}
+
+is_macos() {
+  [ "$(uname -s 2>/dev/null)" = Darwin ]
+}
+
+is_disposable_checkout() {
+  [ -f "$REPO_ROOT/.git" ]
+}
+
+require_activation_checkout() {
+  if ! is_macos; then
+    printf 'ERROR: dotfiles activation is supported only on macOS.\n' >&2
+    return 1
+  fi
+  if is_disposable_checkout; then
+    action_required \
+      "refusing to mutate from linked/disposable worktree $REPO_ROOT"
+    printf 'Use the primary checkout with a .git directory.\n' >&2
+    return "$ACTION_REQUIRED"
+  fi
+  if [ ! -d "$REPO_ROOT/.git" ]; then
+    action_required \
+      "refusing to mutate from a checkout without a .git directory"
+    return "$ACTION_REQUIRED"
+  fi
+}
+
+find_brew() {
+  if command -v brew >/dev/null 2>&1; then
+    BREW_BIN=$(command -v brew)
+  elif [ -x /opt/homebrew/bin/brew ]; then
+    BREW_BIN=/opt/homebrew/bin/brew
+  elif [ -x /usr/local/bin/brew ]; then
+    BREW_BIN=/usr/local/bin/brew
+  else
+    BREW_BIN=
+    return 1
+  fi
+}
+
+load_brew_path() {
+  local prefix
+
+  find_brew || return 1
+  prefix=${BREW_BIN%/bin/brew}
+  PATH=$prefix/bin:$prefix/sbin:$PATH
+  export PATH
+}
+
+primary_checkout_root() {
+  local metadata gitdir common
+
+  if [ -d "$REPO_ROOT/.git" ]; then
+    printf '%s\n' "$REPO_ROOT"
+    return 0
+  fi
+  [ -f "$REPO_ROOT/.git" ] || return 1
+
+  IFS= read -r metadata < "$REPO_ROOT/.git" || return 1
+  case "$metadata" in
+    'gitdir: '*) gitdir=${metadata#gitdir: } ;;
+    *) return 1 ;;
+  esac
+  case "$gitdir" in
+    /*) ;;
+    *) gitdir=$REPO_ROOT/$gitdir ;;
+  esac
+  gitdir=$(cd -P "$gitdir" >/dev/null 2>&1 && pwd) || return 1
+  case "$gitdir" in
+    */.git/worktrees/*) common=${gitdir%/worktrees/*} ;;
+    *) return 1 ;;
+  esac
+  [ "${common##*/}" = .git ] || return 1
+  cd -P "${common%/.git}" >/dev/null 2>&1 && pwd
+}
+
+launcher_status() {
+  local target primary
+
+  if [ -L "$LAUNCHER" ]; then
+    target=$(resolve_path "$LAUNCHER" 2>/dev/null || true)
+    if [ "$target" = "$CLI_PATH" ]; then
+      printf 'ok\n'
+    elif is_disposable_checkout &&
+      primary=$(primary_checkout_root 2>/dev/null) &&
+      [ "$target" = "$primary/dotfiles" ]; then
+      printf 'ok-primary\n'
+    else
+      printf 'conflict: symlink resolves to %s\n' "${target:-unknown}"
+    fi
+  elif [ -e "$LAUNCHER" ]; then
+    printf 'conflict: regular or unmanaged file exists\n'
+  else
+    printf 'missing\n'
+  fi
+}
+
+formula_is_reviewed() {
+  local requested=$1 formula
+
+  while IFS= read -r formula || [ -n "$formula" ]; do
+    case "$formula" in
+      ''|'#'*) continue ;;
+    esac
+    [ "$formula" = "$requested" ] && return 0
+  done < "$TRUST_MANIFEST"
+  return 1
+}
+
+formula_was_authorized() {
+  local requested=$1 formula
+
+  [ "${#TRUST_FORMULAE[@]}" -gt 0 ] || return 1
+  for formula in "${TRUST_FORMULAE[@]}"; do
+    [ "$formula" = "$requested" ] && return 0
+  done
+  return 1
+}
+
+formula_is_trusted() {
+  local formula=$1 trust_json
+
+  trust_json=$("$BREW_BIN" trust --json=v1 2>/dev/null) || return 1
+  printf '%s\n' "$trust_json" | grep -F -q "\"$formula\""
+}
+
+validate_requested_trust() {
+  local formula
+
+  [ "${#TRUST_FORMULAE[@]}" -gt 0 ] || return 0
+  for formula in "${TRUST_FORMULAE[@]}"; do
+    if ! formula_is_reviewed "$formula"; then
+      action_required "formula is not in dotfiles-trusted-formulae: $formula"
+      return "$ACTION_REQUIRED"
+    fi
+  done
+}
+
+prompt_yes_no() {
+  local prompt=$1 answer
+
+  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+    return 1
+  fi
+  if [ ! -r /dev/tty ]; then
+    action_required "interactive approval needs a controlling terminal"
+    return "$ACTION_REQUIRED"
+  fi
+  printf '%s [y/N] ' "$prompt" > /dev/tty
+  IFS= read -r answer < /dev/tty || answer=
+  case "$answer" in
+    y|Y|yes|YES) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+ensure_formula_trust() {
+  local formula response
+
+  validate_requested_trust || return $?
+  while IFS= read -r formula || [ -n "$formula" ]; do
+    case "$formula" in
+      ''|'#'*) continue ;;
+    esac
+    formula_is_trusted "$formula" && continue
+
+    if formula_was_authorized "$formula"; then
+      printf 'Trusting reviewed Homebrew formula %s...\n' "$formula"
+      "$BREW_BIN" trust --formula "$formula" || return 1
+      continue
+    fi
+
+    if [ "$NON_INTERACTIVE" -eq 1 ]; then
+      action_required "Homebrew formula trust is missing for $formula"
+      printf 'Review it, then retry with --trust-formula %s.\n' \
+        "$formula" >&2
+      return "$ACTION_REQUIRED"
+    fi
+
+    printf '\nHomebrew requires formula-specific trust for:\n  %s\n' "$formula"
+    printf 'This formula is listed as reviewed in %s.\n' "$TRUST_MANIFEST"
+    prompt_yes_no "Grant trust to this formula only?"
+    response=$?
+    if [ "$response" -eq "$ACTION_REQUIRED" ]; then
+      return "$response"
+    fi
+    if [ "$response" -ne 0 ]; then
+      action_required "formula trust was not granted for $formula"
+      return "$ACTION_REQUIRED"
+    fi
+    "$BREW_BIN" trust --formula "$formula" || return 1
+  done < "$TRUST_MANIFEST"
+}
+
+skill_destination() {
+  printf '%s/.agents/skills/%s/SKILL.md\n' "$HOME" "$1"
+}
+
+file_checksum() {
+  cksum < "$1"
+}
+
+valid_skill_name() {
+  case "$1" in
+    ''|*/*|.|..) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+skill_state_checksum() {
+  local requested=$1 skill expected
+
+  [ -f "$SKILL_STATE" ] || return 1
+  while IFS='|' read -r skill expected || [ -n "$skill$expected" ]; do
+    if [ "$skill" = "$requested" ] && [ -n "$expected" ]; then
+      printf '%s\n' "$expected"
+      return 0
+    fi
+  done < "$SKILL_STATE"
+  return 1
+}
+
+owned_skill_conflicts() {
+  local skill expected destination source actual conflicts=0
+
+  if [ -f "$SKILL_STATE" ]; then
+    while IFS='|' read -r skill expected || [ -n "$skill$expected" ]; do
+      if ! valid_skill_name "$skill" || [ -z "$expected" ]; then
+        printf 'CONFLICT: invalid materialized-skill ownership entry\n' >&2
+        conflicts=1
+        continue
+      fi
+      destination=$(skill_destination "$skill")
+      if [ -f "$destination" ] && [ ! -L "$destination" ]; then
+        actual=$(file_checksum "$destination")
+        if [ "$actual" != "$expected" ]; then
+          printf 'CONFLICT: managed skill was modified: %s\n' \
+            "$destination" >&2
+          conflicts=1
+        fi
+      elif [ -L "$destination" ]; then
+        actual=$(resolve_path "$destination" 2>/dev/null || true)
+        case "$actual" in
+          "$REPO_ROOT"/agents/dot-agents/skills/"$skill"/SKILL.md) ;;
+          *)
+            printf 'CONFLICT: managed skill symlink changed: %s\n' \
+              "$destination" >&2
+            conflicts=1
+            ;;
+        esac
+      elif [ -e "$destination" ]; then
+        printf 'CONFLICT: managed skill target is not a file: %s\n' \
+          "$destination" >&2
+        conflicts=1
+      fi
+    done < "$SKILL_STATE"
+  fi
+
+  for source in "$REPO_ROOT"/agents/dot-agents/skills/*/SKILL.md; do
+    [ -f "$source" ] || continue
+    skill=${source%/SKILL.md}
+    skill=${skill##*/}
+    destination=$(skill_destination "$skill")
+    expected=$(skill_state_checksum "$skill" 2>/dev/null || true)
+    if [ -f "$destination" ] && [ ! -L "$destination" ]; then
+      if [ -n "$expected" ]; then
+        actual=$(file_checksum "$destination")
+        [ "$actual" = "$expected" ] || conflicts=1
+      elif ! cmp -s "$source" "$destination"; then
+        printf 'CONFLICT: unmanaged skill file blocks activation: %s\n' \
+          "$destination" >&2
+        conflicts=1
+      fi
+    elif [ -L "$destination" ]; then
+      actual=$(resolve_path "$destination" 2>/dev/null || true)
+      if [ "$actual" != "$source" ]; then
+        printf 'CONFLICT: unmanaged skill symlink blocks activation: %s\n' \
+          "$destination" >&2
+        conflicts=1
+      fi
+    elif [ -e "$destination" ] && [ ! -f "$destination" ]; then
+      printf 'CONFLICT: non-file skill target blocks activation: %s\n' \
+        "$destination" >&2
+      conflicts=1
+    fi
+  done
+
+  [ "$conflicts" -eq 0 ]
+}
+
+remove_owned_skills() {
+  local skill expected destination source actual
+
+  if [ -f "$SKILL_STATE" ]; then
+    while IFS='|' read -r skill expected || [ -n "$skill$expected" ]; do
+      valid_skill_name "$skill" || continue
+      destination=$(skill_destination "$skill")
+      if [ -f "$destination" ] && [ ! -L "$destination" ]; then
+        actual=$(file_checksum "$destination")
+        if [ "$actual" = "$expected" ]; then
+          rm -f "$destination" || return 1
+          rmdir "${destination%/*}" 2>/dev/null || true
+        fi
+      elif [ -L "$destination" ]; then
+        actual=$(resolve_path "$destination" 2>/dev/null || true)
+        case "$actual" in
+          "$REPO_ROOT"/agents/dot-agents/skills/*/SKILL.md)
+            rm -f "$destination" || return 1
+            rmdir "${destination%/*}" 2>/dev/null || true
+            ;;
+        esac
+      fi
+    done < "$SKILL_STATE"
+  fi
+
+  for source in "$REPO_ROOT"/agents/dot-agents/skills/*/SKILL.md; do
+    [ -f "$source" ] || continue
+    skill=${source%/SKILL.md}
+    skill=${skill##*/}
+    destination=$(skill_destination "$skill")
+    if [ -f "$destination" ] && [ ! -L "$destination" ] &&
+      cmp -s "$source" "$destination"; then
+      rm -f "$destination" || return 1
+      rmdir "${destination%/*}" 2>/dev/null || true
+    fi
+  done
+}
+
+materialize_skills() {
+  local source skill destination target checksum state_tmp
+
+  mkdir -p "$STATE_DIR" || return 1
+  state_tmp=$SKILL_STATE.tmp.$$
+  : > "$state_tmp" || return 1
+
+  for source in "$REPO_ROOT"/agents/dot-agents/skills/*/SKILL.md; do
+    [ -f "$source" ] || continue
+    skill=${source%/SKILL.md}
+    skill=${skill##*/}
+    destination=$(skill_destination "$skill")
+    mkdir -p "${destination%/*}" || return 1
+
+    if [ -L "$destination" ]; then
+      target=$(resolve_path "$destination" 2>/dev/null || true)
+      if [ "$target" != "$source" ]; then
+        printf 'ERROR: refusing to replace unmanaged symlink %s\n' \
+          "$destination" >&2
+        rm -f "$state_tmp"
+        return 1
+      fi
+      rm -f "$destination" || return 1
+    elif [ -e "$destination" ]; then
+      printf 'ERROR: refusing to replace unmanaged file %s\n' \
+        "$destination" >&2
+      rm -f "$state_tmp"
+      return 1
+    fi
+
+    cp "$source" "$destination" || return 1
+    checksum=$(file_checksum "$destination")
+    printf '%s|%s\n' "$skill" "$checksum" >> "$state_tmp"
+  done
+
+  mv "$state_tmp" "$SKILL_STATE"
+}
+
+validate_package_manifest() {
+  local package mode
+
+  [ -f "$PACKAGE_MANIFEST" ] || {
+    printf 'ERROR: missing package manifest: %s\n' "$PACKAGE_MANIFEST" >&2
+    return 1
+  }
+  while read -r package mode _extra || [ -n "$package$mode" ]; do
+    case "$package" in
+      ''|'#'*) continue ;;
+    esac
+    if [ ! -d "$REPO_ROOT/$package" ]; then
+      printf 'ERROR: package manifest names missing directory: %s\n' \
+        "$package" >&2
+      return 1
+    fi
+    case "$mode" in
+      standard|no-folding) ;;
+      *)
+        printf 'ERROR: invalid Stow mode for %s: %s\n' "$package" "$mode" >&2
+        return 1
+        ;;
+    esac
+  done < "$PACKAGE_MANIFEST"
+}
+
+stow_package() {
+  local package=$1 mode=$2 simulate=${3:-0}
+  local options
+
+  options=(--dir="$REPO_ROOT" --target="$HOME" --dotfiles --restow)
+  [ "$mode" = no-folding ] && options+=(--no-folding)
+  if [ "$simulate" -eq 1 ]; then
+    options+=(--simulate --verbose=1)
+    if [ "$package" = agents ]; then
+      options+=(--ignore='SKILL[.]md$')
+    fi
+  fi
+  stow "${options[@]}" "$package"
+}
+
+stow_all() {
+  local simulate=$1 package mode failed=0
+
+  validate_package_manifest || return 1
+  while read -r package mode || [ -n "$package$mode" ]; do
+    case "$package" in
+      ''|'#'*) continue ;;
+    esac
+    if [ "$simulate" -eq 1 ]; then
+      printf 'STOW PLAN: %s (%s)\n' "$package" "$mode"
+    else
+      printf 'Stowing %s (%s)...\n' "$package" "$mode"
+    fi
+    stow_package "$package" "$mode" "$simulate" || failed=1
+  done < "$PACKAGE_MANIFEST"
+  [ "$failed" -eq 0 ]
+}
+
+remove_stale_herdr_alias() {
+  local aliases=$HOME/.config/herdr/workspace-aliases.conf target
+
+  [ -L "$aliases" ] || return 0
+  target=$(resolve_path "$aliases" 2>/dev/null || true)
+  case "$target" in
+    */herdr/dot-config/herdr/workspace-aliases.conf) rm -f "$aliases" ;;
+  esac
+}
+
+remove_legacy_brew_links() {
+  local link target
+
+  for link in "$HOME/.Brewfile" "$HOME/Brewfile"; do
+    [ -L "$link" ] || continue
+    target=$(resolve_path "$link" 2>/dev/null || true)
+    if [ "$target" = "$BREWFILE" ]; then
+      rm -f "$link" || return 1
+    fi
+  done
+}
+
+seed_codex_config() {
+  local source=$REPO_ROOT/codex/dot-codex/config.base.toml
+  local destination=$HOME/.codex/config.toml
+
+  if [ ! -e "$destination" ] && [ ! -L "$destination" ]; then
+    mkdir -p "${destination%/*}" || return 1
+    cp "$source" "$destination" || return 1
+  fi
+}
+
+install_launcher() {
+  local status
+
+  status=$(launcher_status)
+  case "$status" in
+    ok) return 0 ;;
+    missing)
+      mkdir -p "${LAUNCHER%/*}" || return 1
+      ln -s "$CLI_PATH" "$LAUNCHER" || return 1
+      ;;
+    *)
+      printf 'ERROR: refusing to overwrite %s (%s)\n' \
+        "$LAUNCHER" "$status" >&2
+      return 1
+      ;;
+  esac
+}
+
+converge_herdr() {
+  local herdr_version server_status plugin_commit
+  local integration_status command integration
+
+  command -v herdr >/dev/null 2>&1 || return 0
+  find_brew || return 0
+
+  herdr_version=$(herdr --version 2>/dev/null) || return 1
+  herdr_version=${herdr_version##* }
+  server_status=$(herdr status server 2>/dev/null || true)
+  if printf '%s\n' "$server_status" |
+    grep -q "^version: $herdr_version$"; then
+    "$BREW_BIN" services start herdr >/dev/null || return 1
+  else
+    "$BREW_BIN" services restart herdr >/dev/null || return 1
+  fi
+
+  plugin_commit=548607d0e417fdb30966846fce7436aa05a6738d
+  if ! herdr plugin list --plugin vim-herdr-navigation --json 2>/dev/null |
+    jq -e --arg commit "$plugin_commit" \
+      '.result.plugins
+       | any(.enabled == true and .source.resolved_commit == $commit)' \
+      >/dev/null; then
+    herdr plugin install paulbkim-dev/vim-herdr-navigation \
+      --ref "$plugin_commit" --yes || return 1
+  fi
+
+  integration_status=$(herdr integration status 2>/dev/null || true)
+  while read -r command integration; do
+    if command -v "$command" >/dev/null 2>&1 &&
+      ! printf '%s\n' "$integration_status" |
+        grep -q "^${integration}: current"; then
+      herdr integration install "$integration" || return 1
+    fi
+  done <<'EOF'
+pi pi
+claude claude
+codex codex
+opencode opencode
+EOF
+
+  herdr server reload-config >/dev/null || return 1
+}
+
+run_doctor() {
+  local issues=0 action_needed=0 status formula
+
+  printf 'Dotfiles doctor\n'
+  printf 'Repository: %s\n' "$REPO_ROOT"
+
+  if is_macos; then
+    printf '[OK] macOS host\n'
+  else
+    printf '[ERROR] unsupported host; macOS is required\n'
+    issues=1
+  fi
+
+  if is_disposable_checkout; then
+    printf '[WARN] linked/disposable worktree; mutating commands are refused\n'
+  elif [ -d "$REPO_ROOT/.git" ]; then
+    printf '[OK] primary Git checkout\n'
+  else
+    printf '[ERROR] checkout does not contain a .git directory\n'
+    issues=1
+  fi
+
+  if find_brew; then
+    printf '[OK] Homebrew: %s\n' "$BREW_BIN"
+    if "$BREW_BIN" bundle check --file="$BREWFILE" >/dev/null 2>&1; then
+      printf '[OK] Brewfile dependencies installed\n'
+    else
+      printf '[NEEDS_PROVISION] Brewfile dependencies are missing\n'
+      issues=1
+    fi
+    while IFS= read -r formula || [ -n "$formula" ]; do
+      case "$formula" in
+        ''|'#'*) continue ;;
+      esac
+      if formula_is_trusted "$formula"; then
+        printf '[OK] formula trust: %s\n' "$formula"
+      else
+        printf '[ACTION_REQUIRED] formula trust missing: %s\n' "$formula"
+        action_needed=1
+      fi
+    done < "$TRUST_MANIFEST"
+  else
+    printf '[NEEDS_PROVISION] Homebrew is not installed or on PATH\n'
+    issues=1
+  fi
+
+  if command -v stow >/dev/null 2>&1; then
+    printf '[OK] GNU Stow available\n'
+  else
+    printf '[NEEDS_PROVISION] GNU Stow is unavailable\n'
+    issues=1
+  fi
+
+  status=$(launcher_status)
+  case "$status" in
+    ok) printf '[OK] launcher: %s\n' "$LAUNCHER" ;;
+    ok-primary)
+      printf '[OK] launcher targets the primary checkout: %s\n' "$LAUNCHER"
+      ;;
+    missing)
+      printf '[NEEDS_APPLY] launcher is missing: %s\n' "$LAUNCHER"
+      issues=1
+      ;;
+    *)
+      printf '[CONFLICT] launcher: %s\n' "$status"
+      issues=1
+      ;;
+  esac
+
+  if owned_skill_conflicts; then
+    printf '[OK] materialized skill targets are safe\n'
+  else
+    issues=1
+  fi
+
+  if [ -e "$HOME/.codex/config.toml" ] ||
+    [ -L "$HOME/.codex/config.toml" ]; then
+    printf '[OK] Codex live config exists\n'
+  else
+    printf '[NEEDS_APPLY] Codex live config will be seeded\n'
+    issues=1
+  fi
+
+  if [ "$issues" -eq 0 ] && [ "$action_needed" -eq 0 ]; then
+    printf 'Doctor result: healthy\n'
+  else
+    printf 'Doctor result: convergence required\n'
+  fi
+  [ "$action_needed" -eq 0 ] || return "$ACTION_REQUIRED"
+  return "$issues"
+}
+
+run_plan() {
+  local conflicts=0 action_needed=0 status formula
+
+  printf 'Dotfiles plan (read-only)\n'
+  printf 'Repository: %s\n' "$REPO_ROOT"
+  if is_disposable_checkout; then
+    printf 'NOTICE: this is a linked/disposable worktree.\n'
+    printf 'NOTICE: inspect here, but apply only from the primary checkout.\n'
+  fi
+
+  if find_brew; then
+    if "$BREW_BIN" bundle check --file="$BREWFILE" >/dev/null 2>&1; then
+      printf 'NOOP: Brewfile dependencies are installed.\n'
+    else
+      printf 'PLAN: provision missing Brewfile dependencies '
+      printf 'with --no-upgrade.\n'
+    fi
+    while IFS= read -r formula || [ -n "$formula" ]; do
+      case "$formula" in
+        ''|'#'*) continue ;;
+      esac
+      if formula_is_trusted "$formula"; then
+        printf 'NOOP: formula trust exists for %s.\n' "$formula"
+      elif formula_was_authorized "$formula"; then
+        printf 'PLAN: grant explicitly approved formula trust for %s.\n' \
+          "$formula"
+      else
+        printf 'ACTION_REQUIRED: review formula trust for %s.\n' "$formula"
+        action_needed=1
+      fi
+    done < "$TRUST_MANIFEST"
+  else
+    printf 'PLAN: install Homebrew, then provision brew/Brewfile.\n'
+  fi
+
+  status=$(launcher_status)
+  case "$status" in
+    ok) printf 'NOOP: launcher resolves to this CLI.\n' ;;
+    ok-primary)
+      printf 'NOOP: launcher resolves to this repository primary checkout.\n'
+      ;;
+    missing) printf 'PLAN: create launcher symlink %s.\n' "$LAUNCHER" ;;
+    *)
+      printf 'CONFLICT: launcher %s (%s).\n' "$LAUNCHER" "$status"
+      conflicts=1
+      ;;
+  esac
+
+  if [ -e "$HOME/.codex/config.toml" ] ||
+    [ -L "$HOME/.codex/config.toml" ]; then
+    printf 'NOOP: preserve existing Codex live config.\n'
+  else
+    printf 'PLAN: seed Codex live config from config.base.toml.\n'
+  fi
+
+  if owned_skill_conflicts; then
+    printf 'PLAN: converge only repository-owned materialized skills.\n'
+  else
+    conflicts=1
+  fi
+
+  if is_disposable_checkout; then
+    printf 'PLAN: defer Stow simulation until this change reaches the primary '
+    printf 'checkout.\n'
+  elif command -v stow >/dev/null 2>&1; then
+    printf 'PLAN: simulate explicit Stow package manifest.\n'
+    stow_all 1 || conflicts=1
+  else
+    printf 'PLAN: provision GNU Stow before link simulation.\n'
+  fi
+
+  printf 'PLAN: converge Herdr service, plugin, and available integrations.\n'
+  if [ "$conflicts" -eq 0 ] && [ "$action_needed" -eq 0 ]; then
+    printf 'Plan result: no managed-target conflicts detected\n'
+  else
+    printf 'Plan result: resolve required actions before apply\n'
+  fi
+  [ "$action_needed" -eq 0 ] || return "$ACTION_REQUIRED"
+  return "$conflicts"
+}
+
+download_script() {
+  local url=$1 destination
+  shift
+
+  command -v curl >/dev/null 2>&1 || {
+    printf 'ERROR: curl is required to download %s\n' "$url" >&2
+    return 1
+  }
+  destination=$(mktemp -t dotfiles-install.XXXXXX) || return 1
+  if ! curl --proto '=https' --tlsv1.2 -fsSL "$url" -o "$destination"; then
+    rm -f "$destination"
+    return 1
+  fi
+  /bin/bash "$destination" "$@"
+  local result=$?
+  rm -f "$destination"
+  return "$result"
+}
+
+install_homebrew() {
+  printf 'Installing Homebrew...\n'
+  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+    NONINTERACTIVE=1 download_script \
+      https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+  else
+    download_script \
+      https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+  fi
+}
+
+install_missing_user_tools() {
+  if ! command -v bun >/dev/null 2>&1; then
+    printf 'Installing Bun...\n'
+    download_script https://bun.sh/install || return 1
+    PATH=$HOME/.bun/bin:$PATH
+    export PATH
+  fi
+
+  if ! command -v opencode >/dev/null 2>&1; then
+    printf 'Installing OpenCode...\n'
+    download_script https://opencode.ai/install --no-modify-path || return 1
+    PATH=$HOME/.opencode/bin:$PATH
+    export PATH
+  fi
+
+  if ! command -v pi >/dev/null 2>&1; then
+    if command -v bun >/dev/null 2>&1; then
+      bun add -g @earendil-works/pi-coding-agent || return 1
+    elif command -v npm >/dev/null 2>&1; then
+      npm install -g @earendil-works/pi-coding-agent || return 1
+    else
+      printf 'WARN: Pi not installed because bun and npm are unavailable.\n' >&2
+    fi
+  fi
+
+  if command -v gh >/dev/null 2>&1 &&
+    ! gh extension list 2>/dev/null | grep -q 'dlvhdr/gh-dash'; then
+    gh extension install dlvhdr/gh-dash || return 1
+  fi
+}
+
+run_provision() {
+  require_activation_checkout || return $?
+
+  if ! load_brew_path; then
+    install_homebrew || return 1
+    load_brew_path || {
+      printf 'ERROR: Homebrew installed but brew was not found in ' >&2
+      printf '/opt/homebrew or /usr/local.\n' >&2
+      return 1
+    }
+  fi
+
+  ensure_formula_trust || return $?
+  printf 'Installing missing Brewfile dependencies '
+  printf 'without routine upgrades...\n'
+  HOMEBREW_NO_AUTO_UPDATE=1 "$BREW_BIN" bundle install \
+    --file="$BREWFILE" --no-upgrade --jobs=auto || return 1
+
+  load_brew_path || return 1
+  install_missing_user_tools
+}
+
+run_apply() {
+  local status
+
+  require_activation_checkout || return $?
+  command -v stow >/dev/null 2>&1 || {
+    printf 'ERROR: GNU Stow is required; run dotfiles provision first.\n' >&2
+    return 1
+  }
+  validate_package_manifest || return 1
+
+  status=$(launcher_status)
+  case "$status" in
+    ok|ok-primary|missing) ;;
+    *)
+      printf 'ERROR: launcher conflict: %s\n' "$status" >&2
+      return 1
+      ;;
+  esac
+  owned_skill_conflicts || return 1
+
+  remove_owned_skills || return 1
+  remove_legacy_brew_links || return 1
+  remove_stale_herdr_alias || return 1
+  stow_all 0 || return 1
+  seed_codex_config || return 1
+  materialize_skills || return 1
+  install_launcher || return 1
+  converge_herdr || return 1
+  printf 'Dotfiles apply complete.\n'
+}
+
+run_upgrade() {
+  require_activation_checkout || return $?
+  load_brew_path || {
+    printf 'ERROR: Homebrew is unavailable; run dotfiles provision first.\n' >&2
+    return 1
+  }
+  ensure_formula_trust || return $?
+
+  printf 'Updating Homebrew metadata...\n'
+  "$BREW_BIN" update || return 1
+  printf 'Upgrading Brewfile dependencies...\n'
+  "$BREW_BIN" bundle install --file="$BREWFILE" --upgrade \
+    --jobs=auto || return 1
+  printf 'Cleaning old Homebrew artifacts...\n'
+  "$BREW_BIN" cleanup || return 1
+  printf 'Dotfiles upgrade complete.\n'
+}
+
+parse_policy_options() {
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --non-interactive) NON_INTERACTIVE=1 ;;
+      --yes) ASSUME_YES=1 ;;
+      --trust-formula)
+        [ "$#" -ge 2 ] || {
+          printf 'ERROR: --trust-formula requires a value.\n' >&2
+          return 2
+        }
+        TRUST_FORMULAE+=("$2")
+        shift
+        ;;
+      --trust-formula=*) TRUST_FORMULAE+=("${1#*=}") ;;
+      *)
+        printf 'ERROR: unknown option: %s\n' "$1" >&2
+        return 2
+        ;;
+    esac
+    shift
+  done
+  validate_requested_trust
+}
+
+run_bootstrap() {
+  local response plan_status
+
+  require_activation_checkout || return $?
+  run_doctor || true
+  run_plan
+  plan_status=$?
+  if [ "$plan_status" -ne 0 ]; then
+    if [ "$plan_status" -ne "$ACTION_REQUIRED" ] ||
+      [ "$NON_INTERACTIVE" -eq 1 ]; then
+      return "$plan_status"
+    fi
+  fi
+
+  if [ "$NON_INTERACTIVE" -eq 0 ] && [ "$ASSUME_YES" -eq 0 ]; then
+    prompt_yes_no "Proceed with provision and apply?"
+    response=$?
+    if [ "$response" -eq "$ACTION_REQUIRED" ]; then
+      return "$response"
+    fi
+    if [ "$response" -ne 0 ]; then
+      action_required "bootstrap was not approved"
+      return "$ACTION_REQUIRED"
+    fi
+  fi
+
+  run_provision || return $?
+  run_apply || return $?
+  run_doctor
+}
+
+command_name=${1:-}
+case "$command_name" in
+  ''|-h|--help|help)
+    usage
+    exit 0
+    ;;
+  bootstrap)
+    shift
+    case "${1:-}" in -h|--help) bootstrap_usage; exit 0 ;; esac
+    parse_policy_options "$@" || exit $?
+    run_bootstrap
+    exit $?
+    ;;
+  doctor)
+    shift
+    case "${1:-}" in -h|--help) doctor_usage; exit 0 ;; esac
+    [ "$#" -eq 0 ] || {
+      printf 'ERROR: doctor accepts no options.\n' >&2
+      exit 2
+    }
+    run_doctor
+    exit $?
+    ;;
+  plan)
+    shift
+    case "${1:-}" in -h|--help) plan_usage; exit 0 ;; esac
+    [ "$#" -eq 0 ] || {
+      printf 'ERROR: plan accepts no options.\n' >&2
+      exit 2
+    }
+    run_plan
+    exit $?
+    ;;
+  apply)
+    shift
+    case "${1:-}" in -h|--help) apply_usage; exit 0 ;; esac
+    [ "$#" -eq 0 ] || {
+      printf 'ERROR: apply accepts no options.\n' >&2
+      exit 2
+    }
+    run_apply
+    exit $?
+    ;;
+  provision)
+    shift
+    case "${1:-}" in -h|--help) provision_usage; exit 0 ;; esac
+    parse_policy_options "$@" || exit $?
+    run_provision
+    exit $?
+    ;;
+  upgrade)
+    shift
+    case "${1:-}" in -h|--help) upgrade_usage; exit 0 ;; esac
+    parse_policy_options "$@" || exit $?
+    run_upgrade
+    exit $?
+    ;;
+  *)
+    printf 'ERROR: unknown command: %s\n\n' "$command_name" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
