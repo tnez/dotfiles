@@ -13,6 +13,7 @@ GIT_LINKED=$TMPDIR_TEST/git-linked
 GIT_HOME=$TMPDIR_TEST/git-home
 FIXTURE_BIN=$TMPDIR_TEST/fixture-bin
 LINKED_BIN=$TMPDIR_TEST/linked-bin
+KNOWLEDGE_BASE=$TMPDIR_TEST/knowledge-base
 HOST_MUTATION_MARKER=$TMPDIR_TEST/host-mutation-attempted
 OUTPUT=
 STATUS=0
@@ -35,6 +36,7 @@ run_fixture() {
     HOME="$HOME_TEST" \
     PATH="$FIXTURE_BIN:/usr/bin:/bin" \
     TMPDIR="$TMPDIR_TEST" \
+    TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
     DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
     "$FIXTURE_BIN/dotfiles" "$@"
 }
@@ -44,6 +46,7 @@ run_linked() {
     HOME="$GIT_HOME" \
     PATH="$LINKED_BIN:/usr/bin:/bin" \
     TMPDIR="$TMPDIR_TEST" \
+    TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
     DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
     "$GIT_LINKED/dotfiles" "$@"
 }
@@ -53,6 +56,7 @@ run_linked_installer() {
     HOME="$GIT_HOME" \
     PATH="$LINKED_BIN:/usr/bin:/bin" \
     TMPDIR="$TMPDIR_TEST" \
+    TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
     DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
     "$GIT_LINKED/install.sh" --path "$GIT_LINKED" --non-interactive
 }
@@ -84,6 +88,7 @@ assert_contains() {
 
 mkdir -p "$FIXTURE/.git" "$FIXTURE/brew" "$HOME_TEST" \
   "$FIXTURE_BIN" "$LINKED_BIN" "$FIXTURE/sample" \
+  "$KNOWLEDGE_BASE/root" \
   "$FIXTURE/codex/dot-codex" \
   "$FIXTURE/agents/dot-agents/skills/managed" || exit 1
 cp "$REPO_ROOT/dotfiles" "$FIXTURE/dotfiles" || exit 1
@@ -96,6 +101,8 @@ printf 'fixture\n' > "$FIXTURE/sample/dot-sample"
 printf 'fixture = true\n' > "$FIXTURE/codex/dot-codex/config.base.toml"
 printf 'managed v1\n' > \
   "$FIXTURE/agents/dot-agents/skills/managed/SKILL.md"
+printf '# Agent Guide\n' > "$KNOWLEDGE_BASE/AGENTS.md"
+printf '# Knowledge Base\n' > "$KNOWLEDGE_BASE/root/index.md"
 chmod +x "$FIXTURE/dotfiles"
 ln -s "$REPO_ROOT/tests/fake-brew.sh" "$FIXTURE_BIN/brew"
 ln -s "$REPO_ROOT/tests/fake-brew.sh" "$LINKED_BIN/brew"
@@ -109,6 +116,29 @@ for command in bootstrap doctor plan apply provision upgrade; do
   run_fixture "$command" --help
   assert_status 0 "$command help exits successfully"
 done
+
+# shellcheck disable=SC2016
+run_command env -i \
+  HOME="$HOME_TEST" \
+  PATH="/usr/bin:/bin" \
+  /bin/sh -c '. "$1"; printf "%s\n" "$TNEZDEV_KNOWLEDGE_BASE_ROOT"' \
+  profile-test "$REPO_ROOT/profile/dot-profile"
+assert_status 0 "shared profile loads in a POSIX shell"
+assert_contains "$HOME_TEST/Code/tnezdev/knowledge-base/main" \
+  "shared profile supplies the portable knowledge-base default"
+
+printf 'TNEZDEV_KNOWLEDGE_BASE_ROOT="%s"\n' "$KNOWLEDGE_BASE" > \
+  "$HOME_TEST/.profile.local"
+# shellcheck disable=SC2016
+run_command env -i \
+  HOME="$HOME_TEST" \
+  PATH="/usr/bin:/bin" \
+  /bin/sh -c '. "$1"; printf "%s\n" "$TNEZDEV_KNOWLEDGE_BASE_ROOT"' \
+  profile-test "$REPO_ROOT/profile/dot-profile"
+assert_status 0 "shared profile loads machine-specific overrides"
+assert_contains "$KNOWLEDGE_BASE" \
+  "machine-specific knowledge-base root replaces the default"
+rm -f "$HOME_TEST/.profile.local"
 
 if grep -q '^satococoa/tap/wtp$' "$REPO_ROOT/dotfiles-trusted-formulae"; then
   printf 'ok - wtp formula-specific trust is recorded\n'
@@ -137,6 +167,37 @@ assert_status 1 "doctor reports convergence without optional dependencies"
 assert_contains "Repository: $FIXTURE_PHYSICAL" \
   "CLI resolves its own relative symlink"
 assert_contains "GNU Stow is unavailable" "doctor explains missing Stow"
+assert_contains "[OK] tnezdev knowledge base: $KNOWLEDGE_BASE" \
+  "doctor accepts a configured knowledge-base root"
+
+run_command env -i \
+  HOME="$HOME_TEST" \
+  PATH="$FIXTURE_BIN:/usr/bin:/bin" \
+  TMPDIR="$TMPDIR_TEST" \
+  "$FIXTURE_BIN/dotfiles" doctor
+assert_status 1 "doctor rejects an unset knowledge-base root"
+assert_contains "TNEZDEV_KNOWLEDGE_BASE_ROOT is not set" \
+  "doctor explains the missing knowledge-base environment variable"
+
+run_command env -i \
+  HOME="$HOME_TEST" \
+  PATH="$FIXTURE_BIN:/usr/bin:/bin" \
+  TMPDIR="$TMPDIR_TEST" \
+  TNEZDEV_KNOWLEDGE_BASE_ROOT="relative/knowledge-base" \
+  "$FIXTURE_BIN/dotfiles" doctor
+assert_status 1 "doctor rejects a relative knowledge-base root"
+assert_contains "TNEZDEV_KNOWLEDGE_BASE_ROOT must be absolute" \
+  "doctor explains the absolute-path requirement"
+
+run_command env -i \
+  HOME="$HOME_TEST" \
+  PATH="$FIXTURE_BIN:/usr/bin:/bin" \
+  TMPDIR="$TMPDIR_TEST" \
+  TNEZDEV_KNOWLEDGE_BASE_ROOT="$TMPDIR_TEST/missing-knowledge-base" \
+  "$FIXTURE_BIN/dotfiles" doctor
+assert_status 1 "doctor rejects a missing knowledge-base checkout"
+assert_contains "knowledge-base entrypoint is unreadable" \
+  "doctor identifies the missing agent entrypoint"
 
 mkdir -p "$GIT_PRIMARY/brew" "$GIT_HOME/.local/bin"
 cp "$REPO_ROOT/dotfiles" "$GIT_PRIMARY/dotfiles"

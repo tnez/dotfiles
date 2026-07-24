@@ -651,7 +651,7 @@ EOF
 }
 
 run_doctor() {
-  local issues=0 action_needed=0 status formula
+  local issues=0 action_needed=0 status formula knowledge_base_root
 
   printf 'Dotfiles doctor\n'
   printf 'Repository: %s\n' "$REPO_ROOT"
@@ -671,6 +671,32 @@ run_doctor() {
     printf '[ERROR] checkout does not contain a .git directory\n'
     issues=1
   fi
+
+  knowledge_base_root=${TNEZDEV_KNOWLEDGE_BASE_ROOT:-}
+  case "$knowledge_base_root" in
+    '')
+      printf '[ERROR] TNEZDEV_KNOWLEDGE_BASE_ROOT is not set\n'
+      issues=1
+      ;;
+    /*)
+      if [ ! -r "$knowledge_base_root/AGENTS.md" ]; then
+        printf '[ERROR] knowledge-base entrypoint is unreadable: %s\n' \
+          "$knowledge_base_root/AGENTS.md"
+        issues=1
+      elif [ ! -r "$knowledge_base_root/root/index.md" ]; then
+        printf '[ERROR] OKF bundle entrypoint is unreadable: %s\n' \
+          "$knowledge_base_root/root/index.md"
+        issues=1
+      else
+        printf '[OK] tnezdev knowledge base: %s\n' "$knowledge_base_root"
+      fi
+      ;;
+    *)
+      printf '[ERROR] TNEZDEV_KNOWLEDGE_BASE_ROOT must be absolute: %s\n' \
+        "$knowledge_base_root"
+      issues=1
+      ;;
+  esac
 
   if find_brew; then
     printf '[OK] Homebrew: %s\n' "$BREW_BIN"

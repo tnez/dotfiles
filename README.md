@@ -71,6 +71,14 @@ successful apply, `~/.local/bin/dotfiles` points to the canonical checkout, and
 command refuses a checkout whose `.git` is a file. Merge the change first, then
 activate it from the primary checkout whose `.git` is a directory.
 
+The shared `~/.profile` exports
+`TNEZDEV_KNOWLEDGE_BASE_ROOT`, defaulting to
+`$HOME/Code/tnezdev/knowledge-base/main`. Bash and zsh both load this profile.
+Machines using another checkout layout can set the variable in
+`~/.profile.local`; `~/.profile.local.example` documents the expected syntax.
+`dotfiles doctor` verifies that the variable is set and that its agent and OKF
+entrypoints are readable.
+
 Most edits to already-stowed files are immediately live through their existing
 symlinks. Run:
 

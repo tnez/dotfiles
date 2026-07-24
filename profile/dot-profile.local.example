@@ -1,0 +1,2 @@
+# Override portable defaults from ~/.profile on machines with a custom layout.
+TNEZDEV_KNOWLEDGE_BASE_ROOT="$HOME/Code/tnezdev/knowledge-base/main"
