@@ -4,6 +4,7 @@ mode: primary
 model: openai/gpt-5.6-sol
 variant: low
 permission:
+  external_directory: allow
   question: allow
   task: deny
 ---

@@ -70,6 +70,18 @@ for name in code code-lite plan think orchestrator; do
 done
 printf '%s\n' 'ok - all primary profiles have effective question capability'
 
+for name in code code-lite; do
+  agent=$(run_opencode debug agent "$name")
+  jq -e '
+    [.permission | to_entries[] |
+      select(.value.permission == "external_directory")] as $rules |
+    ([$rules[] | select(.value.pattern == "*")] | last) as $boundary |
+    $boundary.value.action == "allow" and
+    all($rules[] | select(.key > $boundary.key); .value.action == "allow")
+  ' >/dev/null <<<"$agent" || fail "$name prompts for external directories"
+done
+printf '%s\n' 'ok - code profiles allow all external directories'
+
 code=$(run_opencode debug agent code)
 jq -e '
   ([.permission[] |
@@ -86,7 +98,7 @@ jq -e '
     .pattern == ".opencode/plans/*.md" and .action == "allow")
 ' >/dev/null <<<"$plan" || fail 'plan preserves built-in plan-only writes'
 
-for name in think plan; do
+for name in code think plan; do
   agent=$(run_opencode debug agent "$name")
   jq -e '
     def task_action($name):
@@ -95,27 +107,22 @@ for name in think plan; do
           .permission == "task" and
           (.pattern == "*" or .pattern == $name)
         )] | last | .action);
+    [.permission | to_entries[] |
+      select(.value.permission == "task")] as $task_rules |
+    ([$task_rules[] |
+      select(.value.pattern == "*")] | last) as $boundary |
     task_action("explore") == "allow" and
     task_action("research") == "allow" and
     task_action("general") == "deny" and
     task_action("unknown-agent") == "deny" and
-    ([.permission | to_entries[] |
-      select(.value.permission == "task" and .value.pattern == "*") |
-      .key] | last) <
-    ([.permission | to_entries[] |
-      select(
-        .value.permission == "task" and .value.pattern == "explore"
-      ) | .key] | last) and
-    ([.permission | to_entries[] |
-      select(.value.permission == "task" and .value.pattern == "*") |
-      .key] | last) <
-    ([.permission | to_entries[] |
-      select(
-        .value.permission == "task" and .value.pattern == "research"
-      ) | .key] | last)
+    $boundary.value.action == "deny" and
+    all($task_rules[] | select(.key > $boundary.key);
+      .value.action == "deny" or
+      (.value.action == "allow" and
+        (.value.pattern == "explore" or .value.pattern == "research")))
   ' >/dev/null <<<"$agent" || fail "$name has an effective task allowlist"
 done
-printf '%s\n' 'ok - think and plan allow only explore and research tasks'
+printf '%s\n' 'ok - code, think, and plan allow only explore and research tasks'
 
 for name in think orchestrator; do
   agent=$(run_opencode debug agent "$name")
@@ -135,8 +142,12 @@ for name in code-lite orchestrator; do
           .permission == "task" and
           (.pattern == "*" or .pattern == $name)
         )] | last | .action);
+    ([.permission[] | select(.permission == "task")] | last) as $boundary |
+    $boundary.pattern == "*" and
+    $boundary.action == "deny" and
     task_action("explore") == "deny" and
     task_action("research") == "deny" and
+    task_action("general") == "deny" and
     task_action("unknown-agent") == "deny"
   ' >/dev/null <<<"$agent" || fail "$name can still delegate OpenCode tasks"
 done

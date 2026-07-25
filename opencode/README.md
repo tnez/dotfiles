@@ -23,11 +23,10 @@ returned Herdr worker; independent verification commands require permission.
 | `explore` | Built-in codebase search with edit, shell, and child tasks denied |
 | `research` | External documentation and relevant knowledge-base evidence |
 
-`think` and `plan` may delegate only to these two subagents. `code-lite` and
-`orchestrator` cannot use OpenCode subagents; `code` retains normal access.
-Research inherits its invoking primary's model. OpenCode child sessions keep
-delegation visible in the session log while the parent remains responsible for
-synthesis.
+`code`, `think`, and `plan` may delegate only to these two subagents.
+`code-lite` and `orchestrator` cannot use OpenCode subagents. Research inherits
+its invoking primary's model. OpenCode child sessions keep delegation visible
+in the session log while the parent remains responsible for synthesis.
 
 Merely selecting `orchestrator` or discussing delegation does not authorize
 worker startup. Only an explicit natural-language request to execute, delegate,

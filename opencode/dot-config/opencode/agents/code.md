@@ -4,6 +4,11 @@ mode: primary
 model: openai/gpt-5.6-sol
 variant: high
 permission:
+  external_directory: allow
+  task:
+    '*': deny
+    explore: allow
+    research: allow
   question: allow
   plan_enter: allow
 ---
