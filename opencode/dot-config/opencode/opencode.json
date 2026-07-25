@@ -1,6 +1,18 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "permission": "allow",
+  "default_agent": "code",
+  "agent": {
+    "build": {
+      "disable": true
+    },
+    "explore": {
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny"
+      }
+    }
+  },
   "autoupdate": true,
   "provider": {
     "openai": {

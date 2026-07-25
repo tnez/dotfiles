@@ -1,6 +1,6 @@
 ---
 description: Reconstruct Dottie's identity and session context
-agent: build
+agent: code
 ---
 
 Load and follow the harness-agnostic `reconstruct` skill.

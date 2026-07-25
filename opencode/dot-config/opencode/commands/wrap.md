@@ -1,6 +1,6 @@
 ---
 description: End-of-session ritual — write narrative, commit identity
-agent: build
+agent: code
 ---
 
 Load and follow the harness-agnostic `wrap` skill.

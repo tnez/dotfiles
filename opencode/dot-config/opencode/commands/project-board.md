@@ -1,6 +1,6 @@
 ---
 description: Steward the current repo's GitHub PRs and issues
-agent: build
+agent: code
 ---
 
 Load and follow the harness-agnostic `project-board` skill.

@@ -12,11 +12,13 @@ focus=false
 label=""
 repo=$PWD
 workspace="${HERDR_WORKSPACE_ID:-}"
+native_agent_args=()
 
 usage() {
   cat <<'EOF'
 Usage:
-  herdr-worktree-start.sh --branch BRANCH [options] < prompt.txt
+  herdr-worktree-start.sh --branch BRANCH [options] \
+    [-- <agent-args...>] < prompt.txt
   herdr-worktree-start.sh --check [options]
 
 Options:
@@ -34,6 +36,7 @@ Options:
 
 The worker prompt is read from standard input. This command intentionally uses
 wtp for checkout creation and Herdr only for tab and agent orchestration.
+Arguments after -- are passed unchanged to the native agent command.
 EOF
 }
 
@@ -194,6 +197,10 @@ while (( $# > 0 )); do
       usage
       exit 0
       ;;
+    --)
+      native_agent_args=("${@:2}")
+      break
+      ;;
     *)
       fail "unknown argument: $1"
       ;;
@@ -273,11 +280,15 @@ wait_for_available_shell "$pane_id" ||
   fail "worktree and tab created ($worktree_path, $tab_id), but its shell did not become ready"
 agent_started=false
 for ((attempt = 0; attempt < 40; attempt++)); do
-  if agent_start_result="$(
-    herdr agent start "$agent_name" \
-      --kind "$agent_kind" \
-      --pane "$pane_id" 2>&1
-  )"; then
+  agent_start_command=(
+    herdr agent start "$agent_name"
+    --kind "$agent_kind"
+    --pane "$pane_id"
+  )
+  if (( ${#native_agent_args[@]} > 0 )); then
+    agent_start_command+=(-- "${native_agent_args[@]}")
+  fi
+  if agent_start_result="$("${agent_start_command[@]}" 2>&1)"; then
     agent_started=true
     break
   fi
@@ -288,7 +299,14 @@ if [[ "$agent_started" == false ]]; then
   printf '%s\n' "$agent_start_result" >&2
   fail "worktree and tab created ($worktree_path, $tab_id), but agent startup failed"
 fi
-herdr agent prompt "$agent_name" "$prompt" >/dev/null ||
+herdr agent prompt "$agent_name" "$prompt" \
+  --wait \
+  --until idle \
+  --until working \
+  --until blocked \
+  --until 'done' \
+  --until unknown \
+  >/dev/null ||
   fail "worker $agent_name started in $tab_id, but prompt submission failed"
 
 jq -n \

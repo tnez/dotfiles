@@ -10,9 +10,21 @@ checkout and creates or focuses worktree tabs by checkout path.
 `herdr-worktree-start.sh` is the agent-facing delegation boundary. It uses
 `wtp` to create a branch worktree, creates a tab in the repository's existing
 Herdr workspace, starts a worker agent, and submits a prompt read from standard
-input. It does not infer task intent or remove completed work. If orchestration
-fails after checkout creation, it reports the recovery path and leaves the new
-worktree and tab intact for inspection.
+input. It waits for an observed post-submit lifecycle transition before
+reporting success, but does not wait for task completion. It does not infer task
+intent or remove completed work. If orchestration fails after checkout
+creation, it reports the recovery path and leaves the new worktree and tab
+intact for inspection.
+
+Native agent arguments may follow `--`. They are forwarded after Herdr's own
+separator, so an OpenCode worker can start with a specific primary profile:
+
+```bash
+printf '%s\n' "$prompt" |
+  herdr-worktree-start.sh --branch feat/example -- --agent code-lite
+```
+
+Omitting the separator preserves the worker kind's default startup behavior.
 
 ## Validate a candidate worktree
 

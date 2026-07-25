@@ -1,6 +1,6 @@
 ---
 description: Review the current diff using a live Hunk session
-agent: build
+agent: code
 ---
 
 Load the Hunk skill and use it for this review. Run `hunk skill path` to get
