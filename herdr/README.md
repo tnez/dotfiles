@@ -16,6 +16,19 @@ intent or remove completed work. If orchestration fails after checkout
 creation, it reports the recovery path and leaves the new worktree and tab
 intact for inspection.
 
+`herdr-worktree-cleanup.sh` is the symmetrical orchestrator-only cleanup
+boundary. Cleanup is never inferred from worker completion, review, commit, or
+shipping; it requires an explicit natural-language cleanup request and is never
+delegated to the worker. The helper accepts only the exact worker resources
+returned by the start helper and an explicit local integration base. Before
+mutation it proves that the worker is idle or done, the tab owns only the
+returned pane, all Herdr and repository relationships match, the linked
+worktree is clean, and its local branch is distinct from and contained in the
+integration base. It then closes only that tab and calls non-forced
+`wtp remove --with-branch`, verifying Herdr state, Git registration, branch
+removal, and filesystem-path removal afterward. A Herdr-first partial failure
+leaves and reports the remaining Git state.
+
 Native agent arguments may follow `--`. They are forwarded after Herdr's own
 separator, so an OpenCode worker can start with a specific primary profile:
 
@@ -88,17 +101,25 @@ printf '%s\n' "$prompt" |
     --agent-name dot-validate
 ```
 
-Keep the returned JSON. After the worker finishes, verify the checkout is clean,
-close the returned tab, and remove the disposable worktree:
+Keep the returned JSON. After the worker finishes and the branch is integrated
+into the explicit local base, make a separate cleanup request. The orchestrator
+passes the returned values to the checked helper:
 
 ```bash
-git -C "$HOME/Code/tnez/dotfiles/chore/validate-herdr-delegation" status --short
-herdr tab close RETURNED_TAB_ID
-wtp remove --with-branch chore/validate-herdr-delegation
+herdr-worktree-cleanup.sh \
+  --agent RETURNED_AGENT \
+  --base main \
+  --branch chore/validate-herdr-delegation \
+  --pane RETURNED_PANE_ID \
+  --tab RETURNED_TAB_ID \
+  --worktree RETURNED_PATH \
+  --workspace RETURNED_WORKSPACE
 ```
 
-Run the final `wtp` command from any checkout in the dotfiles repository. Do not
-remove the validation worktree if its status is not clean.
+Do not replace the helper with raw Herdr close, `git worktree`, `git branch`, or
+`wtp remove` commands. This is a behavioral prohibition even when the
+orchestrator's Bash permission is broad. Any blocker preserves the resources
+for human review.
 
 ## Activate after merge
 

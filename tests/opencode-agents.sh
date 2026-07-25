@@ -236,36 +236,58 @@ orchestrator=$(run_opencode debug agent orchestrator)
 jq -e '
   ([.permission[] |
     select(.permission == "bash" and .pattern == "*")] |
-    last | .action) == "ask" and
-  ([.permission[] |
-    select(
-      .permission == "bash" and
-      .pattern == "*herdr-worktree-start.sh *"
-    )] | last | .action) == "allow"
+    last | .action) == "allow" and
+  all(.permission[] | select(.permission == "bash"); .action == "allow")
 ' >/dev/null <<<"$orchestrator" ||
-  fail 'orchestrator asks for non-whitelisted shell commands'
+  fail 'orchestrator does not allow shell commands by default'
 
-for pattern in \
-  'printenv HERDR_ENV' \
-  'printenv HERDR_WORKSPACE_ID' \
-  'printenv HERDR_TAB_ID' \
-  'printenv HERDR_PANE_ID' \
-  'herdr pane current --current'; do
-  jq -e --arg pattern "$pattern" '
-    ([.permission[] |
-      select(.permission == "bash" and .pattern == $pattern)] |
-      last | .action) == "allow" and
-    ([.permission | to_entries[] |
-      select(.value.permission == "bash" and .value.pattern == "*") |
-      .key] | last) <
-    ([.permission | to_entries[] |
+jq -e '
+  .permission as $permissions |
+  def exact_or_default_action($command):
+    ([$permissions[] |
       select(
-        .value.permission == "bash" and .value.pattern == $pattern
-      ) | .key] | last)
-  ' >/dev/null <<<"$orchestrator" ||
-    fail "orchestrator context rule is ineffective: $pattern"
-done
-printf '%s\n' 'ok - plan, think, and orchestrator rule order is effective'
+        .permission == "bash" and
+        (.pattern == "*" or .pattern == $command)
+      )] | last | .action);
+  exact_or_default_action("test \"${HERDR_ENV:-}\" = 1") == "allow" and
+  all(
+    "pbcopy",
+    "herdr-worktree-start.sh --branch feat/example",
+    "herdr-worktree-cleanup.sh --agent example",
+    "test \"${HERDR_ENV:-}\" = 2",
+    "printenv HERDR_ENV",
+    "herdr tab close w1:t2",
+    "herdr pane close w1:p2",
+    "herdr worktree remove --workspace w1",
+    "wtp remove --with-branch feat/example",
+    "git worktree remove /tmp/example",
+    "git branch -d feat/example";
+    exact_or_default_action(.) == "allow"
+  )
+' >/dev/null <<<"$orchestrator" ||
+  fail 'orchestrator broad shell permission is ineffective'
+printf '%s\n' \
+  'ok - exact Herdr prerequisite and general shell commands do not prompt'
+
+jq -e '
+  .prompt as $prompt |
+  ($prompt | contains("Cleanup is a separate orchestrator action")) and
+  ($prompt | contains("request to ship does not grant")) and
+  ($prompt | contains("cleanup authority")) and
+  ($prompt | contains("ship and clean up")) and
+  ($prompt | contains("must never be delegated to the worker")) and
+  ($prompt | contains("It is the only cleanup boundary")) and
+  ($prompt | contains("Never directly close a Herdr resource")) and
+  ($prompt | contains("Shell capability is not authority")) and
+  ($prompt | contains("Prefer `code-lite` or `code`")) and
+  ($prompt | contains("each require an explicit natural-language request")) and
+  ($prompt | contains("Bash access does not authorize raw cleanup")) and
+  (($prompt | index("test \"${HERDR_ENV:-}\" = 1")) <
+    ($prompt | index("herdr pane current --current")))
+' >/dev/null <<<"$orchestrator" ||
+  fail 'orchestrator does not enforce its behavioral authority gates'
+printf '%s\n' \
+  'ok - plan and think stay narrow while orchestrator shell is broadly allowed'
 
 if run_opencode debug agent build >/dev/null 2>&1; then
   fail 'disabled build remains discoverable'
