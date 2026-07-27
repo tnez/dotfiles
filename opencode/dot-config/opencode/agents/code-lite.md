@@ -1,7 +1,7 @@
 ---
 description: Handle small, localized, well-specified, low-risk changes
 mode: primary
-model: openai/gpt-5.6-sol
+model: openai/gpt-5.6-terra
 variant: low
 permission:
   external_directory: allow

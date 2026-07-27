@@ -1,7 +1,7 @@
 ---
 description: Implement, verify, and explain normal software changes
 mode: primary
-model: openai/gpt-5.6-sol
+model: openai/gpt-5.6-sol-fast
 variant: high
 permission:
   external_directory: allow

@@ -40,24 +40,27 @@ jq -e '
 printf '%s\n' 'ok - code is default and build is disabled'
 
 for specification in \
-  'code high' \
-  'code-lite low' \
-  'plan xhigh' \
-  'think max' \
-  'orchestrator xhigh'; do
+  'code gpt-5.6-sol-fast high' \
+  'code-lite gpt-5.6-terra low' \
+  'plan gpt-5.6-sol-fast xhigh' \
+  'think gpt-5.6-sol-fast max' \
+  'orchestrator gpt-5.6-sol-fast xhigh'; do
   name=${specification%% *}
-  variant=${specification#* }
+  model_and_variant=${specification#* }
+  model=${model_and_variant%% *}
+  variant=${model_and_variant#* }
   agent=$(run_opencode debug agent "$name")
   jq -e \
+    --arg model "$model" \
     --arg variant "$variant" \
     '.model.providerID == "openai" and
-     .model.modelID == "gpt-5.6-sol" and
+     .model.modelID == $model and
      .variant == $variant and
      .mode == "primary"' \
     >/dev/null <<<"$agent" ||
     fail "$name has the intended model and variant"
 done
-printf '%s\n' 'ok - all primary profiles have the intended model and variant'
+printf '%s\n' 'ok - primary profiles have the intended mixed models and variants'
 
 for name in code code-lite plan think orchestrator; do
   agent=$(run_opencode debug agent "$name")

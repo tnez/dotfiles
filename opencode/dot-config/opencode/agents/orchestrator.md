@@ -1,7 +1,7 @@
 ---
 description: Coordinate one authorized, isolated Herdr worker cycle
 mode: primary
-model: openai/gpt-5.6-sol
+model: openai/gpt-5.6-sol-fast
 variant: xhigh
 permission:
   edit: deny

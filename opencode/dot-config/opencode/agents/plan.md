@@ -1,7 +1,7 @@
 ---
 description: Analyze a request and produce an implementation plan
 mode: primary
-model: openai/gpt-5.6-sol
+model: openai/gpt-5.6-sol-fast
 variant: xhigh
 permission:
   task:

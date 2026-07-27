@@ -1,7 +1,7 @@
 ---
 description: Investigate and reason without changing files or starting workers
 mode: primary
-model: openai/gpt-5.6-sol
+model: openai/gpt-5.6-sol-fast
 variant: max
 permission:
   edit: deny

@@ -2,15 +2,15 @@
 
 The OpenCode Stow package installs five explicit primary profiles:
 
-| Profile | Variant | Role |
-| --- | --- | --- |
-| `code` | `high` | Default implementation profile |
-| `code-lite` | `low` | Small, localized, low-risk implementation |
-| `plan` | `xhigh` | Analysis and OpenCode plan-document writes only |
-| `think` | `max` | Read-only investigation |
-| `orchestrator` | `xhigh` | Coordination-scoped Herdr worker cycle |
+| Profile | Model | Variant | Role |
+| --- | --- | --- | --- |
+| `code` | `openai/gpt-5.6-sol-fast` | `high` | Default implementation profile |
+| `code-lite` | `openai/gpt-5.6-terra` | `low` | Small, localized, low-risk implementation |
+| `plan` | `openai/gpt-5.6-sol-fast` | `xhigh` | Analysis and OpenCode plan-document writes only |
+| `think` | `openai/gpt-5.6-sol-fast` | `max` | Read-only investigation |
+| `orchestrator` | `openai/gpt-5.6-sol-fast` | `xhigh` | Coordination-scoped Herdr worker cycle |
 
-All profiles use `openai/gpt-5.6-sol`. The built-in `build` profile is disabled.
+The built-in `build` profile is disabled.
 Think's only automatic shell exception reads the configured knowledge-base
 environment variable. Orchestrator keeps Edit and Task denied but allows Bash
 without prompts, including the exact required Herdr prerequisite check. This is
