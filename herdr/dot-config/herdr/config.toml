@@ -22,7 +22,7 @@ navigate_pane_up = "ctrl+k"
 navigate_pane_right = "ctrl+l"
 new_worktree = []
 new_tab = "prefix+c"
-rename_tab = "prefix+r"
+rename_tab = "prefix+."
 previous_tab = "prefix+h"
 next_tab = "prefix+l"
 copy_mode = "prefix+v"
@@ -38,7 +38,7 @@ swap_pane_right = "prefix+alt+l"
 split_vertical = "prefix+/"
 split_horizontal = "prefix+minus"
 close_pane = "prefix+x"
-resize_mode = "prefix+plus"
+resize_mode = "prefix+r"
 
 [ui]
 mouse_capture = true
@@ -46,7 +46,7 @@ copy_on_select = true
 confirm_close = false
 prompt_new_tab_name = false
 pane_borders = true
-pane_gaps = false
+pane_gaps = true
 show_agent_labels_on_pane_borders = true
 agent_panel_sort = "spaces"
 accent = "blue"
