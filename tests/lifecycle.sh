@@ -127,17 +127,25 @@ assert_status 0 "shared profile loads in a POSIX shell"
 assert_contains "$HOME_TEST/Code/tnezdev/knowledge-base/main" \
   "shared profile supplies the portable knowledge-base default"
 
-printf 'TNEZDEV_KNOWLEDGE_BASE_ROOT="%s"\n' "$KNOWLEDGE_BASE" > \
-  "$HOME_TEST/.profile.local"
+{
+  printf 'export TNEZDEV_KNOWLEDGE_BASE_ROOT="%s"\n' "$KNOWLEDGE_BASE"
+  printf 'export TNEZDEV_LOCAL_CONTEXT_ROOT="%s"\n' \
+    "$HOME_TEST/Documents"
+} >"$HOME_TEST/.profile.local"
 # shellcheck disable=SC2016
 run_command env -i \
   HOME="$HOME_TEST" \
   PATH="/usr/bin:/bin" \
-  /bin/sh -c '. "$1"; printf "%s\n" "$TNEZDEV_KNOWLEDGE_BASE_ROOT"' \
-  profile-test "$REPO_ROOT/profile/dot-profile"
+  /bin/sh -c '
+    . "$1"
+    printenv TNEZDEV_KNOWLEDGE_BASE_ROOT
+    printenv TNEZDEV_LOCAL_CONTEXT_ROOT
+  ' profile-test "$REPO_ROOT/profile/dot-profile"
 assert_status 0 "shared profile loads machine-specific overrides"
 assert_contains "$KNOWLEDGE_BASE" \
   "machine-specific knowledge-base root replaces the default"
+assert_contains "$HOME_TEST/Documents" \
+  "machine-specific local context root is exported"
 rm -f "$HOME_TEST/.profile.local"
 
 if grep -q '^satococoa/tap/wtp$' "$REPO_ROOT/dotfiles-trusted-formulae"; then

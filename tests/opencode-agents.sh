@@ -225,15 +225,20 @@ jq -e '
       .permission == "bash" and
       .pattern == "printenv TNEZDEV_KNOWLEDGE_BASE_ROOT"
     )] | last | .action) == "allow" and
+  ([.permission[] |
+    select(
+      .permission == "bash" and
+      .pattern == "printenv TNEZDEV_LOCAL_CONTEXT_ROOT"
+    )] | last | .action) == "allow" and
   ([.permission | to_entries[] |
     select(.value.permission == "bash" and .value.pattern == "*") |
     .key] | last) <
   ([.permission | to_entries[] |
     select(
       .value.permission == "bash" and
-      .value.pattern == "printenv TNEZDEV_KNOWLEDGE_BASE_ROOT"
+      .value.pattern == "printenv TNEZDEV_LOCAL_CONTEXT_ROOT"
     ) | .key] | last)
-' >/dev/null <<<"$think" || fail 'think only allows its exact environment lookup'
+' >/dev/null <<<"$think" || fail 'think only allows exact environment lookups'
 
 orchestrator=$(run_opencode debug agent orchestrator)
 jq -e '

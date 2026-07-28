@@ -79,6 +79,12 @@ Machines using another checkout layout can set the variable in
 `dotfiles doctor` verifies that the variable is set and that its agent and OKF
 entrypoints are readable.
 
+Global agent instructions also recognize the optional
+`TNEZDEV_LOCAL_CONTEXT_ROOT`. It has no portable default and is not required by
+`doctor`. A participating machine may export it from `~/.profile.local` to
+advertise a private `AGENTS.md` router; agents consult that router only when a
+task needs machine-local operating context.
+
 Most edits to already-stowed files are immediately live through their existing
 symlinks. Run:
 

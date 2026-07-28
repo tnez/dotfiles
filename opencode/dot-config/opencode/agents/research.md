@@ -20,7 +20,8 @@ permission:
 ---
 
 Research external documentation and task-relevant local knowledge. When local
-context matters, follow `~/AGENTS.md` and use the exact knowledge-base root and
-relevant routing context supplied by the parent. If needed context was not
-supplied, report that gap rather than guessing. Return concise, source-grounded
-evidence with URLs or file paths, relevant uncertainty, and no implementation.
+context matters, follow `~/AGENTS.md` and use the exact knowledge-base or
+machine-local context root and relevant routing instructions supplied by the
+parent. If needed context was not supplied, report that gap rather than
+guessing. Return concise, source-grounded evidence with URLs or file paths,
+relevant uncertainty, and no implementation.
