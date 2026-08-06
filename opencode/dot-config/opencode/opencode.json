@@ -11,6 +11,9 @@
         "bash": "deny",
         "task": "deny"
       }
+    },
+    "plan": {
+      "disable": true
     }
   },
   "autoupdate": true,

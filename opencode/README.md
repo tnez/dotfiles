@@ -1,22 +1,20 @@
 # OpenCode profiles
 
-The OpenCode Stow package installs five explicit primary profiles:
+The OpenCode Stow package installs four explicit primary profiles:
 
 | Profile | Model | Variant | Role |
 | --- | --- | --- | --- |
 | `code` | `openai/gpt-5.6-sol-fast` | `high` | Default implementation profile |
 | `code-lite` | `openai/gpt-5.6-terra` | `low` | Small, localized, low-risk implementation |
-| `plan` | `openai/gpt-5.6-sol-fast` | `xhigh` | Analysis and OpenCode plan-document writes only |
 | `think` | `openai/gpt-5.6-sol-fast` | `max` | Read-only investigation |
 | `orchestrator` | `openai/gpt-5.6-sol-fast` | `xhigh` | Coordination-scoped Herdr worker cycle |
 
-The built-in `build` profile is disabled.
-Think's only automatic shell exceptions resolve the configured knowledge-base
-and optional machine-local context roots. Orchestrator keeps Edit and Task
-denied but allows Bash without prompts, including the exact required Herdr
-prerequisite check. This is operational capability, not write authority: shell
-allowlists are not treated as a sandbox. The profile remains coordination-scoped,
-with explicit
+The built-in `build` and `plan` profiles are disabled. Think allows Bash for
+investigation while keeping Edit denied and prohibiting shell-based changes.
+Orchestrator keeps Edit and Task denied but allows Bash without prompts,
+including the exact required Herdr prerequisite check. This is operational
+capability, not write authority: shell allowlists are not treated as a sandbox.
+The profile remains coordination-scoped, with explicit
 natural-language gates and behavioral prohibitions for startup, cleanup,
 commit, integration, push, activation, publication, and other external effects.
 Use `code-lite` or `code` for unrelated general utility or implementation work.
@@ -28,7 +26,7 @@ Use `code-lite` or `code` for unrelated general utility or implementation work.
 | `explore` | Built-in codebase search with edit, shell, and child tasks denied |
 | `research` | External documentation and relevant knowledge-base evidence |
 
-`code`, `think`, and `plan` may delegate only to these two subagents.
+`code` and `think` may delegate only to these two subagents.
 `code-lite` and `orchestrator` cannot use OpenCode subagents. Research inherits
 its invoking primary's model. OpenCode child sessions keep delegation visible
 in the session log while the parent remains responsible for synthesis.

@@ -42,7 +42,6 @@ printf '%s\n' 'ok - code is default and build is disabled'
 for specification in \
   'code gpt-5.6-sol-fast high' \
   'code-lite gpt-5.6-terra low' \
-  'plan gpt-5.6-sol-fast xhigh' \
   'think gpt-5.6-sol-fast max' \
   'orchestrator gpt-5.6-sol-fast xhigh'; do
   name=${specification%% *}
@@ -62,7 +61,7 @@ for specification in \
 done
 printf '%s\n' 'ok - primary profiles have the intended mixed models and variants'
 
-for name in code code-lite plan think orchestrator; do
+for name in code code-lite think orchestrator; do
   agent=$(run_opencode debug agent "$name")
   jq -e '
     ([.permission[] |
@@ -92,16 +91,7 @@ jq -e '
     last | .action) == "allow"
 ' >/dev/null <<<"$code" || fail 'code preserves build plan-enter capability'
 
-plan=$(run_opencode debug agent plan)
-jq -e '
-  any(.permission[];
-    .permission == "edit" and .pattern == "*" and .action == "deny") and
-  any(.permission[];
-    .permission == "edit" and
-    .pattern == ".opencode/plans/*.md" and .action == "allow")
-' >/dev/null <<<"$plan" || fail 'plan preserves built-in plan-only writes'
-
-for name in code think plan; do
+for name in code think; do
   agent=$(run_opencode debug agent "$name")
   jq -e '
     def task_action($name):
@@ -125,7 +115,7 @@ for name in code think plan; do
         (.value.pattern == "explore" or .value.pattern == "research")))
   ' >/dev/null <<<"$agent" || fail "$name has an effective task allowlist"
 done
-printf '%s\n' 'ok - code, think, and plan allow only explore and research tasks'
+printf '%s\n' 'ok - code and think allow only explore and research tasks'
 
 for name in think orchestrator; do
   agent=$(run_opencode debug agent "$name")
@@ -219,26 +209,9 @@ think=$(run_opencode debug agent think)
 jq -e '
   ([.permission[] |
     select(.permission == "bash" and .pattern == "*")] |
-    last | .action) == "deny" and
-  ([.permission[] |
-    select(
-      .permission == "bash" and
-      .pattern == "printenv TNEZDEV_KNOWLEDGE_BASE_ROOT"
-    )] | last | .action) == "allow" and
-  ([.permission[] |
-    select(
-      .permission == "bash" and
-      .pattern == "printenv TNEZDEV_LOCAL_CONTEXT_ROOT"
-    )] | last | .action) == "allow" and
-  ([.permission | to_entries[] |
-    select(.value.permission == "bash" and .value.pattern == "*") |
-    .key] | last) <
-  ([.permission | to_entries[] |
-    select(
-      .value.permission == "bash" and
-      .value.pattern == "printenv TNEZDEV_LOCAL_CONTEXT_ROOT"
-    ) | .key] | last)
-' >/dev/null <<<"$think" || fail 'think only allows exact environment lookups'
+    last | .action) == "allow" and
+  all(.permission[] | select(.permission == "bash"); .action == "allow")
+' >/dev/null <<<"$think" || fail 'think does not allow shell investigation'
 
 orchestrator=$(run_opencode debug agent orchestrator)
 jq -e '
@@ -295,11 +268,13 @@ jq -e '
 ' >/dev/null <<<"$orchestrator" ||
   fail 'orchestrator does not enforce its behavioral authority gates'
 printf '%s\n' \
-  'ok - plan and think stay narrow while orchestrator shell is broadly allowed'
+  'ok - think and orchestrator shell commands are broadly allowed'
 
-if run_opencode debug agent build >/dev/null 2>&1; then
-  fail 'disabled build remains discoverable'
-fi
-printf '%s\n' 'ok - disabled build is not discoverable'
+for name in build plan; do
+  if run_opencode debug agent "$name" >/dev/null 2>&1; then
+    fail "disabled $name remains discoverable"
+  fi
+done
+printf '%s\n' 'ok - disabled built-in profiles are not discoverable'
 
 printf '%s\n' 'All OpenCode agent tests passed.'
