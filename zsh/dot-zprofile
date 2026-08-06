@@ -2,3 +2,8 @@
 
 # Source shell-agnostic profile
 [[ -f ~/.profile ]] && source ~/.profile
+
+# OrbStack
+if [[ -r "$HOME/.orbstack/shell/init.zsh" ]]; then
+  source "$HOME/.orbstack/shell/init.zsh"
+fi

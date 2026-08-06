@@ -1,3 +1,6 @@
+# OrbStack Linux machines; must precede all Host blocks.
+Include ~/.orbstack/ssh/config
+
 Host *
   AddKeysToAgent yes
   UseKeychain yes
