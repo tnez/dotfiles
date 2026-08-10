@@ -2,6 +2,7 @@ tap "modem-dev/tap"
 tap "satococoa/tap"
 
 brew "bat"
+brew "chafa"
 brew "coreutils"
 brew "direnv"
 brew "eza"
