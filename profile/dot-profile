@@ -88,16 +88,6 @@ path_prepend "/opt/homebrew/sbin"
 path_prepend "/opt/homebrew/opt/libpq/bin"
 path_prepend "$HOME/.antigravity/antigravity/bin"
 
-# Node (fnm)
-if command -v fnm >/dev/null 2>&1; then
-  # shellcheck disable=SC1090
-  eval "$(fnm env --use-on-cd --shell bash)"
-
-  # Ensure a default Node is selected for non-interactive shells.
-  # `--use-on-cd` won't fire unless we actually `cd`.
-  fnm use default --silent-if-unchanged >/dev/null 2>&1 || true
-fi
-
 export PNPM_HOME="$HOME/Library/pnpm"
 path_prepend "$PNPM_HOME"
 path_prepend "$HOME/.bun/bin"
@@ -112,6 +102,21 @@ path_append "$HOME/.opencode/bin"
 # shellcheck disable=SC1091
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 path_prepend "$HOME/.cargo/bin"
+
+# Node (fnm)
+if command -v fnm >/dev/null 2>&1; then
+  if [ -n "${ZSH_VERSION:-}" ]; then
+    # shellcheck disable=SC1090
+    eval "$(fnm env --use-on-cd --shell zsh)"
+  else
+    # shellcheck disable=SC1090
+    eval "$(fnm env --use-on-cd --shell bash)"
+  fi
+
+  # Ensure a default Node is selected for non-interactive shells.
+  # `--use-on-cd` won't fire unless we actually `cd`.
+  fnm use default --silent-if-unchanged >/dev/null 2>&1 || true
+fi
 
 export PATH
 export TNEZ_PROFILE_LOADED="1"
