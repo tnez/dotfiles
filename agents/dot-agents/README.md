@@ -1,6 +1,6 @@
 # Shared Agent Surface
 
-This package is the canonical home for agent-agnostic behavior.
+This package is the canonical dotfiles home for agent-agnostic behavior.
 
 Shared skills, command prompts, and hook scripts live here when their
 instructions are independent of a specific harness. Harness packages such as
@@ -20,3 +20,11 @@ while this package remains the source of truth. Ownership and checksums live in
 `~/.local/state/dotfiles/materialized-skills`. Apply removes only unchanged
 files recorded there (or current files that exactly match their source); it
 never sweeps arbitrary regular `SKILL.md` files.
+
+`~/.agents/skills` is the only supported shared local skill root. The separate
+knowledge-base-owned `present-for-decision` trial is a lifecycle-generated
+whole-directory link and never enters this copied materializer. See the root
+README for its source, ownership, validation, and rollback boundary.
+
+`~/.claude/skills` is **LEGACY**. Existing wrappers are frozen pending separate
+cleanup; do not add or maintain shared skills there.

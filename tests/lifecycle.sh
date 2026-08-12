@@ -41,6 +41,18 @@ run_fixture() {
     "$FIXTURE_BIN/dotfiles" "$@"
 }
 
+run_fixture_with_root() {
+  local root=$1
+  shift
+  run_command env -i \
+    HOME="$HOME_TEST" \
+    PATH="$FIXTURE_BIN:/usr/bin:/bin" \
+    TMPDIR="$TMPDIR_TEST" \
+    TNEZDEV_KNOWLEDGE_BASE_ROOT="$root" \
+    DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
+    "$FIXTURE_BIN/dotfiles" "$@"
+}
+
 run_linked() {
   run_command env -i \
     HOME="$GIT_HOME" \
@@ -88,12 +100,18 @@ assert_contains() {
 
 mkdir -p "$FIXTURE/.git" "$FIXTURE/brew" "$HOME_TEST" \
   "$FIXTURE_BIN" "$LINKED_BIN" "$FIXTURE/sample" \
-  "$KNOWLEDGE_BASE/root" \
+  "$KNOWLEDGE_BASE/root/skills/present-for-decision" \
+  "$KNOWLEDGE_BASE/root/processes" \
+  "$KNOWLEDGE_BASE/root/principles" \
+  "$KNOWLEDGE_BASE/root/meta" \
   "$FIXTURE/codex/dot-codex" \
   "$FIXTURE/agents/dot-agents/skills/managed" || exit 1
+KNOWLEDGE_BASE=$(cd -P "$KNOWLEDGE_BASE" >/dev/null 2>&1 && pwd) || exit 1
 cp "$REPO_ROOT/dotfiles" "$FIXTURE/dotfiles" || exit 1
 printf '# no reviewed formulae in primary fixture\n' > \
   "$FIXTURE/dotfiles-trusted-formulae"
+printf 'present-for-decision\n' > \
+  "$FIXTURE/dotfiles-knowledge-base-skill-adapter"
 : > "$FIXTURE/brew/Brewfile"
 printf 'agents no-folding\nsample standard\n' > \
   "$FIXTURE/dotfiles-packages"
@@ -103,6 +121,22 @@ printf 'managed v1\n' > \
   "$FIXTURE/agents/dot-agents/skills/managed/SKILL.md"
 printf '# Agent Guide\n' > "$KNOWLEDGE_BASE/AGENTS.md"
 printf '# Knowledge Base\n' > "$KNOWLEDGE_BASE/root/index.md"
+cat > "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.md" <<'EOF'
+---
+name: present-for-decision
+description: Fixture decision skill.
+metadata:
+  okf-status: trial
+---
+
+# Present for Decision
+EOF
+for context in \
+  processes/initiative-wayfinding.md \
+  principles/knowledge-carrying-cost.md \
+  meta/agent-consumption.md; do
+  printf '# Required Context\n' > "$KNOWLEDGE_BASE/root/$context"
+done
 chmod +x "$FIXTURE/dotfiles"
 ln -s "$REPO_ROOT/tests/fake-brew.sh" "$FIXTURE_BIN/brew"
 ln -s "$REPO_ROOT/tests/fake-brew.sh" "$LINKED_BIN/brew"
@@ -170,6 +204,14 @@ else
   printf 'ok - live runtime config uses checkout-independent paths\n'
 fi
 
+if [ ! -e "$REPO_ROOT/claude/README.md" ] &&
+  [ -f "$REPO_ROOT/claude/dot-claude/README.md" ]; then
+  printf 'ok - Claude LEGACY documentation installs only under ~/.claude\n'
+else
+  printf 'not ok - Claude documentation would create an unintended ~/README.md\n'
+  FAILURES=$((FAILURES + 1))
+fi
+
 run_fixture doctor
 assert_status 1 "doctor reports convergence without optional dependencies"
 assert_contains "Repository: $FIXTURE_PHYSICAL" \
@@ -177,6 +219,8 @@ assert_contains "Repository: $FIXTURE_PHYSICAL" \
 assert_contains "GNU Stow is unavailable" "doctor explains missing Stow"
 assert_contains "[OK] tnezdev knowledge base: $KNOWLEDGE_BASE" \
   "doctor accepts a configured knowledge-base root"
+assert_contains "create knowledge-base skill adapter" \
+  "doctor reports the missing knowledge-base adapter"
 
 run_command env -i \
   HOME="$HOME_TEST" \
@@ -204,8 +248,36 @@ run_command env -i \
   TNEZDEV_KNOWLEDGE_BASE_ROOT="$TMPDIR_TEST/missing-knowledge-base" \
   "$FIXTURE_BIN/dotfiles" doctor
 assert_status 1 "doctor rejects a missing knowledge-base checkout"
-assert_contains "knowledge-base entrypoint is unreadable" \
-  "doctor identifies the missing agent entrypoint"
+assert_contains "knowledge-base root is unreadable" \
+  "doctor identifies the missing knowledge-base checkout"
+
+mv "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.md" \
+  "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.invalid"
+run_fixture doctor
+assert_status 1 "doctor rejects a missing knowledge-base skill entrypoint"
+assert_contains "knowledge-base skill entrypoint is unreadable" \
+  "doctor identifies the missing skill entrypoint"
+mv "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.invalid" \
+  "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.md"
+
+cp "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.md" \
+  "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.valid"
+printf '%s\n' '---' 'name: wrong-name' 'description: Invalid.' '---' > \
+  "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.md"
+run_fixture plan
+assert_status 1 "plan rejects invalid knowledge-base skill frontmatter"
+assert_contains "invalid knowledge-base skill frontmatter" \
+  "plan explains invalid skill metadata"
+mv "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.valid" \
+  "$KNOWLEDGE_BASE/root/skills/present-for-decision/SKILL.md"
+
+rm -f "$KNOWLEDGE_BASE/root/meta/agent-consumption.md"
+run_fixture doctor
+assert_status 1 "doctor rejects missing bundle-root skill context"
+assert_contains "required knowledge-base skill context is unreadable" \
+  "doctor resolves required context below the OKF bundle root"
+printf '# Required Context\n' > \
+  "$KNOWLEDGE_BASE/root/meta/agent-consumption.md"
 
 mkdir -p "$GIT_PRIMARY/brew" "$GIT_HOME/.local/bin"
 cp "$REPO_ROOT/dotfiles" "$GIT_PRIMARY/dotfiles"
@@ -214,6 +286,8 @@ printf '# no reviewed formulae in launcher fixture\n' > \
   "$GIT_PRIMARY/dotfiles-trusted-formulae"
 printf '# no Stow packages in launcher fixture\n' > \
   "$GIT_PRIMARY/dotfiles-packages"
+printf 'present-for-decision\n' > \
+  "$GIT_PRIMARY/dotfiles-knowledge-base-skill-adapter"
 : > "$GIT_PRIMARY/brew/Brewfile"
 chmod +x "$GIT_PRIMARY/dotfiles" "$GIT_PRIMARY/install.sh"
 git -C "$GIT_PRIMARY" init -q
@@ -258,6 +332,51 @@ if [ -n "$STOW_BIN" ]; then
     "$HOME_TEST/.agents/skills/private/SKILL.md"
   run_fixture apply
   assert_status 0 "apply converges a primary checkout in temporary home"
+  adapter=$HOME_TEST/.agents/skills/present-for-decision
+  adapter_source=$KNOWLEDGE_BASE/root/skills/present-for-decision
+  if [ -L "$adapter" ] && [ "$(readlink "$adapter")" = "$adapter_source" ]; then
+    printf 'ok - apply creates the whole-directory knowledge-base adapter\n'
+  else
+    printf 'not ok - knowledge-base adapter is not the expected directory link\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+  if cmp -s "$adapter/SKILL.md" "$adapter_source/SKILL.md"; then
+    printf 'ok - adapter exposes canonical skill frontmatter without copying\n'
+  else
+    printf 'not ok - adapter does not expose the canonical skill entrypoint\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+  if [ -f "$KNOWLEDGE_BASE/root/processes/initiative-wayfinding.md" ] &&
+    [ -f "$KNOWLEDGE_BASE/root/principles/knowledge-carrying-cost.md" ] &&
+    [ -f "$KNOWLEDGE_BASE/root/meta/agent-consumption.md" ]; then
+    printf 'ok - adapter required context resolves below the OKF bundle root\n'
+  else
+    printf 'not ok - adapter required context is not bundle-root resolvable\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+  adapter_state=$HOME_TEST/.local/state/dotfiles/knowledge-base-skill-adapter
+  if [ "$(< "$adapter_state")" = \
+    "present-for-decision|$adapter_source" ]; then
+    printf 'ok - adapter ownership records its exact generated target\n'
+  else
+    printf 'not ok - adapter ownership state is incorrect\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+
+  rm -f "$adapter" "$adapter_state"
+  chmod 500 "$HOME_TEST/.agents/skills"
+  run_fixture apply
+  assert_status 1 "failed adapter creation does not claim ownership"
+  chmod 700 "$HOME_TEST/.agents/skills"
+  if [ ! -e "$adapter" ] && [ ! -L "$adapter" ] &&
+    [ ! -e "$adapter_state" ] && [ ! -L "$adapter_state" ]; then
+    printf 'ok - link failure leaves no adapter or ownership state\n'
+  else
+    printf 'not ok - link failure left adapter ownership behind\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+  run_fixture apply
+  assert_status 0 "apply creates the adapter after link failure is repaired"
   if [ "$(readlink "$HOME_TEST/.local/bin/dotfiles")" = \
     "$FIXTURE_PHYSICAL/dotfiles" ]; then
     printf 'ok - apply installs a canonical CLI launcher\n'
@@ -278,6 +397,176 @@ if [ -n "$STOW_BIN" ]; then
     printf 'not ok - apply changed an unrelated regular SKILL.md\n'
     FAILURES=$((FAILURES + 1))
   fi
+
+  KNOWLEDGE_BASE_MOVED=$TMPDIR_TEST/knowledge-base-moved
+  cp -R "$KNOWLEDGE_BASE" "$KNOWLEDGE_BASE_MOVED"
+  rm -rf "$KNOWLEDGE_BASE"
+  KNOWLEDGE_BASE_MOVED=$(cd -P "$KNOWLEDGE_BASE_MOVED" >/dev/null 2>&1 && pwd) ||
+    exit 1
+  run_fixture_with_root "$KNOWLEDGE_BASE_MOVED" plan
+  assert_status 0 "plan detects a dangling lifecycle-owned adapter"
+  assert_contains "repair lifecycle-owned knowledge-base skill adapter" \
+    "plan reports repair through the normal lifecycle path"
+  run_fixture_with_root "$KNOWLEDGE_BASE_MOVED" apply
+  assert_status 0 "apply repairs an adapter after the configured root moves"
+  KNOWLEDGE_BASE=$KNOWLEDGE_BASE_MOVED
+  adapter_source=$KNOWLEDGE_BASE/root/skills/present-for-decision
+  if [ "$(readlink "$adapter")" = "$adapter_source" ]; then
+    printf 'ok - repaired adapter targets the newly configured root\n'
+  else
+    printf 'not ok - repaired adapter retains its dangling target\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+
+  rm -f "$adapter"
+  run_fixture plan
+  assert_status 0 "plan detects a missing lifecycle-owned adapter"
+  assert_contains "repair lifecycle-owned knowledge-base skill adapter" \
+    "missing managed link is repairable only through the lifecycle"
+  run_fixture apply
+  assert_status 0 "apply repairs a missing lifecycle-owned adapter"
+
+  stale_state_target=$TMPDIR_TEST/stale/root/skills/present-for-decision
+  printf 'present-for-decision|%s\n' "$stale_state_target" > "$adapter_state"
+  run_fixture doctor
+  assert_status 1 "doctor rejects stale adapter ownership state"
+  assert_contains "repair knowledge-base skill ownership state" \
+    "doctor does not report a correct link with stale state as current"
+  run_fixture plan
+  assert_status 0 "plan identifies stale adapter ownership state"
+  assert_contains "repair stale knowledge-base skill ownership state" \
+    "plan isolates state repair from link repair"
+  run_fixture apply
+  assert_status 0 "apply repairs stale adapter ownership state"
+  if [ "$(readlink "$adapter")" = "$adapter_source" ] &&
+    [ "$(< "$adapter_state")" = \
+      "present-for-decision|$adapter_source" ]; then
+    printf 'ok - state repair preserves the correct link and converges ownership\n'
+  else
+    printf 'not ok - state repair changed the link or retained stale ownership\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+
+  owned_old_target=$TMPDIR_TEST/owned/root/skills/present-for-decision
+  printf 'present-for-decision|%s\n' "$owned_old_target" > "$adapter_state"
+  rm -f "$adapter"
+  ln -s "$owned_old_target" "$adapter"
+  run_fixture plan
+  assert_status 0 "plan detects an incorrectly targeted managed adapter"
+  assert_contains "repair lifecycle-owned knowledge-base skill adapter" \
+    "ownership state permits repair only through the lifecycle"
+  run_fixture apply
+  assert_status 0 "apply repairs an incorrectly targeted managed adapter"
+  if [ "$(readlink "$adapter")" = "$adapter_source" ]; then
+    printf 'ok - managed adapter repair restores the configured source\n'
+  else
+    printf 'not ok - managed adapter repair retained the wrong target\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+
+  stale_owned_target=$TMPDIR_TEST/stale-owned/root/skills/present-for-decision
+  changed_link_target=$TMPDIR_TEST/user-replaced-target
+  printf 'present-for-decision|%s\n' "$stale_owned_target" > "$adapter_state"
+  rm -f "$adapter"
+  ln -s "$changed_link_target" "$adapter"
+  run_fixture plan
+  assert_status 1 "plan rejects a changed symlink with stale ownership state"
+  assert_contains "symlink differs from recorded ownership" \
+    "changed link is not mistaken for a lifecycle-owned moved-root adapter"
+  run_fixture apply
+  assert_status 1 "apply preserves a changed symlink with stale state"
+  if [ "$(readlink "$adapter")" = "$changed_link_target" ] &&
+    [ "$(< "$adapter_state")" = \
+      "present-for-decision|$stale_owned_target" ]; then
+    printf 'ok - changed symlink and stale ownership state are preserved\n'
+  else
+    printf 'not ok - lifecycle changed an unproven adapter symlink or its state\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+  rm -f "$adapter"
+  ln -s "$adapter_source" "$adapter"
+  printf 'present-for-decision|%s\n' "$adapter_source" > "$adapter_state"
+
+  printf 'present-for-decision|/tmp/../root/skills/present-for-decision\n' > \
+    "$adapter_state"
+  run_fixture doctor
+  assert_status 1 "doctor rejects traversal in adapter ownership state"
+  assert_contains "invalid knowledge-base adapter ownership state" \
+    "ownership state path traversal is rejected"
+  printf 'present-for-decision|%s\n' "$adapter_source" > "$adapter_state"
+
+  mv "$adapter_state" "$adapter_state.regular"
+  ln -s "$adapter_state.regular" "$adapter_state"
+  run_fixture plan
+  assert_status 1 "plan rejects symlinked adapter ownership state"
+  assert_contains "ownership state is a symlink" \
+    "ownership cannot be asserted through an unmanaged state symlink"
+  rm -f "$adapter_state"
+  mv "$adapter_state.regular" "$adapter_state"
+
+  : > "$FIXTURE/dotfiles-knowledge-base-skill-adapter"
+  run_fixture plan
+  assert_status 0 "plan reports safe adapter retirement"
+  assert_contains "remove retired lifecycle-owned" \
+    "retirement is constrained to the state-owned adapter"
+  run_fixture apply
+  assert_status 0 "apply safely removes a retired adapter"
+  if [ ! -e "$adapter" ] && [ ! -L "$adapter" ] &&
+    [ ! -e "$adapter_state" ]; then
+    printf 'ok - retirement removes only the adapter and its ownership state\n'
+  else
+    printf 'not ok - retired adapter or ownership state remains\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+  if [ -f "$adapter_source/SKILL.md" ] &&
+    [ -f "$HOME_TEST/.agents/skills/private/SKILL.md" ]; then
+    printf 'ok - retirement preserves the KB source and unrelated skills\n'
+  else
+    printf 'not ok - retirement changed source or unrelated skill data\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+  printf 'present-for-decision\n' > \
+    "$FIXTURE/dotfiles-knowledge-base-skill-adapter"
+  run_fixture apply
+  assert_status 0 "apply restores the declared adapter after retirement test"
+
+  rm -f "$adapter" "$adapter_state"
+  mkdir -p "$adapter"
+  run_fixture plan
+  assert_status 1 "plan rejects an unmanaged adapter directory"
+  assert_contains "unmanaged target blocks knowledge-base adapter" \
+    "unmanaged directory is reported without replacement"
+  rm -rf "$adapter"
+  printf 'unmanaged file\n' > "$adapter"
+  run_fixture apply
+  assert_status 1 "apply refuses an unmanaged adapter file"
+  assert_contains "unmanaged target blocks knowledge-base adapter" \
+    "unmanaged file is reported without replacement"
+  if [ "$(< "$adapter")" = "unmanaged file" ]; then
+    printf 'ok - unmanaged adapter target is preserved\n'
+  else
+    printf 'not ok - unmanaged adapter target was changed\n'
+    FAILURES=$((FAILURES + 1))
+  fi
+  rm -f "$adapter"
+  ln -s "$TMPDIR_TEST/unmanaged-target" "$adapter"
+  run_fixture doctor
+  assert_status 1 "doctor rejects an unmanaged adapter symlink"
+  assert_contains "unmanaged symlink blocks knowledge-base adapter" \
+    "unmanaged symlink is reported without replacement"
+  rm -f "$adapter"
+  run_fixture apply
+  assert_status 0 "apply restores adapter after unmanaged-target tests"
+
+  mkdir -p \
+    "$FIXTURE/agents/dot-agents/skills/present-for-decision"
+  printf 'copied collision\n' > \
+    "$FIXTURE/agents/dot-agents/skills/present-for-decision/SKILL.md"
+  run_fixture plan
+  assert_status 1 "plan keeps the adapter out of the copied materializer"
+  assert_contains "copied skill materializer cannot own reserved name" \
+    "adapter ownership remains separate from copied skills"
+  rm -rf "$FIXTURE/agents/dot-agents/skills/present-for-decision"
 
   printf 'managed v2\n' > \
     "$FIXTURE/agents/dot-agents/skills/managed/SKILL.md"
@@ -349,6 +638,7 @@ if [ -n "$STOW_BIN" ]; then
     run_command env -i HOME="$HOME_TEST" \
       PATH="$FIXTURE_BIN:/usr/bin:/bin" \
       TMPDIR="$TMPDIR_TEST" \
+      TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
       DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
       FAKE_HERDR_PLUGIN_ENABLED=false \
       FAKE_HERDR_PLUGIN_MARKER="$TMPDIR_TEST/herdr-plugin-installed" \
@@ -365,6 +655,7 @@ if [ -n "$STOW_BIN" ]; then
     run_command env -i HOME="$HOME_TEST" \
       PATH="$FIXTURE_BIN:/usr/bin:/bin" \
       TMPDIR="$TMPDIR_TEST" \
+      TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
       DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
       FAKE_HERDR_PLUGIN_ENABLED=true \
       FAKE_HERDR_PLUGIN_COMMIT=0000000000000000000000000000000000000000 \
@@ -383,6 +674,7 @@ if [ -n "$STOW_BIN" ]; then
     run_command env -i HOME="$HOME_TEST" \
       PATH="$FIXTURE_BIN:/usr/bin:/bin" \
       TMPDIR="$TMPDIR_TEST" \
+      TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
       DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
       FAKE_HERDR_PLUGIN_ENABLED=true \
       FAKE_HERDR_PLUGIN_MARKER="$TMPDIR_TEST/herdr-plugin-installed" \

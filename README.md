@@ -119,12 +119,47 @@ stow --dir="$HOME/Code/tnez/dotfiles/main" \
 
 Include `--no-folding` in that command when the manifest records that mode.
 
-Shared agent `SKILL.md` files are materialized because Codex does not reliably
-load symlinked entrypoints. Ownership and checksums are recorded in
+`~/.agents/skills` is the only supported shared local skill-discovery root.
+Dotfiles-owned shared `SKILL.md` files are materialized because Codex does not
+reliably load symlinked entrypoints. Ownership and checksums are recorded in
 `~/.local/state/dotfiles/materialized-skills`. Apply removes stale copies only
 when that state proves ownership and the file is unchanged. A regular file or
 unmanaged symlink at any managed target is reported as a conflict, not
 overwritten.
+
+The separate knowledge-base trial exposes only `present-for-decision` as a
+whole-directory link:
+
+```text
+${TNEZDEV_KNOWLEDGE_BASE_ROOT}/root/skills/present-for-decision
+  -> ~/.agents/skills/present-for-decision
+```
+
+The knowledge base owns that entire directory, including frontmatter and
+supporting files; dotfiles never copies or rewrites it. The adapter requires an
+absolute, readable `TNEZDEV_KNOWLEDGE_BASE_ROOT` with `AGENTS.md`,
+`root/index.md`, and the trial skill. `doctor` and `plan` validate the source,
+its three required context files, managed link, and ownership state read-only.
+After integration, run `apply` from the primary checkout to create or repair
+the link. The live skill resolves its `/processes/...`, `/principles/...`, and
+`/meta/...` required-context links against
+`${TNEZDEV_KNOWLEDGE_BASE_ROOT}/root`, as directed by the global agent
+instructions and the knowledge-base Agent Consumption Contract; these links
+are not host-filesystem-root paths.
+
+Ownership is recorded in
+`~/.local/state/dotfiles/knowledge-base-skill-adapter`. An unmanaged symlink,
+file, or directory at the adapter path is always a conflict. To retire the
+trial, remove its sole declaration from
+`dotfiles-knowledge-base-skill-adapter`, review `doctor` and `plan`, then run
+`apply` from the primary checkout. Apply removes only the link whose exact
+target still matches recorded ownership, removes its state, and leaves the KB
+source and unrelated Agents skills untouched.
+
+`~/.claude/skills` is **LEGACY**. Do not add or maintain shared skills there;
+the existing Claude package and installed legacy entries are intentionally
+deferred to separately reviewed cleanup. There is no Claude adapter for
+`present-for-decision`, and Claude Code access to it is out of scope.
 
 Manual Stow operations still require `--dotfiles`, for example:
 

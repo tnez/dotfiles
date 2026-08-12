@@ -11,6 +11,11 @@ context is relevant, read `${TNEZDEV_KNOWLEDGE_BASE_ROOT}/AGENTS.md`, then use
 If the variable or either entrypoint is unavailable, report that configuration
 problem instead of searching for another checkout.
 
+For a knowledge-base-owned skill, resolve Required Context links beginning with
+`/` against `${TNEZDEV_KNOWLEDGE_BASE_ROOT}/root`, the OKF bundle root. Never
+treat those links as host-filesystem-root paths. Load only the skill's named
+context and task-relevant dependencies.
+
 Optional machine-local operating context may be exposed through
 `TNEZDEV_LOCAL_CONTEXT_ROOT`. Do not resolve or load it during routine startup.
 Consult it when a task may depend on the user's current work, ongoing

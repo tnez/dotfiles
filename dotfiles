@@ -28,9 +28,12 @@ REPO_ROOT=${CLI_PATH%/*}
 BREWFILE=$REPO_ROOT/brew/Brewfile
 PACKAGE_MANIFEST=$REPO_ROOT/dotfiles-packages
 TRUST_MANIFEST=$REPO_ROOT/dotfiles-trusted-formulae
+KB_SKILL_ADAPTER_MANIFEST=$REPO_ROOT/dotfiles-knowledge-base-skill-adapter
 LAUNCHER=$HOME/.local/bin/dotfiles
 STATE_DIR=$HOME/.local/state/dotfiles
 SKILL_STATE=$STATE_DIR/materialized-skills
+KB_SKILL_ADAPTER_STATE=$STATE_DIR/knowledge-base-skill-adapter
+KB_SKILL_ADAPTER_NAME=present-for-decision
 ACTION_REQUIRED=3
 BREW_BIN=
 NON_INTERACTIVE=0
@@ -329,13 +332,353 @@ skill_destination() {
   printf '%s/.agents/skills/%s/SKILL.md\n' "$HOME" "$1"
 }
 
+knowledge_base_skill_adapter_destination() {
+  printf '%s/.agents/skills/%s\n' "$HOME" "$KB_SKILL_ADAPTER_NAME"
+}
+
+load_knowledge_base_skill_adapter_manifest() {
+  local name extra found=0
+
+  KB_ADAPTER_DESIRED_NAME=
+  [ -f "$KB_SKILL_ADAPTER_MANIFEST" ] || {
+    printf 'ERROR: missing knowledge-base skill adapter declaration: %s\n' \
+      "$KB_SKILL_ADAPTER_MANIFEST" >&2
+    return 1
+  }
+  while read -r name extra || [ -n "$name$extra" ]; do
+    case "$name" in
+      ''|'#'*) continue ;;
+    esac
+    if [ "$name" != "$KB_SKILL_ADAPTER_NAME" ] || [ -n "$extra" ] ||
+      [ "$found" -eq 1 ]; then
+      printf 'ERROR: adapter declaration permits only %s: %s\n' \
+        "$KB_SKILL_ADAPTER_NAME" "$KB_SKILL_ADAPTER_MANIFEST" >&2
+      return 1
+    fi
+    KB_ADAPTER_DESIRED_NAME=$name
+    found=1
+  done < "$KB_SKILL_ADAPTER_MANIFEST"
+}
+
+resolve_knowledge_base_root() {
+  local configured=${TNEZDEV_KNOWLEDGE_BASE_ROOT:-}
+
+  KB_ROOT=
+  case "$configured" in
+    '')
+      printf 'ERROR: TNEZDEV_KNOWLEDGE_BASE_ROOT is not set. ' >&2
+      printf 'Export an absolute knowledge-base checkout path.\n' >&2
+      return 1
+      ;;
+    /*) ;;
+    *)
+      printf 'ERROR: TNEZDEV_KNOWLEDGE_BASE_ROOT must be absolute: %s\n' \
+        "$configured" >&2
+      return 1
+      ;;
+  esac
+  if [ ! -d "$configured" ] || [ ! -r "$configured" ] ||
+    [ ! -x "$configured" ]; then
+    printf 'ERROR: knowledge-base root is unreadable: %s\n' \
+      "$configured" >&2
+    return 1
+  fi
+  if [ ! -r "$configured/AGENTS.md" ]; then
+    printf 'ERROR: knowledge-base entrypoint is unreadable: %s\n' \
+      "$configured/AGENTS.md" >&2
+    return 1
+  fi
+  if [ ! -r "$configured/root/index.md" ]; then
+    printf 'ERROR: OKF bundle entrypoint is unreadable: %s\n' \
+      "$configured/root/index.md" >&2
+    return 1
+  fi
+  KB_ROOT=$(cd -P "$configured" >/dev/null 2>&1 && pwd) || {
+    printf 'ERROR: cannot resolve knowledge-base root: %s\n' \
+      "$configured" >&2
+    return 1
+  }
+}
+
+validate_knowledge_base_skill_source() {
+  local source=$1 line context first=1 ended=0 name_ok=0
+  local description_ok=0 status_ok=0
+
+  if [ ! -d "$source" ] || [ ! -r "$source" ] || [ ! -x "$source" ]; then
+    printf 'ERROR: knowledge-base skill directory is unreadable: %s\n' \
+      "$source" >&2
+    printf 'Repair the configured knowledge base, then rerun doctor.\n' >&2
+    return 1
+  fi
+  if [ ! -f "$source/SKILL.md" ] || [ ! -r "$source/SKILL.md" ]; then
+    printf 'ERROR: knowledge-base skill entrypoint is unreadable: %s\n' \
+      "$source/SKILL.md" >&2
+    printf 'Repair the configured knowledge base, then rerun doctor.\n' >&2
+    return 1
+  fi
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [ "$first" -eq 1 ]; then
+      [ "$line" = '---' ] || break
+      first=0
+      continue
+    fi
+    if [ "$line" = '---' ]; then
+      ended=1
+      break
+    fi
+    case "$line" in
+      "name: $KB_SKILL_ADAPTER_NAME") name_ok=1 ;;
+      'description: '?*) description_ok=1 ;;
+      '  okf-status: trial') status_ok=1 ;;
+    esac
+  done < "$source/SKILL.md"
+
+  if [ "$first" -ne 0 ] || [ "$ended" -ne 1 ] || [ "$name_ok" -ne 1 ] ||
+    [ "$description_ok" -ne 1 ] || [ "$status_ok" -ne 1 ]; then
+    printf 'ERROR: invalid knowledge-base skill frontmatter: %s\n' \
+      "$source/SKILL.md" >&2
+    printf 'Expected name %s, a description, and trial OKF status.\n' \
+      "$KB_SKILL_ADAPTER_NAME" >&2
+    return 1
+  fi
+
+  for context in \
+    /processes/initiative-wayfinding.md \
+    /principles/knowledge-carrying-cost.md \
+    /meta/agent-consumption.md; do
+    if [ ! -f "$KB_ROOT/root$context" ] ||
+      [ ! -r "$KB_ROOT/root$context" ]; then
+      printf 'ERROR: required knowledge-base skill context is unreadable: %s\n' \
+        "$KB_ROOT/root$context" >&2
+      printf 'Bundle-root links resolve below %s/root, not the host root.\n' \
+        "$KB_ROOT" >&2
+      return 1
+    fi
+  done
+}
+
+safe_knowledge_base_adapter_target() {
+  case "$1" in
+    /*/root/skills/present-for-decision) ;;
+    *) return 1 ;;
+  esac
+  case "$1" in
+    *//*|*/./*|*/../*|*/.|*/..) return 1 ;;
+  esac
+}
+
+knowledge_base_adapter_state_path_is_safe() {
+  local parent
+
+  for parent in "$HOME/.local" "$HOME/.local/state" "$STATE_DIR"; do
+    if [ -L "$parent" ]; then
+      printf 'CONFLICT: adapter state parent must not be a symlink: %s\n' \
+        "$parent" >&2
+      return 1
+    fi
+    if [ -e "$parent" ] && [ ! -d "$parent" ]; then
+      printf 'CONFLICT: adapter state parent is not a directory: %s\n' \
+        "$parent" >&2
+      return 1
+    fi
+  done
+}
+
+load_knowledge_base_skill_adapter_state() {
+  local name target extra lines=0
+
+  KB_ADAPTER_STATE_PRESENT=0
+  KB_ADAPTER_STATE_TARGET=
+  knowledge_base_adapter_state_path_is_safe || return 1
+  if [ -L "$KB_SKILL_ADAPTER_STATE" ]; then
+    printf 'CONFLICT: knowledge-base adapter ownership state is a symlink: %s\n' \
+      "$KB_SKILL_ADAPTER_STATE" >&2
+    printf 'Replace it with reviewed regular-file ownership state.\n' >&2
+    return 1
+  fi
+  if [ -e "$KB_SKILL_ADAPTER_STATE" ] &&
+    [ ! -f "$KB_SKILL_ADAPTER_STATE" ]; then
+    printf 'CONFLICT: knowledge-base adapter ownership state is not a file: %s\n' \
+      "$KB_SKILL_ADAPTER_STATE" >&2
+    return 1
+  fi
+  [ -f "$KB_SKILL_ADAPTER_STATE" ] || return 0
+  while IFS='|' read -r name target extra || [ -n "$name$target$extra" ]; do
+    lines=$((lines + 1))
+    if [ "$lines" -ne 1 ] || [ "$name" != "$KB_SKILL_ADAPTER_NAME" ] ||
+      [ -z "$target" ] || [ -n "$extra" ] ||
+      ! safe_knowledge_base_adapter_target "$target"; then
+      printf 'CONFLICT: invalid knowledge-base adapter ownership state: %s\n' \
+        "$KB_SKILL_ADAPTER_STATE" >&2
+      printf 'Restore reviewed ownership state before running apply.\n' >&2
+      return 1
+    fi
+    KB_ADAPTER_STATE_TARGET=$target
+  done < "$KB_SKILL_ADAPTER_STATE"
+  if [ "$lines" -ne 1 ]; then
+    printf 'CONFLICT: empty knowledge-base adapter ownership state: %s\n' \
+      "$KB_SKILL_ADAPTER_STATE" >&2
+    return 1
+  fi
+  KB_ADAPTER_STATE_PRESENT=1
+}
+
+knowledge_base_adapter_parents_are_safe() {
+  local parent
+
+  for parent in "$HOME/.agents" "$HOME/.agents/skills"; do
+    if [ -L "$parent" ]; then
+      printf 'CONFLICT: adapter parent must not be a symlink: %s\n' \
+        "$parent" >&2
+      return 1
+    fi
+    if [ -e "$parent" ] && [ ! -d "$parent" ]; then
+      printf 'CONFLICT: adapter parent is not a directory: %s\n' \
+        "$parent" >&2
+      return 1
+    fi
+  done
+}
+
+inspect_knowledge_base_skill_adapter() {
+  local destination link_target
+
+  KB_ADAPTER_ACTION=
+  KB_ADAPTER_SOURCE=
+  load_knowledge_base_skill_adapter_manifest || return 1
+  resolve_knowledge_base_root || return 1
+  knowledge_base_adapter_parents_are_safe || return 1
+  load_knowledge_base_skill_adapter_state || return 1
+  destination=$(knowledge_base_skill_adapter_destination)
+
+  if [ -n "$KB_ADAPTER_DESIRED_NAME" ]; then
+    KB_ADAPTER_SOURCE=$KB_ROOT/root/skills/$KB_ADAPTER_DESIRED_NAME
+    validate_knowledge_base_skill_source "$KB_ADAPTER_SOURCE" || return 1
+    if [ -L "$destination" ]; then
+      link_target=$(readlink "$destination")
+      if [ "$KB_ADAPTER_STATE_PRESENT" -ne 1 ]; then
+        printf 'CONFLICT: unmanaged symlink blocks knowledge-base adapter: %s\n' \
+          "$destination" >&2
+        printf 'Move it aside, then run dotfiles apply from the primary checkout.\n' \
+          >&2
+        return 1
+      fi
+      if [ "$link_target" = "$KB_ADAPTER_SOURCE" ]; then
+        if [ "$KB_ADAPTER_STATE_TARGET" = "$KB_ADAPTER_SOURCE" ]; then
+          KB_ADAPTER_ACTION=ok
+        else
+          KB_ADAPTER_ACTION=repair-state
+        fi
+      elif [ "$link_target" = "$KB_ADAPTER_STATE_TARGET" ]; then
+        KB_ADAPTER_ACTION=repair
+      else
+        printf 'CONFLICT: knowledge-base adapter symlink differs from ' >&2
+        printf 'recorded ownership: %s\n' "$destination" >&2
+        printf 'Preserve or move the unmanaged link, then restore the recorded ' >&2
+        printf 'target before running dotfiles apply.\n' >&2
+        return 1
+      fi
+    elif [ -e "$destination" ]; then
+      printf 'CONFLICT: unmanaged target blocks knowledge-base adapter: %s\n' \
+        "$destination" >&2
+      printf 'Move it aside, then run dotfiles apply from the primary checkout.\n' \
+        >&2
+      return 1
+    elif [ "$KB_ADAPTER_STATE_PRESENT" -eq 1 ]; then
+      KB_ADAPTER_ACTION=repair
+    else
+      KB_ADAPTER_ACTION=create
+    fi
+  elif [ "$KB_ADAPTER_STATE_PRESENT" -eq 1 ]; then
+    if [ -L "$destination" ]; then
+      link_target=$(readlink "$destination")
+      if [ "$link_target" != "$KB_ADAPTER_STATE_TARGET" ]; then
+        printf 'CONFLICT: retired adapter target was changed: %s\n' \
+          "$destination" >&2
+        printf 'Restore its recorded target before running dotfiles apply.\n' >&2
+        return 1
+      fi
+    elif [ -e "$destination" ]; then
+      printf 'CONFLICT: retired adapter path is no longer its managed link: %s\n' \
+        "$destination" >&2
+      printf 'Restore its recorded link before running dotfiles apply.\n' >&2
+      return 1
+    fi
+    KB_ADAPTER_ACTION=remove
+  else
+    KB_ADAPTER_ACTION=retired
+  fi
+}
+
+converge_knowledge_base_skill_adapter() {
+  local destination state_tmp
+
+  destination=$(knowledge_base_skill_adapter_destination)
+  if [ "$KB_ADAPTER_ACTION" = remove ]; then
+    [ ! -L "$destination" ] || rm -f "$destination" || return 1
+    rm -f "$KB_SKILL_ADAPTER_STATE" || return 1
+    rmdir "${destination%/*}" 2>/dev/null || true
+    rmdir "$HOME/.agents" 2>/dev/null || true
+    return 0
+  fi
+  [ -n "$KB_ADAPTER_DESIRED_NAME" ] || return 0
+  [ "$KB_ADAPTER_ACTION" != ok ] || return 0
+
+  mkdir -p "$STATE_DIR" "${destination%/*}" || return 1
+  state_tmp=$KB_SKILL_ADAPTER_STATE.tmp.$$
+  printf '%s|%s\n' "$KB_SKILL_ADAPTER_NAME" "$KB_ADAPTER_SOURCE" > \
+    "$state_tmp" || return 1
+  case "$KB_ADAPTER_ACTION" in
+    repair-state)
+      if ! mv "$state_tmp" "$KB_SKILL_ADAPTER_STATE"; then
+        rm -f "$state_tmp"
+        return 1
+      fi
+      ;;
+    create)
+      if ! ln -s "$KB_ADAPTER_SOURCE" "$destination"; then
+        rm -f "$state_tmp"
+        return 1
+      fi
+      if ! mv "$state_tmp" "$KB_SKILL_ADAPTER_STATE"; then
+        rm -f "$destination"
+        rm -f "$state_tmp"
+        return 1
+      fi
+      ;;
+    repair)
+      if [ -L "$destination" ]; then
+        rm -f "$destination" || {
+          rm -f "$state_tmp"
+          return 1
+        }
+      fi
+      if ! ln -s "$KB_ADAPTER_SOURCE" "$destination"; then
+        rm -f "$state_tmp"
+        return 1
+      fi
+      if ! mv "$state_tmp" "$KB_SKILL_ADAPTER_STATE"; then
+        rm -f "$state_tmp"
+        return 1
+      fi
+      ;;
+    *)
+      rm -f "$state_tmp"
+      printf 'ERROR: invalid knowledge-base adapter action: %s\n' \
+        "$KB_ADAPTER_ACTION" >&2
+      return 1
+      ;;
+  esac
+}
+
 file_checksum() {
   cksum < "$1"
 }
 
 valid_skill_name() {
   case "$1" in
-    ''|*/*|.|..) return 1 ;;
+    ''|*/*|.|..|"$KB_SKILL_ADAPTER_NAME") return 1 ;;
     *) return 0 ;;
   esac
 }
@@ -393,6 +736,12 @@ owned_skill_conflicts() {
     [ -f "$source" ] || continue
     skill=${source%/SKILL.md}
     skill=${skill##*/}
+    if ! valid_skill_name "$skill"; then
+      printf 'CONFLICT: copied skill materializer cannot own reserved name: %s\n' \
+        "$skill" >&2
+      conflicts=1
+      continue
+    fi
     destination=$(skill_destination "$skill")
     expected=$(skill_state_checksum "$skill" 2>/dev/null || true)
     if [ -f "$destination" ] && [ ! -L "$destination" ]; then
@@ -450,6 +799,7 @@ remove_owned_skills() {
     [ -f "$source" ] || continue
     skill=${source%/SKILL.md}
     skill=${skill##*/}
+    valid_skill_name "$skill" || continue
     destination=$(skill_destination "$skill")
     if [ -f "$destination" ] && [ ! -L "$destination" ] &&
       cmp -s "$source" "$destination"; then
@@ -470,6 +820,12 @@ materialize_skills() {
     [ -f "$source" ] || continue
     skill=${source%/SKILL.md}
     skill=${skill##*/}
+    if ! valid_skill_name "$skill"; then
+      printf 'ERROR: copied skill materializer cannot own reserved name: %s\n' \
+        "$skill" >&2
+      rm -f "$state_tmp"
+      return 1
+    fi
     destination=$(skill_destination "$skill")
     mkdir -p "${destination%/*}" || return 1
 
@@ -651,7 +1007,7 @@ EOF
 }
 
 run_doctor() {
-  local issues=0 action_needed=0 status formula knowledge_base_root
+  local issues=0 action_needed=0 status formula
 
   printf 'Dotfiles doctor\n'
   printf 'Repository: %s\n' "$REPO_ROOT"
@@ -672,31 +1028,40 @@ run_doctor() {
     issues=1
   fi
 
-  knowledge_base_root=${TNEZDEV_KNOWLEDGE_BASE_ROOT:-}
-  case "$knowledge_base_root" in
-    '')
-      printf '[ERROR] TNEZDEV_KNOWLEDGE_BASE_ROOT is not set\n'
-      issues=1
-      ;;
-    /*)
-      if [ ! -r "$knowledge_base_root/AGENTS.md" ]; then
-        printf '[ERROR] knowledge-base entrypoint is unreadable: %s\n' \
-          "$knowledge_base_root/AGENTS.md"
+  if inspect_knowledge_base_skill_adapter; then
+    printf '[OK] tnezdev knowledge base: %s\n' "$KB_ROOT"
+    case "$KB_ADAPTER_ACTION" in
+      ok)
+        printf '[OK] knowledge-base skill adapter: %s\n' \
+          "$KB_SKILL_ADAPTER_NAME"
+        ;;
+      create)
+        printf '[NEEDS_APPLY] create knowledge-base skill adapter: %s\n' \
+          "$KB_SKILL_ADAPTER_NAME"
         issues=1
-      elif [ ! -r "$knowledge_base_root/root/index.md" ]; then
-        printf '[ERROR] OKF bundle entrypoint is unreadable: %s\n' \
-          "$knowledge_base_root/root/index.md"
+        ;;
+      repair)
+        printf '[NEEDS_APPLY] repair knowledge-base skill adapter: %s\n' \
+          "$KB_SKILL_ADAPTER_NAME"
         issues=1
-      else
-        printf '[OK] tnezdev knowledge base: %s\n' "$knowledge_base_root"
-      fi
-      ;;
-    *)
-      printf '[ERROR] TNEZDEV_KNOWLEDGE_BASE_ROOT must be absolute: %s\n' \
-        "$knowledge_base_root"
-      issues=1
-      ;;
-  esac
+        ;;
+      repair-state)
+        printf '[NEEDS_APPLY] repair knowledge-base skill ownership state: %s\n' \
+          "$KB_SKILL_ADAPTER_NAME"
+        issues=1
+        ;;
+      remove)
+        printf '[NEEDS_APPLY] remove retired knowledge-base skill adapter: %s\n' \
+          "$KB_SKILL_ADAPTER_NAME"
+        issues=1
+        ;;
+      retired)
+        printf '[OK] knowledge-base skill adapter is retired\n'
+        ;;
+    esac
+  else
+    issues=1
+  fi
 
   if find_brew; then
     printf '[OK] Homebrew: %s\n' "$BREW_BIN"
@@ -776,6 +1141,38 @@ run_plan() {
   if is_disposable_checkout; then
     printf 'NOTICE: this is a linked/disposable worktree.\n'
     printf 'NOTICE: inspect here, but apply only from the primary checkout.\n'
+  fi
+
+  if inspect_knowledge_base_skill_adapter; then
+    case "$KB_ADAPTER_ACTION" in
+      ok)
+        printf 'NOOP: knowledge-base skill adapter is current.\n'
+        ;;
+      create)
+        printf 'PLAN: create knowledge-base skill adapter %s -> %s.\n' \
+          "$(knowledge_base_skill_adapter_destination)" "$KB_ADAPTER_SOURCE"
+        ;;
+      repair)
+        printf 'PLAN: repair lifecycle-owned knowledge-base skill adapter '
+        printf '%s -> %s.\n' \
+          "$(knowledge_base_skill_adapter_destination)" "$KB_ADAPTER_SOURCE"
+        ;;
+      repair-state)
+        printf 'PLAN: repair stale knowledge-base skill ownership state '
+        printf '%s -> %s.\n' \
+          "$KB_SKILL_ADAPTER_STATE" "$KB_ADAPTER_SOURCE"
+        ;;
+      remove)
+        printf 'PLAN: remove retired lifecycle-owned knowledge-base skill '
+        printf 'adapter %s.\n' \
+          "$(knowledge_base_skill_adapter_destination)"
+        ;;
+      retired)
+        printf 'NOOP: knowledge-base skill adapter is retired.\n'
+        ;;
+    esac
+  else
+    conflicts=1
   fi
 
   if find_brew; then
@@ -951,6 +1348,7 @@ run_apply() {
       ;;
   esac
   owned_skill_conflicts || return 1
+  inspect_knowledge_base_skill_adapter || return 1
 
   remove_owned_skills || return 1
   remove_legacy_brew_links || return 1
@@ -958,6 +1356,7 @@ run_apply() {
   stow_all 0 || return 1
   seed_codex_config || return 1
   materialize_skills || return 1
+  converge_knowledge_base_skill_adapter || return 1
   install_launcher || return 1
   converge_herdr || return 1
   printf 'Dotfiles apply complete.\n'
