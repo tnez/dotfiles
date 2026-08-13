@@ -10,6 +10,7 @@ tmux-client-*
 .null-ls_*
 
 # project management
+.wtp.yml
 /__external__
 /__scratch__
 .scratch/
