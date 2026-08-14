@@ -85,6 +85,14 @@ Global agent instructions also recognize the optional
 advertise a private `AGENTS.md` router; agents consult that router only when a
 task needs machine-local operating context.
 
+The `com.tnez.launchd-environment` LaunchAgent loads that same profile at macOS
+login and selectively publishes `PATH`, `TNEZDEV_KNOWLEDGE_BASE_ROOT`, and
+`TNEZDEV_LOCAL_CONTEXT_ROOT` through `launchctl`. This gives Finder- and
+Dock-launched applications the same configured roots without duplicating them
+in the LaunchAgent plist. Run `dotfiles apply` after changing the agent or its
+script, then fully restart already-running GUI applications so they inherit the
+updated environment.
+
 Most edits to already-stowed files are immediately live through their existing
 symlinks. Run:
 

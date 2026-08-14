@@ -182,6 +182,28 @@ assert_contains "$HOME_TEST/Documents" \
   "machine-specific local context root is exported"
 rm -f "$HOME_TEST/.profile.local"
 
+ln -s "$REPO_ROOT/profile/dot-profile" "$HOME_TEST/.profile"
+{
+  printf 'export TNEZDEV_KNOWLEDGE_BASE_ROOT="%s"\n' "$KNOWLEDGE_BASE"
+  printf 'export TNEZDEV_LOCAL_CONTEXT_ROOT="%s"\n' \
+    "$HOME_TEST/Documents"
+} >"$HOME_TEST/.profile.local"
+launchctl_log=$TMPDIR_TEST/launchctl-environment.log
+run_command env -i \
+  HOME="$HOME_TEST" \
+  PATH="/usr/bin:/bin" \
+  LAUNCHCTL_BIN="$REPO_ROOT/tests/fake-launchctl-environment.sh" \
+  FAKE_LAUNCHCTL_LOG="$launchctl_log" \
+  /bin/sh "$REPO_ROOT/scripts/dot-scripts/sync-launchd-environment.sh"
+assert_status 0 "GUI environment synchronizer loads the shared profile"
+OUTPUT=$(< "$launchctl_log")
+assert_contains "setenv TNEZDEV_KNOWLEDGE_BASE_ROOT=$KNOWLEDGE_BASE" \
+  "GUI environment publishes the configured knowledge-base root"
+assert_contains "setenv TNEZDEV_LOCAL_CONTEXT_ROOT=$HOME_TEST/Documents" \
+  "GUI environment publishes the configured local-context root"
+assert_contains "setenv PATH=" "GUI environment publishes the resolved PATH"
+rm -f "$HOME_TEST/.profile" "$HOME_TEST/.profile.local"
+
 if grep -q '^satococoa/tap/wtp$' "$REPO_ROOT/dotfiles-trusted-formulae"; then
   printf 'ok - wtp formula-specific trust is recorded\n'
 else

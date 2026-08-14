@@ -34,6 +34,8 @@ STATE_DIR=$HOME/.local/state/dotfiles
 SKILL_STATE=$STATE_DIR/materialized-skills
 KB_SKILL_ADAPTER_STATE=$STATE_DIR/knowledge-base-skill-adapter
 KB_SKILL_ADAPTER_NAME=present-for-decision
+LAUNCHD_ENVIRONMENT_LABEL=com.tnez.launchd-environment
+LEGACY_LAUNCHD_PATH_LABEL=com.tnez.launchd-path
 ACTION_REQUIRED=3
 BREW_BIN=
 NON_INTERACTIVE=0
@@ -229,6 +231,67 @@ launcher_status() {
   else
     printf 'missing\n'
   fi
+}
+
+launchd_environment_plist() {
+  printf '%s/Library/LaunchAgents/%s.plist\n' \
+    "$HOME" "$LAUNCHD_ENVIRONMENT_LABEL"
+}
+
+launchd_environment_status() {
+  local domain service plist
+
+  plist=$(launchd_environment_plist)
+  [ -e "$plist" ] || [ -L "$plist" ] || {
+    printf 'missing\n'
+    return 0
+  }
+  command -v launchctl >/dev/null 2>&1 || {
+    printf 'unavailable\n'
+    return 0
+  }
+
+  domain=gui/$(id -u)
+  service=$domain/$LAUNCHD_ENVIRONMENT_LABEL
+  if ! launchctl print "$service" >/dev/null 2>&1; then
+    printf 'unloaded\n'
+    return 0
+  fi
+  if launchctl print "$domain/$LEGACY_LAUNCHD_PATH_LABEL" \
+    >/dev/null 2>&1; then
+    printf 'legacy-loaded\n'
+    return 0
+  fi
+  if [ "$(launchctl getenv TNEZDEV_KNOWLEDGE_BASE_ROOT 2>/dev/null)" != \
+    "${TNEZDEV_KNOWLEDGE_BASE_ROOT:-}" ]; then
+    printf 'stale\n'
+    return 0
+  fi
+  if [ "$(launchctl getenv TNEZDEV_LOCAL_CONTEXT_ROOT 2>/dev/null)" != \
+    "${TNEZDEV_LOCAL_CONTEXT_ROOT:-}" ]; then
+    printf 'stale\n'
+    return 0
+  fi
+  printf 'ok\n'
+}
+
+converge_launchd_environment() {
+  local domain plist
+
+  plist=$(launchd_environment_plist)
+  [ -e "$plist" ] || [ -L "$plist" ] || return 0
+  command -v launchctl >/dev/null 2>&1 || {
+    printf 'ERROR: launchctl is required to load %s.\n' "$plist" >&2
+    return 1
+  }
+
+  domain=gui/$(id -u)
+  launchctl bootout "$domain/$LEGACY_LAUNCHD_PATH_LABEL" \
+    >/dev/null 2>&1 || true
+  launchctl bootout "$domain/$LAUNCHD_ENVIRONMENT_LABEL" \
+    >/dev/null 2>&1 || true
+  launchctl bootstrap "$domain" "$plist" || return 1
+  launchctl kickstart -k "$domain/$LAUNCHD_ENVIRONMENT_LABEL" || return 1
 }
 
 formula_is_reviewed() {
@@ -1007,7 +1070,7 @@ EOF
 }
 
 run_doctor() {
-  local issues=0 action_needed=0 status formula
+  local issues=0 action_needed=0 status formula launchd_status
 
   printf 'Dotfiles doctor\n'
   printf 'Repository: %s\n' "$REPO_ROOT"
@@ -1110,6 +1173,23 @@ run_doctor() {
       ;;
   esac
 
+  launchd_status=$(launchd_environment_status)
+  case "$launchd_status" in
+    ok) printf '[OK] GUI environment is synchronized\n' ;;
+    missing)
+      printf '[NEEDS_APPLY] GUI environment LaunchAgent is missing\n'
+      issues=1
+      ;;
+    unavailable)
+      printf '[ERROR] launchctl is unavailable\n'
+      issues=1
+      ;;
+    *)
+      printf '[NEEDS_APPLY] GUI environment is %s\n' "$launchd_status"
+      issues=1
+      ;;
+  esac
+
   if owned_skill_conflicts; then
     printf '[OK] materialized skill targets are safe\n'
   else
@@ -1134,7 +1214,7 @@ run_doctor() {
 }
 
 run_plan() {
-  local conflicts=0 action_needed=0 status formula
+  local conflicts=0 action_needed=0 status formula launchd_status
 
   printf 'Dotfiles plan (read-only)\n'
   printf 'Repository: %s\n' "$REPO_ROOT"
@@ -1210,6 +1290,17 @@ run_plan() {
     *)
       printf 'CONFLICT: launcher %s (%s).\n' "$LAUNCHER" "$status"
       conflicts=1
+      ;;
+  esac
+
+  launchd_status=$(launchd_environment_status)
+  case "$launchd_status" in
+    ok) printf 'NOOP: GUI environment is synchronized.\n' ;;
+    missing)
+      printf 'PLAN: install and load the GUI environment LaunchAgent.\n'
+      ;;
+    *)
+      printf 'PLAN: reload the GUI environment (%s).\n' "$launchd_status"
       ;;
   esac
 
@@ -1358,6 +1449,7 @@ run_apply() {
   materialize_skills || return 1
   converge_knowledge_base_skill_adapter || return 1
   install_launcher || return 1
+  converge_launchd_environment || return 1
   converge_herdr || return 1
   printf 'Dotfiles apply complete.\n'
 }

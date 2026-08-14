@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>com.tnez.launchd-path</string>
+  <string>com.tnez.launchd-environment</string>
   <key>ProgramArguments</key>
   <array>
     <string>/bin/sh</string>
-    <string>/Users/tnez/.scripts/sync-launchd-path.sh</string>
+    <string>/Users/tnez/.scripts/sync-launchd-environment.sh</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
   <key>StandardOutPath</key>
-  <string>/tmp/launchd-path.log</string>
+  <string>/tmp/launchd-environment.log</string>
   <key>StandardErrorPath</key>
-  <string>/tmp/launchd-path.err</string>
+  <string>/tmp/launchd-environment.err</string>
 </dict>
 </plist>
