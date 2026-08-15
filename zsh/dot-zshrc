@@ -244,3 +244,10 @@ if (( ${+commands[tmux]} )) && tmux info >/dev/null 2>&1 &&
   tmux new-session -ds scratch -c "$HOME/PARA/DESK/inbox"
   tmux send-keys -t scratch "nvim $HOME/PARA/DESK/inbox/scratch.md" Enter
 fi
+
+# NOTE(tnez): This configuration is specific to Heimdall. We should probably
+# think of a better machine-specific way of handling this, but for now, we are
+# putting this here.
+hermesc() {
+  container exec -it -w /workspace hermes-agent hermes "$@"
+}
