@@ -59,7 +59,8 @@ stow standard'
 write_module beta 'version 1
 platform darwin
 platform omarchy
-stow no-folding'
+stow no-folding
+capability herdr'
 write_module omarchy 'version 1
 platform omarchy
 stow standard'
@@ -72,14 +73,14 @@ assert_status 0 'valid module declarations pass validation'
 
 run_function list_modules darwin
 assert_status 0 'Darwin modules can be selected'
-assert_contains 'alpha|standard|darwin|' \
+assert_contains 'alpha|standard|darwin||' \
   'selection includes a Darwin Stow module'
-assert_contains 'beta|no-folding|darwin omarchy|' \
-  'selection includes a multi-platform module'
-assert_contains 'provider|none|darwin|' \
+assert_contains 'beta|no-folding|darwin omarchy|herdr|' \
+  'selection includes a multi-platform module with a capability'
+assert_contains 'provider|none|darwin||' \
   'selection includes a provider-only module'
 case "$OUTPUT" in
-  *'omarchy|standard|omarchy|'*)
+  *'omarchy|standard|omarchy||'*)
     printf 'not ok - Darwin selection included an Omarchy-only module\n'
     FAILURES=$((FAILURES + 1))
     ;;
@@ -88,10 +89,10 @@ esac
 
 run_function list_modules omarchy
 assert_status 0 'Omarchy modules can be selected'
-assert_contains 'omarchy|standard|omarchy|' \
+assert_contains 'omarchy|standard|omarchy||' \
   'selection includes an Omarchy-only module'
 case "$OUTPUT" in
-  *'alpha|standard|darwin|'*)
+  *'alpha|standard|darwin||'*)
     printf 'not ok - Omarchy selection included a Darwin-only module\n'
     FAILURES=$((FAILURES + 1))
     ;;
@@ -104,6 +105,16 @@ stow standard'
 run_function validate_modules
 assert_status 1 'unknown platforms fail validation'
 assert_contains 'invalid platform' 'invalid platform failure is explained'
+rm -rf "$REPO_ROOT/broken"
+
+write_module broken 'version 1
+platform darwin
+stow standard
+capability arbitrary-shell'
+run_function validate_modules
+assert_status 1 'unknown capabilities fail validation'
+assert_contains 'invalid capability' \
+  'capabilities are constrained to lifecycle-owned behavior'
 rm -rf "$REPO_ROOT/broken"
 
 write_module broken 'version 1

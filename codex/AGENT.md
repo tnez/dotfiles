@@ -4,6 +4,7 @@
 version 1
 platform darwin
 stow no-folding
+capability codex-seed
 -->
 
 ## Desired state
@@ -13,16 +14,15 @@ configuration activated with GNU Stow on `darwin` hosts.
 
 ## Operations
 
-- Install or update configuration with `dotfiles apply` from the canonical
-  primary checkout after reviewing `dotfiles plan`.
-- Check declaration, target, and link health with `dotfiles doctor` and
-  `dotfiles plan`.
-- Install or update application binaries through the platform provider; on
-  macOS, the declared provider inventory is `brew/Brewfile`.
+- Review `dotfiles plan`, then use `dotfiles apply` from the canonical primary
+  checkout to restow shared Codex files.
+- `codex-seed` copies `config.base.toml` to `~/.codex/config.toml` only when no
+  live config exists. `dotfiles doctor` reports whether seeding is needed.
+- Install or update Codex through the Darwin provider inventory in
+  `brew/Brewfile`.
 
 ## Agent guidance
 
-Preserve unmanaged files and machine-local state. Read any colocated README
-and inspect the target application’s current configuration before changing
-this component. Do not infer consent for destructive migration or package
-trust decisions.
+A live `~/.codex/config.toml` is machine state and must be preserved. Change
+the base only for future seeds; do not pretend an existing live config is
+converged from it or replace it without an explicit migration decision.

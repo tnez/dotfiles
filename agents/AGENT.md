@@ -4,6 +4,8 @@
 version 1
 platform darwin
 stow no-folding
+capability materialized-skills
+capability knowledge-base-adapter
 -->
 
 ## Desired state
@@ -13,16 +15,16 @@ configuration activated with GNU Stow on `darwin` hosts.
 
 ## Operations
 
-- Install or update configuration with `dotfiles apply` from the canonical
-  primary checkout after reviewing `dotfiles plan`.
-- Check declaration, target, and link health with `dotfiles doctor` and
-  `dotfiles plan`.
-- Install or update application binaries through the platform provider; on
-  macOS, the declared provider inventory is `brew/Brewfile`.
+- Review `dotfiles plan`, then use `dotfiles apply` from the canonical primary
+  checkout to restow shared commands and converge owned skills.
+- `materialized-skills` copies repository `SKILL.md` files into
+  `~/.agents/skills` with checksum ownership because Codex does not reliably
+  discover symlinked entrypoints.
+- `knowledge-base-adapter` manages the declared whole-directory trial adapter;
+  `dotfiles doctor` validates its source, target, and ownership state.
 
 ## Agent guidance
 
-Preserve unmanaged files and machine-local state. Read any colocated README
-and inspect the target application’s current configuration before changing
-this component. Do not infer consent for destructive migration or package
-trust decisions.
+Never overwrite unmanaged skill files or directories. A modified managed copy
+is a conflict, not disposable output. Preserve knowledge-base source content
+and require exact ownership evidence before repairing or retiring an adapter.

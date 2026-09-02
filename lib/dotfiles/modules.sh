@@ -47,6 +47,7 @@ load_module_declaration() {
   MODULE_VERSION=
   MODULE_PLATFORMS=
   MODULE_STOW=
+  MODULE_CAPABILITIES=
 
   valid_module_name "$MODULE_NAME" || {
     module_error "invalid component directory name: $MODULE_NAME"
@@ -125,6 +126,25 @@ EOF
         stow_count=$((stow_count + 1))
         MODULE_STOW=$value
         ;;
+      capability)
+        if [ -n "$extra" ]; then
+          module_error "invalid directive in $entrypoint: $line"
+          return 1
+        fi
+        case "$value" in
+          homebrew|materialized-skills|knowledge-base-adapter|codex-seed|\
+launchd-environment|herdr) ;;
+          *)
+            module_error "invalid capability in $entrypoint: $value"
+            return 1
+            ;;
+        esac
+        case " $MODULE_CAPABILITIES " in *" $value "*)
+          module_error "duplicate capability in $entrypoint: $value"
+          return 1
+        esac
+        MODULE_CAPABILITIES=${MODULE_CAPABILITIES:+$MODULE_CAPABILITIES }$value
+        ;;
       *)
         module_error "unknown directive in $entrypoint: $key"
         return 1
@@ -166,48 +186,49 @@ module_supports_platform() {
   return 1
 }
 
-list_module_entrypoints() {
-  local entrypoint found=0
+module_has_capability() {
+  local requested=$1 capability
+
+  for capability in $MODULE_CAPABILITIES; do
+    [ "$capability" = "$requested" ] && return 0
+  done
+  return 1
+}
+
+validate_modules() {
+  local entrypoint failed=0 found=0
 
   for entrypoint in "$REPO_ROOT"/*/AGENT.md; do
     [ -f "$entrypoint" ] || continue
     found=1
-    printf '%s\n' "$entrypoint"
-  done
-  [ "$found" -eq 1 ] || {
-    module_error "no component entrypoints found below $REPO_ROOT"
-    return 1
-  }
-}
-
-validate_modules() {
-  local entrypoint failed=0
-  local -a entrypoints=()
-
-  mapfile -t entrypoints < <(list_module_entrypoints)
-  [ "${#entrypoints[@]}" -gt 0 ] || return 1
-  for entrypoint in "${entrypoints[@]}"; do
     load_module_declaration "$entrypoint" || failed=1
   done
+  if [ "$found" -ne 1 ]; then
+    module_error "no component entrypoints found below $REPO_ROOT"
+    return 1
+  fi
   [ "$failed" -eq 0 ]
 }
 
 list_modules() {
-  local requested=${1:-all} entrypoint
-  local -a entrypoints=()
+  local requested=${1:-all} entrypoint found=0
 
   case "$requested" in all|darwin|omarchy) ;;
     *) module_error "invalid requested platform: $requested"; return 1 ;;
   esac
 
-  mapfile -t entrypoints < <(list_module_entrypoints)
-  [ "${#entrypoints[@]}" -gt 0 ] || return 1
-  for entrypoint in "${entrypoints[@]}"; do
+  for entrypoint in "$REPO_ROOT"/*/AGENT.md; do
+    [ -f "$entrypoint" ] || continue
+    found=1
     load_module_declaration "$entrypoint" || return 1
     if [ "$requested" = all ] || module_supports_platform "$requested"; then
-      printf '%s|%s|%s|%s\n' \
+      printf '%s|%s|%s|%s|%s\n' \
         "$MODULE_NAME" "$MODULE_STOW" "$MODULE_PLATFORMS" \
-        "$MODULE_ENTRYPOINT"
+        "$MODULE_CAPABILITIES" "$MODULE_ENTRYPOINT"
     fi
   done
+  if [ "$found" -ne 1 ]; then
+    module_error "no component entrypoints found below $REPO_ROOT"
+    return 1
+  fi
 }

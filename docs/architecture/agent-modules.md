@@ -42,7 +42,9 @@ Version 1 supports these directives:
 
 - `version 1` exactly once;
 - one or more `platform` directives, whose values are `darwin` or `omarchy`;
-- `stow standard`, `stow no-folding`, or `stow none` exactly once.
+- `stow standard`, `stow no-folding`, or `stow none` exactly once;
+- optional repeatable `capability` directives selected from a closed lifecycle
+  vocabulary (for example `homebrew`, `codex-seed`, or `herdr`).
 
 Declarations are discovered from immediate child directories, sorted by
 component name, and validated before any convergence. A directory without an
@@ -50,10 +52,13 @@ component name, and validated before any convergence. A directory without an
 `dotfiles-packages` activation manifest, so ownership lives beside the files
 it describes.
 
-The `brew` component declares `stow none`. Its Brewfile remains the declarative
-macOS dependency inventory and its `AGENT.md` explains provider-specific
-install, update, and health behavior. Components can therefore describe their
-relationship to software without duplicating package-manager state.
+The `brew` component declares `stow none` and `capability homebrew`. Its
+Brewfile remains the declarative macOS dependency inventory and its `AGENT.md`
+explains provider-specific install, update, and health behavior. Other closed
+capabilities attach existing lifecycle-owned convergence (skill materializing,
+Codex seeding, LaunchAgent loading, and Herdr integration) to the component
+that owns it. Capabilities select reviewed implementation; they are not command
+strings and cannot execute Markdown.
 
 Platform selection is conservative:
 

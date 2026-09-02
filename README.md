@@ -107,13 +107,14 @@ symlinks. Run:
 `provision` uses this repository's `brew/Brewfile` explicitly, suppresses
 Homebrew auto-update in the convergence path, and passes `--no-upgrade`.
 Third-party trust is declared formula-by-formula in
-`dotfiles-trusted-formulae`; no tap-wide trust is granted.
+`brew/trusted-formulae`; no tap-wide trust is granted.
 
 ## Declarative Components
 
 Every activatable top-level component has an `AGENT.md`. A validated
-`dotfiles-module` block declares its supported platform and Stow mode; the
-surrounding prose describes install, update, health, and agent judgment. Run
+`dotfiles-module` block declares its supported platform, Stow mode, and any
+closed lifecycle capabilities; the surrounding prose describes install,
+update, health, and agent judgment. Run
 `dotfiles modules` for the current host or `dotfiles modules --all` for the
 complete inventory. See
 [`docs/architecture/agent-modules.md`](docs/architecture/agent-modules.md) for
@@ -167,7 +168,7 @@ Ownership is recorded in
 `~/.local/state/dotfiles/knowledge-base-skill-adapter`. An unmanaged symlink,
 file, or directory at the adapter path is always a conflict. To retire the
 trial, remove its sole declaration from
-`dotfiles-knowledge-base-skill-adapter`, review `doctor` and `plan`, then run
+`agents/knowledge-base-skill-adapter`, review `doctor` and `plan`, then run
 `apply` from the primary checkout. Apply removes only the link whose exact
 target still matches recorded ownership, removes its state, and leaves the KB
 source and unrelated Agents skills untouched.

@@ -4,12 +4,13 @@
 version 1
 platform darwin
 stow none
+capability homebrew
 -->
 
 ## Desired state
 
 `Brewfile` is the declarative inventory of macOS formulae, casks, and taps.
-`dotfiles-trusted-formulae` is the narrower reviewed allowlist for formulae
+`trusted-formulae` is the narrower reviewed allowlist for formulae
 that Homebrew requires the user to trust explicitly.
 
 ## Operations

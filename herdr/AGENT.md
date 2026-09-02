@@ -4,6 +4,7 @@
 version 1
 platform darwin
 stow standard
+capability herdr
 -->
 
 ## Desired state
@@ -13,16 +14,16 @@ configuration activated with GNU Stow on `darwin` hosts.
 
 ## Operations
 
-- Install or update configuration with `dotfiles apply` from the canonical
-  primary checkout after reviewing `dotfiles plan`.
-- Check declaration, target, and link health with `dotfiles doctor` and
-  `dotfiles plan`.
-- Install or update application binaries through the platform provider; on
-  macOS, the declared provider inventory is `brew/Brewfile`.
+- Review `dotfiles plan`, then use `dotfiles apply` from the canonical primary
+  checkout to restow configuration and converge the Herdr integration.
+- `herdr` starts or restarts the Homebrew service as needed, installs the
+  pinned navigation plugin, installs integrations for available agents, and
+  reloads server configuration.
+- Check service and integration state with `herdr status server` and
+  `herdr integration status`; install the binary through `brew/Brewfile`.
 
 ## Agent guidance
 
-Preserve unmanaged files and machine-local state. Read any colocated README
-and inspect the target application’s current configuration before changing
-this component. Do not infer consent for destructive migration or package
-trust decisions.
+Treat service restart and plugin installation as mutation even when config
+links are already current. Preserve Herdr runtime state and inspect the pinned
+plugin change before updating its commit.

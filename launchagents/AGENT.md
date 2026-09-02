@@ -4,6 +4,7 @@
 version 1
 platform darwin
 stow standard
+capability launchd-environment
 -->
 
 ## Desired state
@@ -13,16 +14,15 @@ configuration activated with GNU Stow on `darwin` hosts.
 
 ## Operations
 
-- Install or update configuration with `dotfiles apply` from the canonical
-  primary checkout after reviewing `dotfiles plan`.
-- Check declaration, target, and link health with `dotfiles doctor` and
-  `dotfiles plan`.
-- Install or update application binaries through the platform provider; on
-  macOS, the declared provider inventory is `brew/Brewfile`.
+- Review `dotfiles plan`, then use `dotfiles apply` from the canonical primary
+  checkout to restow and reload managed LaunchAgents.
+- `launchd-environment` loads `com.tnez.launchd-environment` and publishes the
+  selected profile variables to GUI applications.
+- Check loaded state with `dotfiles doctor`. Existing GUI applications must be
+  restarted after environment changes so they inherit the new values.
 
 ## Agent guidance
 
-Preserve unmanaged files and machine-local state. Read any colocated README
-and inspect the target application’s current configuration before changing
-this component. Do not infer consent for destructive migration or package
-trust decisions.
+This component is Darwin-only. Preserve unrelated user LaunchAgents. Treat
+service loading as mutation, and inspect absolute paths in plist files before
+assuming they are portable to a new macOS account or architecture.
