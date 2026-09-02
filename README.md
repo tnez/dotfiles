@@ -1,6 +1,6 @@
 # `@tnez/dotfiles`
 
-Personal macOS dotfiles managed with GNU Stow. The root `dotfiles` executable is
+Personal macOS and Omarchy dotfiles managed with GNU Stow. The root `dotfiles` executable is
 the canonical lifecycle interface.
 
 ## New Machine
@@ -175,6 +175,23 @@ Manual Stow operations still require `--dotfiles`, for example:
 stow --dir="$HOME/Code/tnez/dotfiles/main" \
   --target="$HOME" --dotfiles --restow zsh
 ```
+
+## Omarchy
+
+The `omarchy` package contains user-owned Hyprland and Omarchy overrides,
+including the custom Omarchy menu plugin. Omarchy's packaged defaults live in
+`/usr/share/omarchy/`; do not edit them.
+
+The repository lifecycle CLI remains macOS-specific. On an Omarchy system,
+activate this package directly after installing GNU Stow:
+
+```bash
+stow --dir="$HOME/Work/dotfiles" \
+  --target="$HOME" --dotfiles --restow omarchy
+```
+
+Existing Omarchy defaults are intentionally left to Omarchy, so updates can
+continue to improve the base configuration.
 
 ## Homebrew Dependencies
 

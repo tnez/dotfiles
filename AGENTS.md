@@ -57,6 +57,7 @@ This repository contains my personal dotfiles managed via GNU Stow.
 - XDG-compliant where possible (`dot-config/` maps to `~/.config/`)
 - Special packages:
   - `brew/` - Homebrew dependencies
+  - `omarchy/` - Hyprland and Omarchy user overrides
   - `scripts/` - Utility scripts
 
 ## Testing Changes
