@@ -2,5 +2,7 @@
 
 .DS_Store
 .gitignore
+AGENT.md
+knowledge-base-skill-adapter
 README.*
 readme.*

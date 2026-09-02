@@ -3,7 +3,7 @@
 Personal macOS and Omarchy dotfiles managed with GNU Stow. The root `dotfiles` executable is
 the canonical lifecycle interface.
 
-## New Machine
+## New macOS Machine
 
 The default zsh install path uses process substitution so the installer can
 read prompts from the terminal instead of consuming a script from standard
@@ -61,6 +61,7 @@ dotfiles plan        read-only provisioning and Stow simulation
 dotfiles apply       fast configuration and integration convergence
 dotfiles provision   install missing dependencies without routine upgrades
 dotfiles upgrade     slow, explicit update/upgrade/cleanup
+dotfiles modules     selected declarative component entrypoints
 ```
 
 Run `dotfiles <command> --help` for command-specific details. After the first
@@ -106,26 +107,34 @@ symlinks. Run:
 `provision` uses this repository's `brew/Brewfile` explicitly, suppresses
 Homebrew auto-update in the convergence path, and passes `--no-upgrade`.
 Third-party trust is declared formula-by-formula in
-`dotfiles-trusted-formulae`; no tap-wide trust is granted.
+`brew/trusted-formulae`; no tap-wide trust is granted.
 
-## Stow Packages
+## Declarative Components
 
-`dotfiles-packages` is the explicit activation manifest. It records every Stow
-package and whether it needs `--no-folding`. For packages that remain listed,
-apply uses restow semantics to converge links and prune paths removed from that
-package without deleting unmanaged regular files.
+Every activatable top-level component has an `AGENT.md`. A validated
+`dotfiles-module` block declares its supported platform, Stow mode, and any
+closed lifecycle capabilities; the surrounding prose describes install,
+update, health, and agent judgment. Run
+`dotfiles modules` for the current host or `dotfiles modules --all` for the
+complete inventory. See
+[`docs/architecture/agent-modules.md`](docs/architecture/agent-modules.md) for
+the format and rationale.
 
-Removing an entire package from the manifest cannot identify links previously
-owned by that package. Before deleting its manifest entry, unstow it from the
-primary checkout with the same folding mode recorded in the manifest, verify
-the result, then remove the entry:
+`apply` selects only Darwin components and uses restow semantics to converge
+links and prune paths removed from a selected component without deleting
+unmanaged regular files. `AGENT.md` itself is always ignored by Stow.
+
+Removing an entire component declaration cannot identify links it previously
+owned. Before deleting its `AGENT.md`, unstow it from the primary checkout with
+the same folding mode recorded in the declaration, verify the result, then
+remove the entrypoint:
 
 ```bash
 stow --dir="$HOME/Code/tnez/dotfiles/main" \
   --target="$HOME" --dotfiles --delete <package>
 ```
 
-Include `--no-folding` in that command when the manifest records that mode.
+Include `--no-folding` when the component declaration records that mode.
 
 `~/.agents/skills` is the only supported shared local skill-discovery root.
 Dotfiles-owned shared `SKILL.md` files are materialized because Codex does not
@@ -159,7 +168,7 @@ Ownership is recorded in
 `~/.local/state/dotfiles/knowledge-base-skill-adapter`. An unmanaged symlink,
 file, or directory at the adapter path is always a conflict. To retire the
 trial, remove its sole declaration from
-`dotfiles-knowledge-base-skill-adapter`, review `doctor` and `plan`, then run
+`agents/knowledge-base-skill-adapter`, review `doctor` and `plan`, then run
 `apply` from the primary checkout. Apply removes only the link whose exact
 target still matches recorded ownership, removes its state, and leaves the KB
 source and unrelated Agents skills untouched.
@@ -182,8 +191,10 @@ The `omarchy` package contains user-owned Hyprland and Omarchy overrides,
 including the custom Omarchy menu plugin. Omarchy's packaged defaults live in
 `/usr/share/omarchy/`; do not edit them.
 
-The repository lifecycle CLI remains macOS-specific. On an Omarchy system,
-activate this package directly after installing GNU Stow:
+`dotfiles doctor`, `dotfiles plan`, and `dotfiles modules` understand Omarchy
+and select only the `omarchy` component. Mutating lifecycle commands remain
+macOS-only, so activation on an Omarchy system is an explicit manual step after
+installing GNU Stow and reviewing `omarchy/AGENT.md`:
 
 ```bash
 stow --dir="$HOME/Work/dotfiles" \

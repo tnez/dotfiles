@@ -9,6 +9,7 @@ This repository contains my personal dotfiles managed via GNU Stow.
 - `./dotfiles apply` - Fast Stow, copied-file, and integration convergence
 - `./dotfiles provision` - Install missing dependencies without upgrading all
 - `./dotfiles upgrade` - Explicit slow package update, upgrade, and cleanup
+- `./dotfiles modules [--all]` - List selected declarative components
 - `./dotfiles bootstrap` - Doctor, plan, provision, apply, and final doctor
 - `stow --dotfiles <package>` - Symlink specific config package to ~
   - Uses `dot-` prefix convention (e.g., `dot-config` → `.config`)
@@ -23,10 +24,11 @@ This repository contains my personal dotfiles managed via GNU Stow.
    checkout. A `.git` file means linked/disposable; activation is allowed only
    from the canonical primary checkout with a `.git` directory.
 3. After a candidate change is merged, run the needed command from the updated
-   primary checkout. Existing stowed-file edits are usually already live; use
-   `apply` for path/copy/integration changes, `provision` for missing
+   primary checkout. Existing stowed-file edits are usually already live; on
+   macOS use `apply` for path/copy/integration changes, `provision` for missing
    dependencies, and `upgrade` only when package upgrades are intended.
-4. On a new machine, inspect and run `install.sh`, or invoke it with
+   Omarchy activation remains manual and requires explicit approval.
+4. On a new macOS machine, inspect and run `install.sh`, or invoke it with
    `--path "$HOME/Code/tnez/dotfiles/main" --non-interactive --yes`. The
    installer clones or reuses the canonical checkout and calls local
    `dotfiles bootstrap`.
@@ -53,7 +55,7 @@ This repository contains my personal dotfiles managed via GNU Stow.
 ## Repository Structure
 
 - Organized by tool/application name
-- Stow packages are explicitly listed in `dotfiles-packages`
+- Components declare platform and Stow mode in their local `AGENT.md`
 - XDG-compliant where possible (`dot-config/` maps to `~/.config/`)
 - Special packages:
   - `brew/` - Homebrew dependencies
@@ -74,8 +76,9 @@ This repository contains my personal dotfiles managed via GNU Stow.
 
 ## Adding New Configurations
 
-1. Create new directory named after the tool
-2. Use `dot-` prefix for dotfiles (e.g., `dot-vimrc` → `~/.vimrc`)
-3. Add the package and its folding mode to `dotfiles-packages`
-4. Test with `./dotfiles plan` first
-5. Add any dependencies to `brew/Brewfile` if needed
+1. Create a directory named after the tool
+2. Add an `AGENT.md` with one validated `dotfiles-module` declaration
+3. Use `dot-` prefix for dotfiles (e.g., `dot-vimrc` → `~/.vimrc`)
+4. Document install, update, health, and agent-specific context locally
+5. Test with `./dotfiles modules --all` and `./dotfiles plan` first
+6. Add any macOS dependencies to `brew/Brewfile` if needed
