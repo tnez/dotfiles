@@ -25,8 +25,14 @@ CLI_PATH=$(resolve_path "$0") || {
   exit 1
 }
 REPO_ROOT=${CLI_PATH%/*}
+MODULE_LIBRARY=$REPO_ROOT/lib/dotfiles/modules.sh
+[ -r "$MODULE_LIBRARY" ] || {
+  printf 'ERROR: module library is unreadable: %s\n' "$MODULE_LIBRARY" >&2
+  exit 1
+}
+# shellcheck source=lib/dotfiles/modules.sh
+. "$MODULE_LIBRARY"
 BREWFILE=$REPO_ROOT/brew/Brewfile
-PACKAGE_MANIFEST=$REPO_ROOT/dotfiles-packages
 TRUST_MANIFEST=$REPO_ROOT/dotfiles-trusted-formulae
 KB_SKILL_ADAPTER_MANIFEST=$REPO_ROOT/dotfiles-knowledge-base-skill-adapter
 LAUNCHER=$HOME/.local/bin/dotfiles
@@ -55,6 +61,7 @@ Commands:
   apply       Converge Stow links, managed copies, and integrations
   provision   Install missing dependencies without routine upgrades
   upgrade     Explicitly update, upgrade, and clean up Homebrew packages
+  modules     List declarative components selected for this host
 
 Run "dotfiles <command> --help" for command-specific help.
 
@@ -138,7 +145,7 @@ action_required() {
 }
 
 is_macos() {
-  [ "$(uname -s 2>/dev/null)" = Darwin ]
+  [ "$(detect_host_platform 2>/dev/null)" = darwin ]
 }
 
 is_disposable_checkout() {
@@ -916,30 +923,17 @@ materialize_skills() {
   mv "$state_tmp" "$SKILL_STATE"
 }
 
-validate_package_manifest() {
-  local package mode
+validate_stow_modules() {
+  local package mode platforms entrypoint
 
-  [ -f "$PACKAGE_MANIFEST" ] || {
-    printf 'ERROR: missing package manifest: %s\n' "$PACKAGE_MANIFEST" >&2
-    return 1
-  }
-  while read -r package mode _extra || [ -n "$package$mode" ]; do
-    case "$package" in
-      ''|'#'*) continue ;;
-    esac
+  validate_modules || return 1
+  while IFS='|' read -r package mode platforms entrypoint; do
+    [ "$mode" = none ] && continue
     if [ ! -d "$REPO_ROOT/$package" ]; then
-      printf 'ERROR: package manifest names missing directory: %s\n' \
-        "$package" >&2
+      printf 'ERROR: module names missing directory: %s\n' "$package" >&2
       return 1
     fi
-    case "$mode" in
-      standard|no-folding) ;;
-      *)
-        printf 'ERROR: invalid Stow mode for %s: %s\n' "$package" "$mode" >&2
-        return 1
-        ;;
-    esac
-  done < "$PACKAGE_MANIFEST"
+  done < <(list_modules all)
 }
 
 stow_package() {
@@ -947,6 +941,7 @@ stow_package() {
   local options
 
   options=(--dir="$REPO_ROOT" --target="$HOME" --dotfiles --restow)
+  options+=(--ignore='^AGENT[.]md$')
   [ "$mode" = no-folding ] && options+=(--no-folding)
   if [ "$simulate" -eq 1 ]; then
     options+=(--simulate --verbose=1)
@@ -958,20 +953,19 @@ stow_package() {
 }
 
 stow_all() {
-  local simulate=$1 package mode failed=0
+  local simulate=$1 platform=$2 package mode platforms entrypoint
+  local failed=0
 
-  validate_package_manifest || return 1
-  while read -r package mode || [ -n "$package$mode" ]; do
-    case "$package" in
-      ''|'#'*) continue ;;
-    esac
+  validate_stow_modules || return 1
+  while IFS='|' read -r package mode platforms entrypoint; do
+    [ "$mode" = none ] && continue
     if [ "$simulate" -eq 1 ]; then
       printf 'STOW PLAN: %s (%s)\n' "$package" "$mode"
     else
       printf 'Stowing %s (%s)...\n' "$package" "$mode"
     fi
     stow_package "$package" "$mode" "$simulate" || failed=1
-  done < "$PACKAGE_MANIFEST"
+  done < <(list_modules "$platform")
   [ "$failed" -eq 0 ]
 }
 
@@ -1069,18 +1063,83 @@ EOF
   herdr server reload-config >/dev/null || return 1
 }
 
+print_selected_modules() {
+  local platform=$1 package mode platforms entrypoint
+
+  while IFS='|' read -r package mode platforms entrypoint; do
+    printf 'MODULE: %s (%s) -> %s\n' "$package" "$mode" "$entrypoint"
+  done < <(list_modules "$platform")
+}
+
+run_omarchy_doctor() {
+  local issues=$1
+
+  if command -v stow >/dev/null 2>&1; then
+    printf '[OK] GNU Stow available\n'
+  else
+    printf '[NEEDS_PROVISION] GNU Stow is unavailable\n'
+    issues=1
+  fi
+  printf '[INFO] Omarchy activation remains manual on this host\n'
+  if [ "$issues" -eq 0 ]; then
+    printf 'Doctor result: healthy\n'
+  else
+    printf 'Doctor result: convergence required\n'
+  fi
+  return "$issues"
+}
+
+run_omarchy_plan() {
+  local conflicts=$1
+
+  if command -v stow >/dev/null 2>&1; then
+    printf 'PLAN: simulate selected Omarchy Stow modules.\n'
+    stow_all 1 omarchy || conflicts=1
+  else
+    printf 'PLAN: install GNU Stow with the Omarchy package provider.\n'
+  fi
+  printf 'NOTICE: activation is not automated on Omarchy; inspect the selected '
+  printf 'module entrypoint before any manual Stow operation.\n'
+  if [ "$conflicts" -eq 0 ]; then
+    printf 'Plan result: no managed-target conflicts detected\n'
+  else
+    printf 'Plan result: resolve required actions before apply\n'
+  fi
+  return "$conflicts"
+}
+
+run_modules() {
+  local requested=${1:-} platform
+
+  if [ "$requested" = --all ]; then
+    platform=all
+  elif [ -n "$requested" ]; then
+    printf 'ERROR: modules accepts only --all.\n' >&2
+    return 2
+  else
+    platform=$(detect_host_platform 2>/dev/null) || {
+      printf 'ERROR: unsupported host platform.\n' >&2
+      return 1
+    }
+  fi
+  validate_stow_modules || return 1
+  print_selected_modules "$platform"
+}
+
 run_doctor() {
-  local issues=0 action_needed=0 status formula launchd_status
+  local issues=0 action_needed=0 status formula launchd_status platform
 
   printf 'Dotfiles doctor\n'
   printf 'Repository: %s\n' "$REPO_ROOT"
 
-  if is_macos; then
-    printf '[OK] macOS host\n'
-  else
-    printf '[ERROR] unsupported host; macOS is required\n'
-    issues=1
-  fi
+  platform=$(detect_host_platform 2>/dev/null) || {
+    printf '[ERROR] unsupported host platform\n'
+    return 1
+  }
+  case "$platform" in
+    darwin) printf '[OK] macOS host\n' ;;
+    omarchy) printf '[OK] Omarchy host\n' ;;
+  esac
 
   if is_disposable_checkout; then
     printf '[WARN] linked/disposable worktree; mutating commands are refused\n'
@@ -1089,6 +1148,17 @@ run_doctor() {
   else
     printf '[ERROR] checkout does not contain a .git directory\n'
     issues=1
+  fi
+
+  if validate_stow_modules; then
+    printf '[OK] declarative module inventory\n'
+    print_selected_modules "$platform"
+  else
+    issues=1
+  fi
+  if [ "$platform" = omarchy ]; then
+    run_omarchy_doctor "$issues"
+    return $?
   fi
 
   if inspect_knowledge_base_skill_adapter; then
@@ -1214,13 +1284,28 @@ run_doctor() {
 }
 
 run_plan() {
-  local conflicts=0 action_needed=0 status formula launchd_status
+  local conflicts=0 action_needed=0 status formula launchd_status platform
 
   printf 'Dotfiles plan (read-only)\n'
   printf 'Repository: %s\n' "$REPO_ROOT"
+  platform=$(detect_host_platform 2>/dev/null) || {
+    printf 'ERROR: unsupported host platform.\n' >&2
+    return 1
+  }
   if is_disposable_checkout; then
     printf 'NOTICE: this is a linked/disposable worktree.\n'
     printf 'NOTICE: inspect here, but apply only from the primary checkout.\n'
+  fi
+
+  if validate_stow_modules; then
+    printf 'NOOP: declarative module inventory is valid.\n'
+    print_selected_modules "$platform"
+  else
+    conflicts=1
+  fi
+  if [ "$platform" = omarchy ]; then
+    run_omarchy_plan "$conflicts"
+    return $?
   fi
 
   if inspect_knowledge_base_skill_adapter; then
@@ -1321,8 +1406,8 @@ run_plan() {
     printf 'PLAN: defer Stow simulation until this change reaches the primary '
     printf 'checkout.\n'
   elif command -v stow >/dev/null 2>&1; then
-    printf 'PLAN: simulate explicit Stow package manifest.\n'
-    stow_all 1 || conflicts=1
+    printf 'PLAN: simulate selected declarative Stow modules.\n'
+    stow_all 1 darwin || conflicts=1
   else
     printf 'PLAN: provision GNU Stow before link simulation.\n'
   fi
@@ -1428,7 +1513,7 @@ run_apply() {
     printf 'ERROR: GNU Stow is required; run dotfiles provision first.\n' >&2
     return 1
   }
-  validate_package_manifest || return 1
+  validate_stow_modules || return 1
 
   status=$(launcher_status)
   case "$status" in
@@ -1444,7 +1529,7 @@ run_apply() {
   remove_owned_skills || return 1
   remove_legacy_brew_links || return 1
   remove_stale_herdr_alias || return 1
-  stow_all 0 || return 1
+  stow_all 0 darwin || return 1
   seed_codex_config || return 1
   materialize_skills || return 1
   converge_knowledge_base_skill_adapter || return 1
@@ -1582,6 +1667,17 @@ case "$command_name" in
     case "${1:-}" in -h|--help) upgrade_usage; exit 0 ;; esac
     parse_policy_options "$@" || exit $?
     run_upgrade
+    exit $?
+    ;;
+  modules)
+    shift
+    case "${1:-}" in
+      -h|--help)
+        printf 'Usage: dotfiles modules [--all]\n'
+        exit 0
+        ;;
+    esac
+    run_modules "$@"
     exit $?
     ;;
   *)

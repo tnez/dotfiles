@@ -98,23 +98,41 @@ assert_contains() {
   esac
 }
 
+write_test_module() {
+  local root=$1 name=$2 platform=$3 mode=$4
+
+  mkdir -p "$root/$name"
+  cat > "$root/$name/AGENT.md" <<EOF
+# $name fixture
+
+<!-- dotfiles-module
+version 1
+platform $platform
+stow $mode
+-->
+EOF
+}
+
 mkdir -p "$FIXTURE/.git" "$FIXTURE/brew" "$HOME_TEST" \
   "$FIXTURE_BIN" "$LINKED_BIN" "$FIXTURE/sample" \
   "$KNOWLEDGE_BASE/root/skills/present-for-decision" \
   "$KNOWLEDGE_BASE/root/processes" \
   "$KNOWLEDGE_BASE/root/principles" \
   "$KNOWLEDGE_BASE/root/meta" \
-  "$FIXTURE/codex/dot-codex" \
+  "$FIXTURE/codex/dot-codex" "$FIXTURE/lib/dotfiles" \
   "$FIXTURE/agents/dot-agents/skills/managed" || exit 1
 KNOWLEDGE_BASE=$(cd -P "$KNOWLEDGE_BASE" >/dev/null 2>&1 && pwd) || exit 1
 cp "$REPO_ROOT/dotfiles" "$FIXTURE/dotfiles" || exit 1
+cp "$REPO_ROOT/lib/dotfiles/modules.sh" \
+  "$FIXTURE/lib/dotfiles/modules.sh" || exit 1
 printf '# no reviewed formulae in primary fixture\n' > \
   "$FIXTURE/dotfiles-trusted-formulae"
 printf 'present-for-decision\n' > \
   "$FIXTURE/dotfiles-knowledge-base-skill-adapter"
 : > "$FIXTURE/brew/Brewfile"
-printf 'agents no-folding\nsample standard\n' > \
-  "$FIXTURE/dotfiles-packages"
+write_test_module "$FIXTURE" agents darwin no-folding
+write_test_module "$FIXTURE" brew darwin none
+write_test_module "$FIXTURE" sample darwin standard
 printf 'fixture\n' > "$FIXTURE/sample/dot-sample"
 printf 'fixture = true\n' > "$FIXTURE/codex/dot-codex/config.base.toml"
 printf 'managed v1\n' > \
@@ -140,13 +158,15 @@ done
 chmod +x "$FIXTURE/dotfiles"
 ln -s "$REPO_ROOT/tests/fake-brew.sh" "$FIXTURE_BIN/brew"
 ln -s "$REPO_ROOT/tests/fake-brew.sh" "$LINKED_BIN/brew"
+ln -s "$REPO_ROOT/tests/fake-uname.sh" "$FIXTURE_BIN/uname"
+ln -s "$REPO_ROOT/tests/fake-uname.sh" "$LINKED_BIN/uname"
 for command in bun curl gh git herdr jq launchctl npm opencode pi stow; do
   ln -s "$REPO_ROOT/tests/fail-command.sh" "$LINKED_BIN/$command"
 done
 ln -s "$FIXTURE/dotfiles" "$FIXTURE_BIN/dotfiles"
 FIXTURE_PHYSICAL=$(cd -P "$FIXTURE" >/dev/null 2>&1 && pwd)
 
-for command in bootstrap doctor plan apply provision upgrade; do
+for command in bootstrap doctor plan apply provision upgrade modules; do
   run_fixture "$command" --help
   assert_status 0 "$command help exits successfully"
 done
@@ -301,13 +321,15 @@ assert_contains "required knowledge-base skill context is unreadable" \
 printf '# Required Context\n' > \
   "$KNOWLEDGE_BASE/root/meta/agent-consumption.md"
 
-mkdir -p "$GIT_PRIMARY/brew" "$GIT_HOME/.local/bin"
+mkdir -p "$GIT_PRIMARY/brew" "$GIT_PRIMARY/lib/dotfiles" \
+  "$GIT_HOME/.local/bin"
 cp "$REPO_ROOT/dotfiles" "$GIT_PRIMARY/dotfiles"
+cp "$REPO_ROOT/lib/dotfiles/modules.sh" \
+  "$GIT_PRIMARY/lib/dotfiles/modules.sh"
 cp "$REPO_ROOT/install.sh" "$GIT_PRIMARY/install.sh"
 printf '# no reviewed formulae in launcher fixture\n' > \
   "$GIT_PRIMARY/dotfiles-trusted-formulae"
-printf '# no Stow packages in launcher fixture\n' > \
-  "$GIT_PRIMARY/dotfiles-packages"
+write_test_module "$GIT_PRIMARY" brew darwin none
 printf 'present-for-decision\n' > \
   "$GIT_PRIMARY/dotfiles-knowledge-base-skill-adapter"
 : > "$GIT_PRIMARY/brew/Brewfile"
@@ -347,7 +369,7 @@ if [ -n "$STOW_BIN" ]; then
   assert_status 0 \
     "primary-checkout Stow simulation succeeds in temporary home"
   assert_contains "STOW PLAN: sample" \
-    "plan uses the explicit package manifest"
+    "plan uses the selected declarative modules"
 
   mkdir -p "$HOME_TEST/.agents/skills/private"
   printf 'unmanaged skill\n' > \
