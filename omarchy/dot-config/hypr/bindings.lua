@@ -37,3 +37,14 @@ hl.config({
 -- o.bind("SUPER + SHIFT + S", nil, "omarchy-capture-screenshot")
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
 -- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
+
+-- Use the number-row 0 key for the scratchpad; workspace 10 and group 10
+-- are intentionally unused.
+hl.unbind("SUPER + code:19")
+hl.unbind("SUPER + SHIFT + code:19")
+hl.unbind("SUPER + SHIFT + ALT + code:19")
+hl.unbind("SUPER + ALT + code:19")
+hl.unbind("SUPER + S")
+hl.unbind("SUPER + ALT + S")
+o.bind("SUPER + 0", "Toggle scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
+o.bind("SUPER + ALT + 0", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
