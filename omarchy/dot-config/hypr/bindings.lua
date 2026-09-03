@@ -16,7 +16,7 @@
 hl.config({
   input = {
     kb_layout = "us", -- replace with your actual language layout if different
-    kb_options = "ctrl:swapcaps,altwin:swap_alt_win", -- comma-separated, no spaces
+    kb_options = "ctrl:swapcaps", -- comma-separated, no spaces
     repeat_rate = 40,
     repeat_delay = 600,
   }
