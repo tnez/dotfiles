@@ -52,7 +52,7 @@ usage() {
   cat <<'EOF'
 Usage: dotfiles <command> [options]
 
-Manage this macOS dotfiles checkout.
+Inspect macOS/Omarchy dotfiles; automated activation is macOS-only.
 
 Commands:
   bootstrap   Preflight, plan, provision, apply, and verify a new machine
@@ -116,8 +116,8 @@ provision_usage() {
   cat <<'EOF'
 Usage: dotfiles provision [options]
 
-Install missing dependencies from brew/Brewfile with --no-upgrade. Also install
-missing user-level tools. Refuses linked/disposable Git worktrees.
+Install missing dependencies from brew/Brewfile with --no-upgrade.
+Project tools are managed separately with mise. Refuses linked worktrees.
 
 Options:
   --non-interactive       Never prompt; stop at policy decisions
@@ -969,16 +969,6 @@ stow_all() {
   [ "$failed" -eq 0 ]
 }
 
-remove_stale_herdr_alias() {
-  local aliases=$HOME/.config/herdr/workspace-aliases.conf target
-
-  [ -L "$aliases" ] || return 0
-  target=$(resolve_path "$aliases" 2>/dev/null || true)
-  case "$target" in
-    */herdr/dot-config/herdr/workspace-aliases.conf) rm -f "$aliases" ;;
-  esac
-}
-
 remove_legacy_brew_links() {
   local link target
 
@@ -1019,50 +1009,6 @@ install_launcher() {
   esac
 }
 
-converge_herdr() {
-  local herdr_version server_status plugin_commit
-  local integration_status command integration
-
-  command -v herdr >/dev/null 2>&1 || return 0
-  find_brew || return 0
-
-  herdr_version=$(herdr --version 2>/dev/null) || return 1
-  herdr_version=${herdr_version##* }
-  server_status=$(herdr status server 2>/dev/null || true)
-  if printf '%s\n' "$server_status" |
-    grep -q "^version: $herdr_version$"; then
-    "$BREW_BIN" services start herdr >/dev/null || return 1
-  else
-    "$BREW_BIN" services restart herdr >/dev/null || return 1
-  fi
-
-  plugin_commit=548607d0e417fdb30966846fce7436aa05a6738d
-  if ! herdr plugin list --plugin vim-herdr-navigation --json 2>/dev/null |
-    jq -e --arg commit "$plugin_commit" \
-      '.result.plugins
-       | any(.enabled == true and .source.resolved_commit == $commit)' \
-      >/dev/null; then
-    herdr plugin install paulbkim-dev/vim-herdr-navigation \
-      --ref "$plugin_commit" --yes || return 1
-  fi
-
-  integration_status=$(herdr integration status 2>/dev/null || true)
-  while read -r command integration; do
-    if command -v "$command" >/dev/null 2>&1 &&
-      ! printf '%s\n' "$integration_status" |
-        grep -q "^${integration}: current"; then
-      herdr integration install "$integration" || return 1
-    fi
-  done <<'EOF'
-pi pi
-claude claude
-codex codex
-opencode opencode
-EOF
-
-  herdr server reload-config >/dev/null || return 1
-}
-
 print_selected_modules() {
   local platform=$1 package mode platforms capabilities entrypoint detail
 
@@ -1090,6 +1036,13 @@ platform_has_capability() {
 run_omarchy_doctor() {
   local issues=$1
 
+  if platform_has_capability omarchy knowledge-base-adapter; then
+    if resolve_knowledge_base_root; then
+      printf '[OK] tnezdev knowledge base: %s\n' "$KB_ROOT"
+    else
+      issues=1
+    fi
+  fi
   if command -v stow >/dev/null 2>&1; then
     printf '[OK] GNU Stow available\n'
   else
@@ -1108,6 +1061,9 @@ run_omarchy_doctor() {
 run_omarchy_plan() {
   local conflicts=$1
 
+  if platform_has_capability omarchy knowledge-base-adapter; then
+    resolve_knowledge_base_root || conflicts=1
+  fi
   if command -v stow >/dev/null 2>&1; then
     printf 'PLAN: simulate selected Omarchy Stow modules.\n'
     stow_all 1 omarchy || conflicts=1
@@ -1450,9 +1406,6 @@ run_plan() {
     printf 'PLAN: provision GNU Stow before link simulation.\n'
   fi
 
-  if platform_has_capability darwin herdr; then
-    printf 'PLAN: converge Herdr service, plugin, and integrations.\n'
-  fi
   if [ "$conflicts" -eq 0 ] && [ "$action_needed" -eq 0 ]; then
     printf 'Plan result: no managed-target conflicts detected\n'
   else
@@ -1492,37 +1445,6 @@ install_homebrew() {
   fi
 }
 
-install_missing_user_tools() {
-  if ! command -v bun >/dev/null 2>&1; then
-    printf 'Installing Bun...\n'
-    download_script https://bun.sh/install || return 1
-    PATH=$HOME/.bun/bin:$PATH
-    export PATH
-  fi
-
-  if ! command -v opencode >/dev/null 2>&1; then
-    printf 'Installing OpenCode...\n'
-    download_script https://opencode.ai/install --no-modify-path || return 1
-    PATH=$HOME/.opencode/bin:$PATH
-    export PATH
-  fi
-
-  if ! command -v pi >/dev/null 2>&1; then
-    if command -v bun >/dev/null 2>&1; then
-      bun add -g @earendil-works/pi-coding-agent || return 1
-    elif command -v npm >/dev/null 2>&1; then
-      npm install -g @earendil-works/pi-coding-agent || return 1
-    else
-      printf 'WARN: Pi not installed because bun and npm are unavailable.\n' >&2
-    fi
-  fi
-
-  if command -v gh >/dev/null 2>&1 &&
-    ! gh extension list 2>/dev/null | grep -q 'dlvhdr/gh-dash'; then
-    gh extension install dlvhdr/gh-dash || return 1
-  fi
-}
-
 run_provision() {
   require_activation_checkout || return $?
   platform_has_capability darwin homebrew || {
@@ -1545,8 +1467,7 @@ run_provision() {
   HOMEBREW_NO_AUTO_UPDATE=1 "$BREW_BIN" bundle install \
     --file="$BREWFILE" --no-upgrade --jobs=auto || return 1
 
-  load_brew_path || return 1
-  install_missing_user_tools
+  printf 'Provision complete. Manage project runtimes separately with mise.\n'
 }
 
 run_apply() {
@@ -1580,9 +1501,6 @@ run_apply() {
   if platform_has_capability darwin homebrew; then
     remove_legacy_brew_links || return 1
   fi
-  if platform_has_capability darwin herdr; then
-    remove_stale_herdr_alias || return 1
-  fi
   stow_all 0 darwin || return 1
   if platform_has_capability darwin codex-seed; then
     seed_codex_config || return 1
@@ -1596,9 +1514,6 @@ run_apply() {
   install_launcher || return 1
   if platform_has_capability darwin launchd-environment; then
     converge_launchd_environment || return 1
-  fi
-  if platform_has_capability darwin herdr; then
-    converge_herdr || return 1
   fi
   printf 'Dotfiles apply complete.\n'
 }

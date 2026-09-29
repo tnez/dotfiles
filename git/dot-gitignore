@@ -22,10 +22,6 @@ standup*.md
 standup*.org
 CONTEXT.md
 
-# claude project state and misc
-.claude/
-!.claude/settings.json
-
 # emacs
 .dir-locals.el
 

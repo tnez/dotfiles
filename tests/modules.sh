@@ -60,7 +60,7 @@ write_module beta 'version 1
 platform darwin
 platform omarchy
 stow no-folding
-capability herdr'
+capability codex-seed'
 write_module omarchy 'version 1
 platform omarchy
 stow standard'
@@ -75,7 +75,7 @@ run_function list_modules darwin
 assert_status 0 'Darwin modules can be selected'
 assert_contains 'alpha|standard|darwin||' \
   'selection includes a Darwin Stow module'
-assert_contains 'beta|no-folding|darwin omarchy|herdr|' \
+assert_contains 'beta|no-folding|darwin omarchy|codex-seed|' \
   'selection includes a multi-platform module with a capability'
 assert_contains 'provider|none|darwin||' \
   'selection includes a provider-only module'

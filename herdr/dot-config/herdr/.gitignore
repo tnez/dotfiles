@@ -1,4 +1,0 @@
-# Herdr writes runtime state beside its managed configuration.
-*
-!.gitignore
-!config.toml

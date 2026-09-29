@@ -20,6 +20,11 @@ configuration activated with GNU Stow on `darwin` hosts.
 - Install or update application binaries through the platform provider; on
   macOS, the declared provider inventory is `brew/Brewfile`.
 
+The login file loads `.profile` and `.bashrc`; interactive non-login shells also
+load `.profile`. `.bashrc` activates mise without installing or trusting tools.
+This remains Darwin-only: do not replace Omarchy's existing Bash setup.
+Verify with `bash tests/fnm.sh` and `bash tests/lifecycle.sh` in disposable homes.
+
 ## Agent guidance
 
 Preserve unmanaged files and machine-local state. Read any colocated README

@@ -44,7 +44,8 @@ Version 1 supports these directives:
 - one or more `platform` directives, whose values are `darwin` or `omarchy`;
 - `stow standard`, `stow no-folding`, or `stow none` exactly once;
 - optional repeatable `capability` directives selected from a closed lifecycle
-  vocabulary (for example `homebrew`, `codex-seed`, or `herdr`).
+  vocabulary (`homebrew`, `codex-seed`, `launchd-environment`,
+  `materialized-skills`, and `knowledge-base-adapter`).
 
 Declarations are discovered from immediate child directories, sorted by
 component name, and validated before any convergence. A directory without an
@@ -56,7 +57,7 @@ The `brew` component declares `stow none` and `capability homebrew`. Its
 Brewfile remains the declarative macOS dependency inventory and its `AGENT.md`
 explains provider-specific install, update, and health behavior. Other closed
 capabilities attach existing lifecycle-owned convergence (skill materializing,
-Codex seeding, LaunchAgent loading, and Herdr integration) to the component
+Codex seeding, and LaunchAgent loading) to the component
 that owns it. Capabilities select reviewed implementation; they are not command
 strings and cannot execute Markdown.
 
@@ -64,8 +65,10 @@ Platform selection is conservative:
 
 - existing configuration remains `darwin` until it is reviewed for portability;
 - the `omarchy` component is `omarchy` only;
-- a future component can list both platforms after its configuration and
-  health checks are proven on both.
+- `agents`, `codex`, `pi`, `git`, and `tmux` now list both platforms after
+  isolated layout validation; native macOS verification remains a delivery gate;
+- shared declarations do not enable macOS-only copy or service capabilities
+  on Omarchy. Its Stow activation remains manual.
 
 This prevents a Linux plan from proposing macOS links and prevents macOS from
 activating Hyprland overrides.
@@ -97,7 +100,15 @@ appropriate.
 - The declaration intentionally stays small. New directives require a schema
   version and tests; arbitrary action commands will not be added to Markdown.
 
-## Delivery plan
+## Simplification and retirement
+
+Herdr convergence has been removed. Project tools are managed with mise, not
+ad-hoc lifecycle installers. The copied-skill and KB-adapter capabilities remain
+for ownership-checked retirement of prior installations, not new workflows.
+See `docs/retirement.md` before integrating source deletions into a live checkout.
+Future removal of those capabilities waits for retirement evidence.
+
+## Original delivery plan
 
 1. Record this decision and the no-activation constraint for the current Arch
    host.

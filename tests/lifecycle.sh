@@ -19,7 +19,6 @@ OUTPUT=
 STATUS=0
 FAILURES=0
 STOW_BIN=$(command -v stow 2>/dev/null || true)
-JQ_BIN=$(command -v jq 2>/dev/null || true)
 
 cleanup() {
   rm -rf "$TMPDIR_TEST"
@@ -135,7 +134,7 @@ write_test_module "$FIXTURE" agents darwin no-folding \
   'materialized-skills knowledge-base-adapter'
 write_test_module "$FIXTURE" brew darwin none homebrew
 write_test_module "$FIXTURE" sample darwin standard \
-  'codex-seed launchd-environment herdr'
+  'codex-seed launchd-environment'
 printf 'fixture\n' > "$FIXTURE/sample/dot-sample"
 printf 'fixture = true\n' > "$FIXTURE/codex/dot-codex/config.base.toml"
 printf 'managed v1\n' > \
@@ -166,7 +165,15 @@ ln -s "$REPO_ROOT/tests/fake-uname.sh" "$LINKED_BIN/uname"
 for command in bun curl gh git herdr jq launchctl npm opencode pi stow; do
   ln -s "$REPO_ROOT/tests/fail-command.sh" "$LINKED_BIN/$command"
 done
+# Never discover real agent/package tools through /usr/bin in fake-Darwin tests.
+for command in bun curl gh herdr npm opencode pi mise; do
+  ln -s "$REPO_ROOT/tests/fail-command.sh" "$FIXTURE_BIN/$command"
+done
 ln -s "$FIXTURE/dotfiles" "$FIXTURE_BIN/dotfiles"
+# Make availability independent of whether Stow lives in /usr/bin or Homebrew.
+if [ -n "$STOW_BIN" ]; then
+  ln -s "$STOW_BIN" "$FIXTURE_BIN/stow"
+fi
 FIXTURE_PHYSICAL=$(cd -P "$FIXTURE" >/dev/null 2>&1 && pwd)
 
 for command in bootstrap doctor plan apply provision upgrade modules; do
@@ -181,8 +188,12 @@ run_command env -i \
   /bin/sh -c '. "$1"; printf "%s\n" "$TNEZDEV_KNOWLEDGE_BASE_ROOT"' \
   profile-test "$REPO_ROOT/profile/dot-profile"
 assert_status 0 "shared profile loads in a POSIX shell"
-assert_contains "$HOME_TEST/Code/tnezdev/knowledge-base/main" \
-  "shared profile supplies the portable knowledge-base default"
+if [ -z "$OUTPUT" ]; then
+  printf 'ok - shared profile does not invent a knowledge-base checkout\n'
+else
+  printf 'not ok - shared profile invented a knowledge-base path\n'
+  FAILURES=$((FAILURES + 1))
+fi
 
 {
   printf 'export TNEZDEV_KNOWLEDGE_BASE_ROOT="%s"\n' "$KNOWLEDGE_BASE"
@@ -237,9 +248,8 @@ fi
 legacy_runtime_root='Code/tnez/dotfiles'
 runtime_files=(
   "$REPO_ROOT/profile/dot-profile"
-  "$REPO_ROOT/scripts/dot-scripts/quick-gh-dashboard.sh"
-  "$REPO_ROOT/sesh/dot-config/sesh/sesh.toml"
-  "$REPO_ROOT/scripts/dot-scripts/herdr-session.sh"
+  "$REPO_ROOT/bash/dot-bashrc"
+  "$REPO_ROOT/zsh/dot-zshrc"
   "$REPO_ROOT/codex/dot-codex/config.base.toml"
 )
 if grep -q "$legacy_runtime_root" "${runtime_files[@]}"; then
@@ -249,19 +259,15 @@ else
   printf 'ok - live runtime config uses checkout-independent paths\n'
 fi
 
-if [ ! -e "$REPO_ROOT/claude/README.md" ] &&
-  [ -f "$REPO_ROOT/claude/dot-claude/README.md" ]; then
-  printf 'ok - Claude LEGACY documentation installs only under ~/.claude\n'
-else
-  printf 'not ok - Claude documentation would create an unintended ~/README.md\n'
-  FAILURES=$((FAILURES + 1))
-fi
-
 run_fixture doctor
 assert_status 1 "doctor reports convergence without optional dependencies"
 assert_contains "Repository: $FIXTURE_PHYSICAL" \
   "CLI resolves its own relative symlink"
-assert_contains "GNU Stow is unavailable" "doctor explains missing Stow"
+if [ -n "$STOW_BIN" ]; then
+  assert_contains "GNU Stow available" "doctor detects system Stow"
+else
+  assert_contains "GNU Stow is unavailable" "doctor explains missing Stow"
+fi
 assert_contains "[OK] tnezdev knowledge base: $KNOWLEDGE_BASE" \
   "doctor accepts a configured knowledge-base root"
 assert_contains "create knowledge-base skill adapter" \
@@ -364,10 +370,13 @@ assert_contains "[CONFLICT] launcher" \
 
 run_fixture plan
 assert_status 0 "primary-checkout plan works without dependencies"
-assert_contains "provision GNU Stow" "plan explains deferred Stow simulation"
+if [ -n "$STOW_BIN" ]; then
+  assert_contains "STOW PLAN: sample" "plan simulates system Stow"
+else
+  assert_contains "provision GNU Stow" "plan explains deferred simulation"
+fi
 
 if [ -n "$STOW_BIN" ]; then
-  ln -s "$STOW_BIN" "$FIXTURE_BIN/stow"
   run_fixture plan
   assert_status 0 \
     "primary-checkout Stow simulation succeeds in temporary home"
@@ -678,64 +687,21 @@ if [ -n "$STOW_BIN" ]; then
   rm -rf "$FIXTURE/agents/dot-agents/skills/unmanaged" \
     "$HOME_TEST/.agents/skills/unmanaged"
 
-  if [ -n "$JQ_BIN" ]; then
-    ln -s "$REPO_ROOT/tests/fake-herdr.sh" "$FIXTURE_BIN/herdr"
-    ln -s "$JQ_BIN" "$FIXTURE_BIN/jq"
-    rm -f "$TMPDIR_TEST/herdr-plugin-installed"
-    run_command env -i HOME="$HOME_TEST" \
-      PATH="$FIXTURE_BIN:/usr/bin:/bin" \
-      TMPDIR="$TMPDIR_TEST" \
-      TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
-      DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
-      FAKE_HERDR_PLUGIN_ENABLED=false \
-      FAKE_HERDR_PLUGIN_MARKER="$TMPDIR_TEST/herdr-plugin-installed" \
-      "$FIXTURE_BIN/dotfiles" apply
-    assert_status 0 "apply converges a disabled pinned Herdr plugin"
-    if [ -e "$TMPDIR_TEST/herdr-plugin-installed" ]; then
-      printf 'ok - disabled pinned Herdr plugin is reinstalled\n'
-    else
-      printf 'not ok - disabled pinned Herdr plugin was accepted\n'
-      FAILURES=$((FAILURES + 1))
-    fi
-
-    rm -f "$TMPDIR_TEST/herdr-plugin-installed"
-    run_command env -i HOME="$HOME_TEST" \
-      PATH="$FIXTURE_BIN:/usr/bin:/bin" \
-      TMPDIR="$TMPDIR_TEST" \
-      TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
-      DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
-      FAKE_HERDR_PLUGIN_ENABLED=true \
-      FAKE_HERDR_PLUGIN_COMMIT=0000000000000000000000000000000000000000 \
-      FAKE_HERDR_PLUGIN_MARKER="$TMPDIR_TEST/herdr-plugin-installed" \
-      "$FIXTURE_BIN/dotfiles" apply
-    assert_status 0 \
-      "apply converges an enabled Herdr plugin at the wrong commit"
-    if [ -e "$TMPDIR_TEST/herdr-plugin-installed" ]; then
-      printf 'ok - wrong Herdr plugin commit is reinstalled\n'
-    else
-      printf 'not ok - wrong Herdr plugin commit was accepted\n'
-      FAILURES=$((FAILURES + 1))
-    fi
-
-    rm -f "$TMPDIR_TEST/herdr-plugin-installed"
-    run_command env -i HOME="$HOME_TEST" \
-      PATH="$FIXTURE_BIN:/usr/bin:/bin" \
-      TMPDIR="$TMPDIR_TEST" \
-      TNEZDEV_KNOWLEDGE_BASE_ROOT="$KNOWLEDGE_BASE" \
-      DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
-      FAKE_HERDR_PLUGIN_ENABLED=true \
-      FAKE_HERDR_PLUGIN_MARKER="$TMPDIR_TEST/herdr-plugin-installed" \
-      "$FIXTURE_BIN/dotfiles" apply
-    assert_status 0 "apply accepts an enabled pinned Herdr plugin"
-    if [ ! -e "$TMPDIR_TEST/herdr-plugin-installed" ]; then
-      printf 'ok - enabled pinned Herdr plugin is left unchanged\n'
-    else
-      printf 'not ok - enabled pinned Herdr plugin was reinstalled\n'
-      FAILURES=$((FAILURES + 1))
-    fi
-    rm -f "$FIXTURE_BIN/herdr" "$FIXTURE_BIN/jq"
+  run_command env -i HOME="$HOME_TEST" \
+    PATH="$FIXTURE_BIN:/usr/bin:/bin" TMPDIR="$TMPDIR_TEST" \
+    DOTFILES_TEST_HOST_MUTATION_MARKER="$HOST_MUTATION_MARKER" \
+    FAKE_BREW_ALLOW_INSTALL=1 \
+    FAKE_BREW_INSTALL_LOG="$TMPDIR_TEST/brew-install.log" \
+    "$FIXTURE_BIN/dotfiles" provision --non-interactive
+  assert_status 0 "provision installs only the declared Homebrew inventory"
+  OUTPUT=$(< "$TMPDIR_TEST/brew-install.log")
+  assert_contains "--file=$FIXTURE_PHYSICAL/brew/Brewfile --no-upgrade" \
+    "provision uses the explicit inventory without upgrading"
+  if [ ! -e "$HOST_MUTATION_MARKER" ]; then
+    printf 'ok - lifecycle never invokes retired integrations or installers\n'
   else
-    printf 'ok - Herdr plugin condition test skipped (jq unavailable)\n'
+    printf 'not ok - lifecycle invoked a guarded integration or installer\n'
+    FAILURES=$((FAILURES + 1))
   fi
 
   printf 'modem-dev/tap/hunk\n' > "$FIXTURE/brew/trusted-formulae"

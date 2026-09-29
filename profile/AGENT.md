@@ -1,4 +1,4 @@
-# Profile component
+# Shared profile
 
 <!-- dotfiles-module
 version 1
@@ -6,23 +6,17 @@ platform darwin
 stow standard
 -->
 
-## Desired state
+POSIX environment for the managed macOS Bash/Zsh shells and GUI environment
+bridge. Prepend existing Homebrew/local-bin/mise-shim directories once. No tool
+installation, project trust, or version selection occurs here. Interactive mise
+hooks belong in `.bashrc`/`.zshrc`; scripts should use `mise exec -- command`.
 
-The files in this directory are the source of truth for the `profile`
-configuration activated with GNU Stow on `darwin` hosts.
+Machine choices live in unmanaged `~/.profile.local`, loaded last. In particular,
+set `TNEZDEV_KNOWLEDGE_BASE_ROOT` explicitly to the local KB checkout. There is no
+portable default checkout layout. The example is not an active configuration.
 
-## Operations
+Do not stow over Omarchy's shell/profile files. Its native shell owns mise setup;
+export the KB variable through its existing user configuration after approval.
 
-- Install or update configuration with `dotfiles apply` from the canonical
-  primary checkout after reviewing `dotfiles plan`.
-- Check declaration, target, and link health with `dotfiles doctor` and
-  `dotfiles plan`.
-- Install or update application binaries through the platform provider; on
-  macOS, the declared provider inventory is `brew/Brewfile`.
-
-## Agent guidance
-
-Preserve unmanaged files and machine-local state. Read any colocated README
-and inspect the target application’s current configuration before changing
-this component. Do not infer consent for destructive migration or package
-trust decisions.
+Check with `sh -n`, `bash tests/fnm.sh`, and `bash tests/lifecycle.sh`. The fnm test
+filename is retained for existing callers, but tests mise and profile behavior.

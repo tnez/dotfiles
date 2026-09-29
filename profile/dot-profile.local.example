@@ -1,7 +1,7 @@
 # shellcheck shell=sh
+# Copy to ~/.profile.local, then set the actual checkout on this machine.
+# No repository-layout assumption is made by the shared profile.
+export TNEZDEV_KNOWLEDGE_BASE_ROOT="$HOME/Work/tnezdev/knowledge-base"
 
-# Override portable defaults from ~/.profile on machines with a custom layout.
-export TNEZDEV_KNOWLEDGE_BASE_ROOT="$HOME/Code/tnezdev/knowledge-base/main"
-
-# Optionally advertise a private machine-local AGENTS.md router.
+# Optional private operating-context router; not required for ordinary coding.
 # export TNEZDEV_LOCAL_CONTEXT_ROOT="$HOME/Documents"

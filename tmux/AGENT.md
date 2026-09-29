@@ -3,13 +3,18 @@
 <!-- dotfiles-module
 version 1
 platform darwin
+platform omarchy
 stow standard
 -->
 
 ## Desired state
 
 The files in this directory are the source of truth for the `tmux`
-configuration activated with GNU Stow on `darwin` hosts.
+configuration for macOS and Omarchy. Keep navigation keys and Neovim
+smart-splits support; use native session management and status. No forced shell,
+PATH, clipboard executable, workflow popup, or background session creation.
+Omarchy activation is manual. Test with `bash tests/portable.sh` and an isolated
+`tmux -L` server; never reload the user's server during verification.
 
 ## Operations
 

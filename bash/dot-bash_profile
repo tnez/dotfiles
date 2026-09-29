@@ -1,14 +1,6 @@
 # vim: ft=bash
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.profile ]; then
-		. ~/.profile
-fi
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
+# shellcheck shell=bash
+# shellcheck disable=SC1091
+[ ! -f "$HOME/.profile" ] || . "$HOME/.profile"
+# shellcheck disable=SC1091
+[ ! -f "$HOME/.bashrc" ] || . "$HOME/.bashrc"

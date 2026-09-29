@@ -24,6 +24,12 @@ that Homebrew requires the user to trust explicitly.
 - Add dependencies deliberately to `Brewfile`; do not derive or snapshot all
   software installed on one machine.
 
+Mise replaces fnm/pyenv shell integration. Project versions belong in project
+`mise.toml` files, not this Brewfile. Other unreviewed language/package entries
+remain pending dependency review (especially Neovim); their presence is not a
+recommendation to bypass mise for new projects. Provision no longer downloads
+agents or installs GitHub extensions. It never uninstalls retired applications.
+
 ## Agent guidance
 
 Never treat generic `--yes` as third-party formula trust. If the lifecycle

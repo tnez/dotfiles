@@ -1,229 +1,111 @@
-# `@tnez/dotfiles`
+# Personal dotfiles
 
-Personal macOS and Omarchy dotfiles managed with GNU Stow. The root `dotfiles` executable is
-the canonical lifecycle interface.
+Small preferences for macOS and Omarchy, managed with GNU Stow. Codex and Pi are
+the only managed agents. Project runtimes and tools belong in project-local
+`mise.toml` files; dotfiles does not install or trust those projects for you.
 
-## New macOS Machine
+## Inspect first
 
-The default zsh install path uses process substitution so the installer can
-read prompts from the terminal instead of consuming a script from standard
-input:
-
-```zsh
-/bin/bash <(curl --proto '=https' --tlsv1.2 -fsSL \
-  https://raw.githubusercontent.com/tnez/dotfiles/main/install.sh)
+```sh
+./dotfiles modules --all
+./dotfiles doctor
+./dotfiles plan
 ```
 
-The installer defaults to `$HOME/Code/tnez/dotfiles/main`. It safely reuses a
-primary checkout at that path or clones the repository, then runs the local
-`dotfiles bootstrap` command.
+These commands are read-only. An `ACTION_REQUIRED` means stop for a human policy
+or destructive decision. A candidate worktree can report conflicts with links
+owned by the primary checkout; that is not permission to relink the live home.
 
-For an inspect-first installation:
+**Upgrading from the previous configuration:** read
+[retirement](docs/retirement.md) **before merging source deletions**. Existing
+Stow links make primary-checkout edits live, even without running apply.
 
-```bash
-installer="$(mktemp -t dotfiles-install.XXXXXX)"
-curl --proto '=https' --tlsv1.2 -fsSL \
-  https://raw.githubusercontent.com/tnez/dotfiles/main/install.sh \
-  -o "$installer"
-less "$installer"
-/bin/bash "$installer"
-rm -f "$installer"
-```
+## What we own
 
-Agents use an explicit path and noninteractive mode. `--yes` approves only
-routine convergence; it never grants third-party formula trust:
+- Shared KB startup instructions and small Codex/Pi preferences.
+- Git and tmux preferences reviewed for both platforms.
+- Omarchy: Caps Lock/Ctrl swap and default coding agent `pi`, nothing else.
+- macOS shell/editor/tool preferences, Homebrew inventory, and the GUI environment
+  bridge. Neovim is deliberately preserved pending a separate review, including
+  its guarded Herdr navigation and CodeCompanion/Anthropic configuration.
 
-```bash
-/bin/bash "$installer" \
-  --path "$HOME/Code/tnez/dotfiles/main" \
-  --non-interactive \
-  --yes
-```
+Lazygit remains installed via Homebrew but uses upstream defaults. Its old file
+contained only UI toggles/bookkeeping, not an essential workflow. Several keys
+were under `gui` although the installed default schema places them at the root.
+There is no replacement configuration framework or custom workflow launcher.
 
-If bootstrap reports `ACTION_REQUIRED` for a formula, stop and have a human
-review it. Reviewed formulae can be approved explicitly on retry:
+Existing unreviewed modules (`bat`, `bun`, `env`, `ssh`, `starship`, `vim`, `yazi`,
+editor defaults) are not proof of current usage; they remain for separate review.
+Brewfile entries unrelated to retired tools are also preserved, not endorsed as a
+minimal dependency list. Do not uninstall software because its config is retired.
 
-```bash
-/bin/bash "$installer" \
-  --path "$HOME/Code/tnez/dotfiles/main" \
-  --non-interactive \
-  --yes \
-  --trust-formula modem-dev/tap/hunk \
-  --trust-formula satococoa/tap/wtp
-```
+## Knowledge-base access
 
-## Lifecycle
+The KB owns policy and durable knowledge. Dotfiles provides only discovery:
 
 ```text
-dotfiles bootstrap   preflight, plan, provision, apply, final doctor
-dotfiles doctor      read-only health and conflict checks
-dotfiles plan        read-only provisioning and Stow simulation
-dotfiles apply       fast configuration and integration convergence
-dotfiles provision   install missing dependencies without routine upgrades
-dotfiles upgrade     slow, explicit update/upgrade/cleanup
-dotfiles modules     selected declarative component entrypoints
+Codex/Pi AGENTS.md → shared agents/AGENTS.md
+                  → TNEZDEV_KNOWLEDGE_BASE_ROOT → KB AGENTS.md + root/index.md
 ```
 
-Run `dotfiles <command> --help` for command-specific details. After the first
-successful apply, `~/.local/bin/dotfiles` points to the canonical checkout, and
-`~/.local/bin` is loaded by `profile/dot-profile`.
+Set that environment variable to the **actual absolute checkout path** on each
+machine. No `main/` layout or fallback search is assumed. For the current Omarchy
+machine the verified path is `/home/tnez/Work/tnezdev/knowledge-base`.
 
-`doctor` and `plan` are safe in candidate linked worktrees. Every mutating
-command refuses a checkout whose `.git` is a file. Merge the change first, then
-activate it from the primary checkout whose `.git` is a directory.
+On managed macOS shells, place the export in the unmanaged `~/.profile.local`:
 
-The shared `~/.profile` exports
-`TNEZDEV_KNOWLEDGE_BASE_ROOT`, defaulting to
-`$HOME/Code/tnezdev/knowledge-base/main`. Bash and zsh both load this profile.
-Machines using another checkout layout can set the variable in
-`~/.profile.local`; `~/.profile.local.example` documents the expected syntax.
-`dotfiles doctor` verifies that the variable is set and that its agent and OKF
-entrypoints are readable.
-
-Global agent instructions also recognize the optional
-`TNEZDEV_LOCAL_CONTEXT_ROOT`. It has no portable default and is not required by
-`doctor`. A participating machine may export it from `~/.profile.local` to
-advertise a private `AGENTS.md` router; agents consult that router only when a
-task needs machine-local operating context.
-
-The `com.tnez.launchd-environment` LaunchAgent loads that same profile at macOS
-login and selectively publishes `PATH`, `TNEZDEV_KNOWLEDGE_BASE_ROOT`, and
-`TNEZDEV_LOCAL_CONTEXT_ROOT` through `launchctl`. This gives Finder- and
-Dock-launched applications the same configured roots without duplicating them
-in the LaunchAgent plist. Run `dotfiles apply` after changing the agent or its
-script, then fully restart already-running GUI applications so they inherit the
-updated environment.
-
-Most edits to already-stowed files are immediately live through their existing
-symlinks. Run:
-
-- `dotfiles apply` after adding/removing paths, changing copied files, or
-  changing service/integration state
-- `dotfiles provision` after adding a dependency or when doctor reports one
-  missing
-- `dotfiles upgrade` only when intentionally updating installed packages
-- `dotfiles bootstrap` for first-time setup or full convergence
-
-`provision` uses this repository's `brew/Brewfile` explicitly, suppresses
-Homebrew auto-update in the convergence path, and passes `--no-upgrade`.
-Third-party trust is declared formula-by-formula in
-`brew/trusted-formulae`; no tap-wide trust is granted.
-
-## Declarative Components
-
-Every activatable top-level component has an `AGENT.md`. A validated
-`dotfiles-module` block declares its supported platform, Stow mode, and any
-closed lifecycle capabilities; the surrounding prose describes install,
-update, health, and agent judgment. Run
-`dotfiles modules` for the current host or `dotfiles modules --all` for the
-complete inventory. See
-[`docs/architecture/agent-modules.md`](docs/architecture/agent-modules.md) for
-the format and rationale.
-
-`apply` selects only Darwin components and uses restow semantics to converge
-links and prune paths removed from a selected component without deleting
-unmanaged regular files. `AGENT.md` itself is always ignored by Stow.
-
-Removing an entire component declaration cannot identify links it previously
-owned. Before deleting its `AGENT.md`, unstow it from the primary checkout with
-the same folding mode recorded in the declaration, verify the result, then
-remove the entrypoint:
-
-```bash
-stow --dir="$HOME/Code/tnez/dotfiles/main" \
-  --target="$HOME" --dotfiles --delete <package>
+```sh
+export TNEZDEV_KNOWLEDGE_BASE_ROOT="/absolute/path/to/knowledge-base"
 ```
 
-Include `--no-folding` when the component declaration records that mode.
+`profile/dot-profile.local.example` is an example, not active configuration.
+Bash and Zsh load the shared profile. The macOS environment LaunchAgent publishes
+PATH and the KB root for subsequently launched GUI apps. Existing apps must be
+fully restarted after an approved environment update.
 
-`~/.agents/skills` is the only supported shared local skill-discovery root.
-Dotfiles-owned shared `SKILL.md` files are materialized because Codex does not
-reliably load symlinked entrypoints. Ownership and checksums are recorded in
-`~/.local/state/dotfiles/materialized-skills`. Apply removes stale copies only
-when that state proves ownership and the file is unchanged. A regular file or
-unmanaged symlink at any managed target is reported as a conflict, not
-overwritten.
+On Omarchy, export the variable in the existing user shell configuration rather
+than replacing its upstream shell setup. An export in a terminal does not change
+already-running GUI applications; launch agents from that terminal until a
+separately reviewed desktop environment setup is in place.
 
-The separate knowledge-base trial exposes only `present-for-decision` as a
-whole-directory link:
+Optional `TNEZDEV_LOCAL_CONTEXT_ROOT` points to a private `AGENTS.md` router and is
+loaded only when the task needs it. Dottie and Herdr are not required to read the
+local KB. The `present-for-decision` skill adapter is retired; its source remains
+readable through the KB index without installing a skill.
 
-```text
-${TNEZDEV_KNOWLEDGE_BASE_ROOT}/root/skills/present-for-decision
-  -> ~/.agents/skills/present-for-decision
-```
+## Mise and applications
 
-The knowledge base owns that entire directory, including frontmatter and
-supporting files; dotfiles never copies or rewrites it. The adapter requires an
-absolute, readable `TNEZDEV_KNOWLEDGE_BASE_ROOT` with `AGENTS.md`,
-`root/index.md`, and the trial skill. `doctor` and `plan` validate the source,
-its three required context files, managed link, and ownership state read-only.
-After integration, run `apply` from the primary checkout to create or repair
-the link. The live skill resolves its `/processes/...`, `/principles/...`, and
-`/meta/...` required-context links against
-`${TNEZDEV_KNOWLEDGE_BASE_ROOT}/root`, as directed by the global agent
-instructions and the knowledge-base Agent Consumption Contract; these links
-are not host-filesystem-root paths.
+Homebrew installs mise on macOS. The managed interactive shells activate it;
+noninteractive/GUI environments use existing mise shims. Prefer
+`mise exec -- <command>` for project scripts and CI. Do not auto-install runtimes
+or run `mise trust` in startup files. Existing fnm/pyenv installations and tool
+versions are not deleted or migrated automatically.
 
-Ownership is recorded in
-`~/.local/state/dotfiles/knowledge-base-skill-adapter`. An unmanaged symlink,
-file, or directory at the adapter path is always a conflict. To retire the
-trial, remove its sole declaration from
-`agents/knowledge-base-skill-adapter`, review `doctor` and `plan`, then run
-`apply` from the primary checkout. Apply removes only the link whose exact
-target still matches recorded ownership, removes its state, and leaves the KB
-source and unrelated Agents skills untouched.
+Pi/Codex binaries are installed separately through a supported platform or mise
+provider. No ad-hoc curl/npm/Bun agent installation runs during provisioning.
+Homebrew still supplies the Codex desktop app. Omarchy owns its package setup.
 
-`~/.claude/skills` is **LEGACY**. Do not add or maintain shared skills there;
-the existing Claude package and installed legacy entries are intentionally
-deferred to separately reviewed cleanup. There is no Claude adapter for
-`present-for-decision`, and Claude Code access to it is out of scope.
+## Activation (separate approval)
 
-Manual Stow operations still require `--dotfiles`, for example:
+Automated mutation is macOS-only and refuses linked worktrees:
 
-```bash
-stow --dir="$HOME/Code/tnez/dotfiles/main" \
-  --target="$HOME" --dotfiles --restow zsh
-```
+- `./dotfiles apply`: Stow, absent-only Codex seed, owned-copy retirement,
+  launcher and GUI environment convergence; no packages or Herdr services.
+- `./dotfiles provision`: install missing Brewfile packages, no routine upgrades.
+- `./dotfiles upgrade`: explicit Homebrew updates/upgrades/cleanup, no package
+  pruning. Formula-specific trust remains required.
+- `./dotfiles bootstrap`: doctor, plan, provision, apply, final doctor.
 
-## Omarchy
+For a new macOS machine, inspect `install.sh` and run it with an explicit
+canonical primary checkout path. Configure KB access and resolve conflicts
+before activation. `--yes` never grants formula trust or destructive consent.
 
-The `omarchy` package owns just two preferences: swap Caps Lock and Ctrl, and
-select Pi as the default coding agent. It does not own the shell layout,
-idle timers, theme sizing, or a cloned menu. Omarchy's packaged defaults live
-in `/usr/share/omarchy/`; do not edit them. Dottie Terminal and its agent skill
-are maintained separately, not installed or configured by this package.
+Omarchy Stow remains manual. Review each selected module's `AGENT.md`, the dry
+run, and existing target ownership before choosing which modules to activate.
+Never use `--adopt`, force overwrites, or the real home as a test fixture.
+Neovim, Bash, Zsh and the shared profile are **not** selected on Omarchy; the
+existing LazyVim and upstream shell stay untouched.
 
-`dotfiles doctor`, `dotfiles plan`, and `dotfiles modules` understand Omarchy
-and select only the `omarchy` component. Mutating lifecycle commands remain
-macOS-only, so activation on an Omarchy system is an explicit manual step after
-installing GNU Stow and reviewing `omarchy/AGENT.md`:
-
-```bash
-stow --dir="/absolute/path/to/your/dotfiles" \
-  --target="$HOME" --dotfiles --ignore='^AGENT\.md$' --restow omarchy
-```
-
-Install Omarchy first, then review and back up any existing files at the two
-managed paths before activation; never force Stow over unmanaged files. See
-[`omarchy/AGENT.md`](omarchy/AGENT.md) for setup and migration details.
-
-No post-install or post-update hook is needed. Hyprland loads packaged defaults
-before user overrides, and the stock menu receives package updates directly.
-Omarchy migrations can modify user configs or replace symlinks: review
-`git diff`, `dotfiles doctor`, and `dotfiles plan` after updates rather than
-blindly restowing or resetting files from a hook.
-
-## Homebrew Dependencies
-
-Dependencies are curated in `brew/Brewfile`.
-
-```bash
-./scripts/brew-add.sh <formula>
-./scripts/brew-add.sh <cask> --cask
-dotfiles provision
-dotfiles upgrade
-```
-
-`dotfiles upgrade` updates Homebrew metadata, upgrades Brewfile dependencies,
-and cleans old Homebrew artifacts. It does not prune unrelated installed
-packages.
+See [module architecture](docs/architecture/agent-modules.md),
+[candidate scope and baseline](docs/simplification.md), and
+[retirement/recovery](docs/retirement.md).

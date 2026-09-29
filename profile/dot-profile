@@ -1,129 +1,34 @@
 # vim: ft=sh
 # shellcheck shell=sh
 
-# Shell-agnostic environment for zsh and bash.
-
-# Load machine-specific overrides before assigning portable defaults.
-# shellcheck disable=SC1091
-[ -f "$HOME/.profile.local" ] && . "$HOME/.profile.local"
-
-path_remove() {
-  [ -n "$1" ] || return 0
-
-  path_new=
-  path_old="$PATH:"
-  while [ -n "$path_old" ]; do
-    path_entry="${path_old%%:*}"
-    path_old="${path_old#*:}"
-
-    [ -z "$path_entry" ] && continue
-    [ "$path_entry" = "$1" ] && continue
-
-    if [ -n "$path_new" ]; then
-      path_new="$path_new:$path_entry"
-    else
-      path_new="$path_entry"
-    fi
-  done
-  PATH="$path_new"
-}
-
+# POSIX environment only: no runtime installation or interactive shell hooks.
 path_prepend() {
   [ -d "$1" ] || return 0
-  path_remove "$1"
-  if [ -n "$PATH" ]; then
-    PATH="$1:$PATH"
-  else
-    PATH="$1"
-  fi
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$1${PATH:+:$PATH}" ;;
+  esac
 }
 
-path_append() {
-  [ -d "$1" ] || return 0
-  path_remove "$1"
-  if [ -n "$PATH" ]; then
-    PATH="$PATH:$1"
-  else
-    PATH="$1"
-  fi
-}
-
-export EDITOR="nvim"
-export VISUAL="nvim"
-export TESSDATA_PREFIX="/opt/homebrew/share/tessdata"
-export GH_DASH_CONFIG="$HOME/.config/gh-dash/config.yml"
-export PAGER="less"
-export LANG="en_US.UTF-8"
-export LC_ALL="en_US.UTF-8"
-export MODE="LIGHT"
-export NVIM_APPNAME="nvim"
-export INBOX_DIR="$HOME/PARA/DESK/inbox"
-export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/rg.conf"
-export ZK_NOTEBOOK_DIR="$HOME/Documents/sb"
-export BAT_THEME="ansi"
-export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview-window=right:60% --preview 'bat --color=always --style=header,grid --line-range :500 {}'"
-if [ -z "${TNEZDEV_KNOWLEDGE_BASE_ROOT:-}" ]; then
-  TNEZDEV_KNOWLEDGE_BASE_ROOT="$HOME/Code/tnezdev/knowledge-base"
-  TNEZDEV_KNOWLEDGE_BASE_ROOT="$TNEZDEV_KNOWLEDGE_BASE_ROOT/main"
-fi
-export TNEZDEV_KNOWLEDGE_BASE_ROOT
-
-if command -v defaults >/dev/null 2>&1 &&
-  [ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" = "Dark" ]; then
-  export GLOW_STYLE="dark"
-else
-  export GLOW_STYLE="light"
-fi
-
-if command -v launchctl >/dev/null 2>&1; then
-  launchd_ssh_auth_sock="$(launchctl getenv SSH_AUTH_SOCK 2>/dev/null)"
-  [ -n "$launchd_ssh_auth_sock" ] && export SSH_AUTH_SOCK="$launchd_ssh_auth_sock"
-  unset launchd_ssh_auth_sock
-fi
-
-# Base tool paths.
-path_prepend "$HOME/.claude/local"
-path_prepend "/opt/homebrew/bin"
-path_prepend "/opt/homebrew/sbin"
-path_prepend "/opt/homebrew/opt/libpq/bin"
-path_prepend "$HOME/.antigravity/antigravity/bin"
-
-export PNPM_HOME="$HOME/Library/pnpm"
-path_prepend "$PNPM_HOME"
-path_prepend "$HOME/.bun/bin"
+# Homebrew locations are harmless on hosts without these directories.
+path_prepend /usr/local/bin
+path_prepend /opt/homebrew/bin
+path_prepend /opt/homebrew/sbin
 path_prepend "$HOME/.local/bin"
-path_prepend "$HOME/go/bin"
-path_prepend "$HOME/.local/lib/google-cloud-sdk/bin"
-
-path_append "$HOME/.scripts"
-path_append "$HOME/.opencode/bin"
-
-# Cargo (Rust)
-# shellcheck disable=SC1091
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-path_prepend "$HOME/.cargo/bin"
-
-# Node (fnm)
-if command -v fnm >/dev/null 2>&1; then
-  if [ -n "${ZSH_VERSION:-}" ]; then
-    # shellcheck disable=SC1090
-    eval "$(fnm env --use-on-cd --shell zsh)"
-  else
-    # shellcheck disable=SC1090
-    eval "$(fnm env --use-on-cd --shell bash)"
-  fi
-
-  # Ensure a default Node is selected for non-interactive shells.
-  # `--use-on-cd` won't fire unless we actually `cd`.
-  fnm use default --silent-if-unchanged >/dev/null 2>&1 || true
-fi
-
+path_prepend "$HOME/.scripts"
+# Noninteractive shells/GUI applications use mise shims, not a pinned runtime.
+path_prepend "${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims"
 export PATH
-export TNEZ_PROFILE_LOADED="1"
 
+export EDITOR=nvim
+export VISUAL=nvim
+export PAGER=less
+export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/rg.conf"
+export BAT_THEME=ansi
+
+# Keep machine paths out of the portable configuration. Loaded last so local
+# choices (including EDITOR and PATH) actually override the defaults above.
+# shellcheck disable=SC1091
+[ ! -f "$HOME/.profile.local" ] || . "$HOME/.profile.local"
+export TNEZ_PROFILE_LOADED=1
 unset -f path_prepend
-unset -f path_append
-unset -f path_remove
-unset path_new
-unset path_old
-unset path_entry

@@ -133,7 +133,7 @@ EOF
         fi
         case "$value" in
           homebrew|materialized-skills|knowledge-base-adapter|codex-seed|\
-launchd-environment|herdr) ;;
+launchd-environment) ;;
           *)
             module_error "invalid capability in $entrypoint: $value"
             return 1

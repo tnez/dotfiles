@@ -1,1 +1,0 @@
-../../../agents/dot-agents/commands/reconstruct.md

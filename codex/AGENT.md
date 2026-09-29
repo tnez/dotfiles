@@ -1,28 +1,20 @@
-# Codex component
+# Codex
 
 <!-- dotfiles-module
 version 1
 platform darwin
+platform omarchy
 stow no-folding
 capability codex-seed
 -->
 
-## Desired state
+Own only the KB instruction entrypoint and a small preference seed. No personal
+commands, generated integration hooks, project trust lists, or runtime state.
+`dot-codex/AGENTS.md` links to the shared source in `agents/AGENTS.md`.
 
-The files in this directory are the source of truth for the `codex`
-configuration activated with GNU Stow on `darwin` hosts.
+On macOS `dotfiles apply` seeds `~/.codex/config.toml` only when absent. On Omarchy
+Stow is manual and does not seed config: use Codex defaults or, after approval,
+copy the base only if no live config or symlink exists. Never overwrite a live
+config, credentials, sessions, or caches. Binaries are installed separately.
 
-## Operations
-
-- Review `dotfiles plan`, then use `dotfiles apply` from the canonical primary
-  checkout to restow shared Codex files.
-- `codex-seed` copies `config.base.toml` to `~/.codex/config.toml` only when no
-  live config exists. `dotfiles doctor` reports whether seeding is needed.
-- Install or update Codex through the Darwin provider inventory in
-  `brew/Brewfile`.
-
-## Agent guidance
-
-A live `~/.codex/config.toml` is machine state and must be preserved. Change
-the base only for future seeds; do not pretend an existing live config is
-converged from it or replace it without an explicit migration decision.
+Verify with `bash tests/portable.sh` and `bash tests/lifecycle.sh`. See README.

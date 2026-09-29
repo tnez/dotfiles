@@ -1,28 +1,18 @@
-# Pi component
+# Pi
 
 <!-- dotfiles-module
 version 1
 platform darwin
+platform omarchy
 stow no-folding
 -->
 
-## Desired state
+Own only settings, personal navigation keys, and the shared KB instruction link.
+Use upstream retry, compaction, thinking-level, and resource-discovery defaults.
+No personal workflow prompts, skills, or automatic extension installations.
 
-The files in this directory are the source of truth for the `pi`
-configuration activated with GNU Stow on `darwin` hosts.
-
-## Operations
-
-- Install or update configuration with `dotfiles apply` from the canonical
-  primary checkout after reviewing `dotfiles plan`.
-- Check declaration, target, and link health with `dotfiles doctor` and
-  `dotfiles plan`.
-- Install or update application binaries through the platform provider; on
-  macOS, the declared provider inventory is `brew/Brewfile`.
-
-## Agent guidance
-
-Preserve unmanaged files and machine-local state. Read any colocated README
-and inspect the target application’s current configuration before changing
-this component. Do not infer consent for destructive migration or package
-trust decisions.
+Run `bash tests/portable.sh`; validate settings JSON and consult the installed
+Pi settings/keybindings documentation. Read `README.md` before activation.
+Stow only after approval, never over existing regular files. On Omarchy activation
+is manual. Pi can rewrite settings: inspect repository diffs after changing them
+in the application. Preserve auth, sessions, packages, and all unmanaged files.

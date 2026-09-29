@@ -1,19 +1,13 @@
 # Zsh
 
-This package is the daily-driver zsh setup.
+The macOS shell keeps vi editing (`kj`), history, completion and a few aliases.
+`~/.profile` handles the environment; mise activates only in interactive shells.
+Use project `mise.toml` files for tool versions and `mise exec -- <command>` in
+scripts. There is no fnm/pyenv activation, forced default Node, worktree hook,
+background tmux session, or personal workflow helper.
 
-Environment and PATH live in `profile/dot-profile` so zsh and bash can share
-them. Interactive zsh behavior lives in `zsh/dot-zshrc`.
+Omarchy's upstream shell configuration is left alone. Do not stow this package
+there simply to obtain mise: use the platform's existing integration instead.
 
-Migration test:
-
-```bash
-stow --target="$HOME" --dotfiles zsh profile
-zsh -lic 'echo ok'
-```
-
-This package does not change the login shell. After testing manually:
-
-```bash
-chsh -s /bin/zsh
-```
+Run `bash tests/fnm.sh` (historical filename, now mise/profile regression tests).
+Startup smoke tests use disposable homes; never change the login shell as a test.

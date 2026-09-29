@@ -1,7 +1,0 @@
-gui:
-  confirmOnQuit: false
-  disableStartupPopups: true
-  reporting: 'off'
-  showCommandLog: false
-  showRandomTip: false
-  startupPopupVersion: 1

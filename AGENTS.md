@@ -140,8 +140,7 @@ Run independent checks even if another fails, unless a safety boundary such as
 | Stowed paths or package layout | Isolated Stow checks below; `./dotfiles doctor`; `./dotfiles plan` |
 | Omarchy package | `bash tests/omarchy.sh`; `./dotfiles doctor`; `./dotfiles plan` |
 | Shell initialization, profile, or Node environment | `bash tests/fnm.sh`; `bash tests/lifecycle.sh`; affected-shell startup smoke checks |
-| Herdr worktree helpers | `bash tests/herdr-worktree-start.sh`; `bash tests/herdr-worktree-cleanup.sh` |
-| OpenCode agents or configuration | `bash tests/opencode-agents.sh` |
+| Retained Stow layout, Codex/Pi, or portable preferences | `bash tests/portable.sh`; `bash tests/lifecycle.sh`; native config checks |
 | Other application configuration | Component health checks from its `AGENT.md`; native config validation and focused smoke checks where available |
 | Shell code | Syntax checks with the appropriate interpreter; ShellCheck on affected supported shell files |
 | Documentation only | Review accuracy, referenced paths/commands, links, and consistency with existing guidance; runtime suites are not required unless executable behavior also changes |
@@ -155,8 +154,8 @@ standalone suites; do not execute every `tests/*.sh` indiscriminately.
   unstow preserving unrelated configuration. Never use the real home as a
   regression-test fixture.
 - Inspect suite output as well as exit status. `tests/lifecycle.sh` can skip
-  coverage when Stow or jq is missing. Focused suites also need their tools
-  (for example zsh, jq, or OpenCode); record missing prerequisites as blocked.
+  coverage when Stow is missing. Focused suites also need their tools
+  (for example zsh or Python 3.11+); record missing prerequisites as blocked.
 - `doctor` and `plan` are read-only host checks, not regression-test substitutes.
   Record host drift separately from candidate defects. Platform fakes do not
   replace native macOS or Omarchy verification; identify any remaining native
@@ -167,6 +166,18 @@ standalone suites; do not execute every `tests/*.sh` indiscriminately.
 - After orchestrator review and verification, prepare cohesive commits
 - Fast-forward integration into local `main` is permitted
 - Never push unless explicitly requested
+
+## Simplification delivery boundary
+
+Read `docs/simplification.md` and `docs/retirement.md` before integrating this
+candidate. Never merge deleted Stow sources into the live primary checkout
+before reviewing and retiring their owned links. Preserve ownership records,
+unmanaged agent state, the KB checkout, and Omarchy's shell/LazyVim.
+
+Project tools use mise. No global runtime version manifest, automatic project
+trust, or shell-startup installation is introduced here. Native Git worktree
+isolation was approved for this cleanup only; broader layout policy is deferred.
+`tests/fnm.sh` retains its historical name but now tests mise/profile behavior.
 
 ## Adding New Configurations
 

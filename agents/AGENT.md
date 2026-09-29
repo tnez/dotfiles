@@ -1,30 +1,24 @@
-# Agents component
+# Shared agent instructions
 
 <!-- dotfiles-module
 version 1
 platform darwin
+platform omarchy
 stow no-folding
 capability materialized-skills
 capability knowledge-base-adapter
 -->
 
-## Desired state
+`AGENTS.md` is the shared instruction source linked by the Codex and Pi packages.
+Stow also exposes it at `~/AGENTS.md`. No personal prompts or skills are shipped.
 
-The files in this directory are the source of truth for the `agents`
-configuration activated with GNU Stow on `darwin` hosts.
+The two Darwin lifecycle capabilities remain solely for safe retirement: the
+empty adapter declaration retires only a state-proven KB link, and the empty
+skill inventory retires only unchanged checksum-owned copies. Modified copies
+are conflicts. Do not delete state files to bypass these ownership checks.
 
-## Operations
+On Omarchy use manual Stow only after approval; copied-skill/adapter retirement
+is not automated there. Preserve externally installed skills, especially Dottie,
+and the KB itself. See `docs/retirement.md` before integrating deletions.
 
-- Review `dotfiles plan`, then use `dotfiles apply` from the canonical primary
-  checkout to restow shared commands and converge owned skills.
-- `materialized-skills` copies repository `SKILL.md` files into
-  `~/.agents/skills` with checksum ownership because Codex does not reliably
-  discover symlinked entrypoints.
-- `knowledge-base-adapter` manages the declared whole-directory trial adapter;
-  `dotfiles doctor` validates its source, target, and ownership state.
-
-## Agent guidance
-
-Never overwrite unmanaged skill files or directories. A modified managed copy
-is a conflict, not disposable output. Preserve knowledge-base source content
-and require exact ownership evidence before repairing or retiring an adapter.
+Verify with `bash tests/lifecycle.sh` and `bash tests/portable.sh`.

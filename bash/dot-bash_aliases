@@ -3,6 +3,5 @@
 alias cls='clear'
 alias g='git'
 alias gs='git status'
-alias hhh='herdr'
 alias lg='lazygit'
 alias ll='ls -l'

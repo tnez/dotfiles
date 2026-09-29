@@ -3,13 +3,17 @@
 <!-- dotfiles-module
 version 1
 platform darwin
+platform omarchy
 stow standard
 -->
 
 ## Desired state
 
 The files in this directory are the source of truth for the `git`
-configuration activated with GNU Stow on `darwin` hosts.
+configuration for macOS and Omarchy. Git identity, aliases, and workflow
+preferences remain; `less` replaces Hunk. GitHub credentials use `gh` from PATH.
+Omarchy Stow is manual after approval. Existing machine Git configuration is a
+conflict, not something to overwrite. Test with `bash tests/portable.sh`.
 
 ## Operations
 

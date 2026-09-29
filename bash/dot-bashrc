@@ -1,0 +1,12 @@
+# shellcheck shell=bash
+case $- in *i*) ;; *) return ;; esac
+
+if [ -z "${TNEZ_PROFILE_LOADED:-}" ] && [ -f "$HOME/.profile" ]; then
+  # shellcheck disable=SC1091
+  . "$HOME/.profile"
+fi
+# shellcheck disable=SC1091
+[ ! -f "$HOME/.bash_aliases" ] || . "$HOME/.bash_aliases"
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
