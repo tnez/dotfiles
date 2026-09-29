@@ -37,6 +37,70 @@ This repository contains my personal dotfiles managed via GNU Stow.
    `--yes`. Formula trust requires the explicit reviewed
    `--trust-formula <name>` option after review.
 
+## Definition of Ready
+
+A change is ready for implementation when the following are recorded in the
+task plan, issue, or conversation. Keep this proportional: a small change can
+use a few bullets; a separate design document is not required.
+
+- **Outcome and acceptance criteria:** State the user-visible problem and
+  observable conditions that will demonstrate success. For documentation,
+  state what readers must be able to understand or do.
+- **Scope and non-goals:** Identify affected components and supported hosts,
+  what will be added or changed, and related work explicitly excluded. Do not
+  bundle unrelated cleanup, new dependencies, or speculative abstractions.
+- **Context and invariants:** Read the affected components' `AGENT.md` files,
+  relevant documentation and decisions, implementation, and tests. Identify
+  existing behavior that must survive, including unmanaged files, runtime
+  state, platform boundaries, and activation safety. Existing code is evidence
+  of current behavior, not automatic proof of intent.
+- **Verification plan and baseline:** Map acceptance criteria and invariants
+  to automated checks or specific manual observations. Inspect Git status and
+  the existing diff; run relevant baseline checks before editing behavior.
+  Record existing failures and unavailable tools or platforms. For docs-only
+  work, review the existing guidance for contradictions instead.
+- **Delivery and recovery:** Identify whether the change affects live stowed
+  files, needs later activation, or needs migration/rollback instructions.
+  Run `doctor` and `plan` before proposing any mutating lifecycle command;
+  readiness itself grants no permission to activate or overwrite user state.
+- **Open decisions resolved:** Clarify uncertainty that affects scope,
+  ownership, personal preferences, destructive actions, or acceptance. Do not
+  invent requirements. Read-only discovery may proceed before readiness;
+  implementation waits on decisions that would change the solution.
+
+## Definition of Done
+
+A change is done when the following checklist is satisfied. Report each item
+as passed, failed, blocked, or not applicable, with evidence or a reason.
+A skipped check is not a pass; unresolved required verification means the
+change is not yet verified, unless the user explicitly accepts that gap.
+
+- **Acceptance:** Each Ready acceptance criterion has matching evidence.
+  Changes stay within the agreed scope; any changed requirements or non-goals
+  have been resolved with the user.
+- **Preservation:** Relevant invariants have been checked, including failure
+  paths and absence of unintended effects. Add or update regression tests for
+  changed behavior where practical; for a bug fix, demonstrate the test fails
+  before the fix when feasible. Explain any reliance on manual checks.
+- **Validation:** Run the applicable checks in Testing Changes below, including
+  relevant baseline checks again. Review the complete candidate diff,
+  including staged, unstaged, and newly added files, and run `git diff --check`
+  and `git diff --cached --check`. Separate pre-existing failures from new ones;
+  do not weaken tests merely to obtain a pass.
+- **Documentation:** Update affected component guidance, usage, and architecture
+  documentation when behavior, ownership, dependencies, or operations change.
+  Record important rationale and non-goals where future agents will find them.
+- **Safe delivery:** No unrelated user work is changed. Stow, ownership, and
+  platform safety rules remain intact. Any required activation and recovery
+  steps are identified; review and integration follow Integration Policy.
+- **Handoff:** Summarize what changed, checks and their outcomes, skipped or
+  blocked checks, and remaining risks. Distinguish candidate verification from
+  live activation. Report activation as completed, not needed, or pending;
+  never claim a mocked platform check proves native runtime behavior.
+
+Candidate verification does not authorize activation. Pending post-merge
+activation must remain an explicit follow-up, not an implied completed step.
+
 ## Project-Specific Style
 
 - UTF-8 encoding, Unix line endings (LF)
@@ -64,9 +128,39 @@ This repository contains my personal dotfiles managed via GNU Stow.
 
 ## Testing Changes
 
-- Test stow packages in isolation before committing
-- Verify symlinks point to correct locations
-- Check that unstowing doesn't break existing configs
+Select checks by the behavior affected, not only by changed filenames. Shared
+lifecycle, profile, or integration changes require checking their consumers.
+Run independent checks even if another fails, unless a safety boundary such as
+`ACTION_REQUIRED` requires stopping. Do not install tools just to hide a gap.
+
+| Change area | Required checks |
+| --- | --- |
+| Module declarations or discovery | `bash tests/modules.sh`; `./dotfiles modules --all`; `./dotfiles doctor`; `./dotfiles plan` |
+| Lifecycle, installer, ownership, provisioning, or shared integrations | `bash tests/modules.sh`; `bash tests/lifecycle.sh`; `./dotfiles doctor`; `./dotfiles plan` |
+| Stowed paths or package layout | Isolated Stow checks below; `./dotfiles doctor`; `./dotfiles plan` |
+| Omarchy package | `bash tests/omarchy.sh`; `./dotfiles doctor`; `./dotfiles plan` |
+| Shell initialization, profile, or Node environment | `bash tests/fnm.sh`; `bash tests/lifecycle.sh`; affected-shell startup smoke checks |
+| Herdr worktree helpers | `bash tests/herdr-worktree-start.sh`; `bash tests/herdr-worktree-cleanup.sh` |
+| OpenCode agents or configuration | `bash tests/opencode-agents.sh` |
+| Other application configuration | Component health checks from its `AGENT.md`; native config validation and focused smoke checks where available |
+| Shell code | Syntax checks with the appropriate interpreter; ShellCheck on affected supported shell files |
+| Documentation only | Review accuracy, referenced paths/commands, links, and consistency with existing guidance; runtime suites are not required unless executable behavior also changes |
+
+These are minimum checks, not exhaustive coverage. Add targeted tests for new
+behavior. Test scripts named `fake-*` and `fail-command.sh` are fixtures, not
+standalone suites; do not execute every `tests/*.sh` indiscriminately.
+
+- Test Stow packages in a disposable home before committing: initial stow,
+  repeated restow, exact symlink targets, conflicts with unmanaged files, and
+  unstow preserving unrelated configuration. Never use the real home as a
+  regression-test fixture.
+- Inspect suite output as well as exit status. `tests/lifecycle.sh` can skip
+  coverage when Stow or jq is missing. Focused suites also need their tools
+  (for example zsh, jq, or OpenCode); record missing prerequisites as blocked.
+- `doctor` and `plan` are read-only host checks, not regression-test substitutes.
+  Record host drift separately from candidate defects. Platform fakes do not
+  replace native macOS or Omarchy verification; identify any remaining native
+  smoke checks and obtain approval before live activation.
 
 ## Integration Policy
 

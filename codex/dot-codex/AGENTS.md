@@ -11,6 +11,14 @@ context is relevant, read `${TNEZDEV_KNOWLEDGE_BASE_ROOT}/AGENTS.md`, then use
 If the variable or either entrypoint is unavailable, report that configuration
 problem instead of searching for another checkout.
 
+Before proposing or changing shared working agreements, development practices,
+or readiness/completion criteria (including Definitions of Ready and Done),
+consult that knowledge base for existing policy and rationale. This applies
+during discussion and planning, not only before substantial coding.
+
+<!-- TODO: Consolidate duplicated global instructions into one shared source
+with verified discovery through each harness's entrypoint. -->
+
 For a knowledge-base-owned skill, resolve Required Context links beginning with
 `/` against `${TNEZDEV_KNOWLEDGE_BASE_ROOT}/root`, the OKF bundle root. Never
 treat those links as host-filesystem-root paths. Load only the skill's named
