@@ -1,6 +1,27 @@
 # DOTFILES PROJECT REFERENCE
 
-This repository contains my personal dotfiles managed via GNU Stow.
+This repository contains personal configuration for macOS and Omarchy.
+GNU Stow is one delivery mechanism, not a requirement for every configuration.
+
+## Configuration ownership and executable runbooks
+
+- Use Stow when dotfiles should own a file verbatim. Do not force mixed-ownership
+  or application-written configuration into whole-file symlinks.
+- When that becomes awkward, prefer a small, focused executable runbook:
+  inspect current state, report intended changes, reconcile only explicitly
+  owned settings after approval, and verify the result. Avoid a new general
+  configuration framework or background synchronization service.
+- Record shared preferences in the repo; preserve machine-local paths, themes,
+  packages, credentials, runtime state, and unrelated settings unless explicitly
+  included in the agreed scope.
+- Pair runbooks with agent guidance and read-only doctor/health checks. Report
+  drift; if local changes may represent a new preference, ask whether to update
+  the shared declaration or restore it rather than silently choosing a winner.
+- Make mutations repeatable, test preservation and failure paths in disposable
+  fixtures, and document recovery. Runbooks retain the same primary-checkout,
+  platform, approval, and ACTION_REQUIRED safeguards as lifecycle commands.
+- Git distributes reviewed preferences; this does not authorize automatic
+  commits, pushes, activation, or overwriting local state.
 
 ## Lifecycle Commands
 
@@ -183,7 +204,8 @@ isolation was approved for this cleanup only; broader layout policy is deferred.
 
 1. Create a directory named after the tool
 2. Add an `AGENT.md` with one validated `dotfiles-module` declaration
-3. Use `dot-` prefix for dotfiles (e.g., `dot-vimrc` → `~/.vimrc`)
+3. For Stow-owned files, use the `dot-` prefix (e.g., `dot-vimrc` → `~/.vimrc`);
+   for mixed ownership, document the focused runbook and settings it may change.
 4. Document install, update, health, and agent-specific context locally
 5. Test with `./dotfiles modules --all` and `./dotfiles plan` first
 6. Add any macOS dependencies to `brew/Brewfile` if needed

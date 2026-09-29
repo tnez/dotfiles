@@ -1,8 +1,12 @@
 # Personal dotfiles
 
-Small preferences for macOS and Omarchy, managed with GNU Stow. Codex and Pi are
-the only managed agents. Project runtimes and tools belong in project-local
-`mise.toml` files; dotfiles does not install or trust those projects for you.
+Small preferences for macOS and Omarchy. Use GNU Stow for files owned verbatim;
+use focused executable runbooks when settings share ownership with applications
+or machine-local configuration. Agent guidance and read-only health checks guide
+reconciliation; neither approach grants permission to overwrite local state.
+Codex and Pi are the only managed agents. Project runtimes and tools belong in
+project-local `mise.toml` files; dotfiles does not install or trust those projects
+for you.
 
 ## Inspect first
 
