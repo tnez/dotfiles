@@ -187,9 +187,11 @@ stow --dir="$HOME/Code/tnez/dotfiles/main" \
 
 ## Omarchy
 
-The `omarchy` package contains user-owned Hyprland and Omarchy overrides,
-including the custom Omarchy menu plugin. Omarchy's packaged defaults live in
-`/usr/share/omarchy/`; do not edit them.
+The `omarchy` package owns just two preferences: swap Caps Lock and Ctrl, and
+select Pi as the default coding agent. It does not own the shell layout,
+idle timers, theme sizing, or a cloned menu. Omarchy's packaged defaults live
+in `/usr/share/omarchy/`; do not edit them. Dottie Terminal and its agent skill
+are maintained separately, not installed or configured by this package.
 
 `dotfiles doctor`, `dotfiles plan`, and `dotfiles modules` understand Omarchy
 and select only the `omarchy` component. Mutating lifecycle commands remain
@@ -197,12 +199,19 @@ macOS-only, so activation on an Omarchy system is an explicit manual step after
 installing GNU Stow and reviewing `omarchy/AGENT.md`:
 
 ```bash
-stow --dir="$HOME/Work/dotfiles" \
-  --target="$HOME" --dotfiles --restow omarchy
+stow --dir="/absolute/path/to/your/dotfiles" \
+  --target="$HOME" --dotfiles --ignore='^AGENT\.md$' --restow omarchy
 ```
 
-Existing Omarchy defaults are intentionally left to Omarchy, so updates can
-continue to improve the base configuration.
+Install Omarchy first, then review and back up any existing files at the two
+managed paths before activation; never force Stow over unmanaged files. See
+[`omarchy/AGENT.md`](omarchy/AGENT.md) for setup and migration details.
+
+No post-install or post-update hook is needed. Hyprland loads packaged defaults
+before user overrides, and the stock menu receives package updates directly.
+Omarchy migrations can modify user configs or replace symlinks: review
+`git diff`, `dotfiles doctor`, and `dotfiles plan` after updates rather than
+blindly restowing or resetting files from a hook.
 
 ## Homebrew Dependencies
 
