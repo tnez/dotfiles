@@ -30,7 +30,8 @@ Stow links make primary-checkout edits live, even without running apply.
 - Git preferences and an additive tmux overlay for both platforms. On Omarchy,
   keep the XDG terminal/status config; add `prefix+-` and `prefix+/` split aliases
   alongside its existing `h`/`v` splits.
-- Omarchy: Caps Lock/Ctrl swap and default coding agent `pi`, nothing else.
+- Omarchy: Caps Lock/Ctrl swap, default coding agent `pi`, and a small LazyVim
+  smart-splits extension for `Ctrl+h/j/k/l` navigation across Neovim and tmux.
 - macOS shell/editor/tool preferences, Homebrew inventory, and the GUI environment
   bridge. Neovim is deliberately preserved pending a separate review, including
   its guarded Herdr navigation and CodeCompanion/Anthropic configuration.

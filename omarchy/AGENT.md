@@ -8,11 +8,18 @@ stow standard
 
 ## Desired state
 
-Own only two preferences:
+Own only these preference files:
 
 - `~/.config/hypr/bindings.lua`: Caps Lock/Ctrl swap. Use this existing
   entrypoint so we do not take ownership of machine-local `input.lua`.
 - `~/.config/omarchy/defaults/agent`: `pi`.
+- `~/.config/nvim/lua/plugins/smart-splits.lua`: normal-mode `Ctrl+h/j/k/l`
+  navigation across LazyVim splits and tmux panes, paired with the tmux package.
+  Load smart-splits eagerly so it marks Neovim panes before navigation. Keep
+  wrapping at outer edges, matching macOS. No resizing overrides on Omarchy.
+
+Preserve LazyVim's other plugins, theme, clipboard, and machine-local lockfile.
+This one plugin spec does not activate the macOS-only standalone nvim package.
 
 Leave keyboard layout/repeat, shortcuts, shell/menu code, bar layout, idle
 policy, and theme sizing to Omarchy unless a new preference is explicitly
@@ -33,7 +40,19 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
   `hyprctl reload` and `hyprctl configerrors`; shell files hot-reload.
 - Manage missing software through Omarchy, never Homebrew. Selecting `pi` in
   a file does not install it; use Omarchy's default-agent setup if Pi is absent.
-- Test package link/unlink isolation with `bash tests/omarchy.sh`.
+- Test package link/unlink isolation with `bash tests/omarchy.sh` and navigation
+  bindings with `bash tests/tmux.sh`. Run `python3 tests/tmux-navigation.py`
+  with an installed plugin (or `SMART_SPLITS_PATH` pointing to a reviewed
+  checkout) for native editor split movement, tmux boundary crossing, and exit
+  marker cleanup. This uses a disposable home/server, not the live desktop.
+  Separately check that the mappings survive full LazyVim startup.
+- For navigation activation, install only `smart-splits.nvim` through Lazy,
+  restart Neovim, then source the tmux overlay. Do not update all plugins.
+  Existing Neovim processes need restarting to acquire the pane marker.
+- Navigation rollback: remove the four `C-h/j/k/l` root bindings from the tmux
+  source, unbind them in the running server, then remove only the owned
+  `smart-splits.lua` link and restart Neovim. Keep the other Omarchy preferences
+  and local LazyVim files; Lazy can clean up the unused plugin separately.
 
 ## First installation
 
@@ -43,7 +62,7 @@ explicit personalization step, not part of the OS installer.
 
 1. Ensure GNU Stow and Pi are available.
 2. Run `dotfiles doctor` and `dotfiles plan` from the canonical checkout.
-3. Inspect and back up existing files at the two managed paths. Stock
+3. Inspect and back up existing files at the managed paths. Stock
    `bindings.lua` may be an unmanaged regular file. Move it aside only after
    approval; preserve any unrelated customizations in machine-local config.
    Never use `--adopt` or overwrite conflicts blindly.
@@ -55,7 +74,9 @@ explicit personalization step, not part of the OS installer.
    ```
 
 5. Run `hyprctl reload`, `hyprctl configerrors`, and `dotfiles doctor`.
-   Verify `hyprctl getoption input:kb_options` and `omarchy default agent`.
+   Restart Neovim so Lazy loads smart-splits; verify pane navigation in all four
+   directions, then check `hyprctl getoption input:kb_options` and
+   `omarchy default agent`.
 
 ## Updates and hooks
 

@@ -160,11 +160,11 @@ EOF
   root_bindings=$(tmux_cmd list-keys -T root)
   for key in C-h C-j C-k C-l M-h M-j M-k M-l; do
     binding_pattern="$key[[:space:]]+if-shell -F \"#{@pane-is-vim}\""
-    if [[ $platform == Darwin ]]; then
+    if [[ $platform == Darwin || $key == C-* ]]; then
       assert_binding "$root_bindings" "$binding_pattern" \
-        "Darwin smart-splits $key"
+        "$platform smart-splits $key"
     elif grep -Eq "$binding_pattern" <<<"$root_bindings"; then
-      fail "Omarchy must not capture LazyVim key $key"
+      fail "Omarchy must not capture resize key $key"
     fi
   done
 

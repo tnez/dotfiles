@@ -18,10 +18,15 @@ bindings. On Omarchy preserve its `C-b` secondary prefix, `h` / `v` splits,
 session behavior. Do not remove or rewrite `~/.config/tmux/tmux.conf`.
 
 On macOS, retain the existing `h` / `l` window navigation, `v` copy-mode, `R`
-reload, session behavior, low escape-time, RGB override, and Neovim smart-splits
-bindings. The Darwin-only block prevents these from overriding Omarchy. Its
-LazyVim owns `C-h/j/k/l`; do not intercept those keys there. Omarchy keeps its
-native Control-Alt arrow pane navigation. This overlay has no custom popups,
+reload, session behavior, low escape-time, RGB override, and Alt-key resizing.
+The Darwin-only block prevents these from overriding Omarchy.
+
+On both hosts, `C-h/j/k/l` uses smart-splits: forward keys into marked Neovim
+panes, otherwise select a tmux pane. Omarchy's companion LazyVim plugin spec is
+owned by the omarchy package; activate it before reloading these tmux bindings.
+Navigation is normal-mode in Neovim; other applications lose their native
+`C-h/j/k/l` actions inside tmux, as on macOS. Omarchy's Control-Alt arrow pane
+navigation remains available. This overlay has no custom popups,
 helper scripts, forced shell or PATH, clipboard commands, or session creation.
 
 ## Operations
@@ -57,6 +62,10 @@ before unstowing it:
 tmux bind-key -T prefix - delete-buffer
 tmux bind-key -T prefix / command-prompt -k -p key 'list-keys -1N "%%"'
 ```
+
+If retiring seamless navigation, remove these four bindings from this source,
+unbind them in the running server, and remove only the Omarchy-owned
+`smart-splits.lua` link. Restart Neovim; preserve the split and rename keys.
 
 Then delete only the package link from the primary checkout using the same
 Stow options and `--delete`. Do not kill sessions or remove Omarchy's XDG config.
