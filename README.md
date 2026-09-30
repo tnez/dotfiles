@@ -27,7 +27,9 @@ Stow links make primary-checkout edits live, even without running apply.
 ## What we own
 
 - Shared KB startup instructions and small Codex/Pi preferences.
-- Git and tmux preferences reviewed for both platforms.
+- Git preferences and an additive tmux overlay for both platforms. On Omarchy,
+  keep the XDG terminal/status config; add `prefix+-` and `prefix+/` split aliases
+  alongside its existing `h`/`v` splits.
 - Omarchy: Caps Lock/Ctrl swap and default coding agent `pi`, nothing else.
 - macOS shell/editor/tool preferences, Homebrew inventory, and the GUI environment
   bridge. Neovim is deliberately preserved pending a separate review, including

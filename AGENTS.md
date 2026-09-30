@@ -162,6 +162,7 @@ Run independent checks even if another fails, unless a safety boundary such as
 | Omarchy package | `bash tests/omarchy.sh`; `./dotfiles doctor`; `./dotfiles plan` |
 | Shell initialization, profile, or Node environment | `bash tests/fnm.sh`; `bash tests/lifecycle.sh`; affected-shell startup smoke checks |
 | Retained Stow layout, Codex/Pi, or portable preferences | `bash tests/portable.sh`; `bash tests/lifecycle.sh`; native config checks |
+| Tmux overlay and host-binding compatibility | `bash tests/tmux.sh`; `bash tests/portable.sh`; native isolated tmux server |
 | Other application configuration | Component health checks from its `AGENT.md`; native config validation and focused smoke checks where available |
 | Shell code | Syntax checks with the appropriate interpreter; ShellCheck on affected supported shell files |
 | Documentation only | Review accuracy, referenced paths/commands, links, and consistency with existing guidance; runtime suites are not required unless executable behavior also changes |
