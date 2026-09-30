@@ -9,7 +9,10 @@ stow no-folding
 
 Own only settings, personal navigation keys, and the shared KB instruction link.
 Use upstream retry, compaction, thinking-level, and resource-discovery defaults.
-No personal workflow prompts, skills, or automatic extension installations.
+No persistent personal workflow prompts, skills, or automatic extension
+installations. On Omarchy, the separate `dev` command may pass a one-shot
+project-work context note through the CLI; it does not alter Pi settings,
+resources, or project-trust decisions.
 
 Run `bash tests/portable.sh`; validate settings JSON and consult the installed
 Pi settings/keybindings documentation. Read `README.md` before activation.

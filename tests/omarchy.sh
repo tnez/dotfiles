@@ -8,7 +8,8 @@ TEST_ROOT=$(mktemp -d -t dotfiles-omarchy.XXXXXX)
 trap 'rm -rf "$TEST_ROOT"' EXIT
 export HOME="$TEST_ROOT/home"
 mkdir -p "$HOME/.config/hypr" "$HOME/.config/omarchy/plugins/local.plugin"
-mkdir -p "$HOME/.agents/skills/dottie" "$TEST_ROOT/repo"
+mkdir -p "$HOME/.agents/skills/dottie" "$HOME/.local/bin" \
+  "$TEST_ROOT/repo"
 mkdir -p "$HOME/.config/nvim/lua/plugins"
 cp -R "$PROJECT_ROOT/omarchy" "$TEST_ROOT/repo/omarchy"
 
@@ -22,6 +23,7 @@ printf 'local plugin\n' > \
 printf 'Dottie skill\n' > "$HOME/.agents/skills/dottie/SKILL.md"
 printf 'local theme\n' > "$HOME/.config/nvim/lua/plugins/theme.lua"
 printf 'local lock\n' > "$HOME/.config/nvim/lazy-lock.json"
+printf 'unmanaged command\n' > "$HOME/.local/bin/keep"
 cp -R "$HOME" "$TEST_ROOT/original-home"
 
 stow_package() {
@@ -49,6 +51,16 @@ grep -q '^local navigation$' "$navigation"
 rm "$navigation"
 printf 'ok - activation refuses unmanaged navigation config\n'
 
+launcher="$HOME/.local/bin/dev"
+printf 'unmanaged launcher\n' > "$launcher"
+if stow_package --simulate --restow > "$TEST_ROOT/conflict.log" 2>&1; then
+  printf 'FAIL: unmanaged dev command was not reported as a conflict\n' >&2
+  exit 1
+fi
+grep -q '^unmanaged launcher$' "$launcher"
+rm "$launcher"
+printf 'ok - activation refuses an unmanaged dev command\n'
+
 stow_package --restow
 stow_package --restow
 for path in hypr/bindings.lua omarchy/defaults/agent \
@@ -56,12 +68,18 @@ for path in hypr/bindings.lua omarchy/defaults/agent \
   expected="$TEST_ROOT/repo/omarchy/dot-config/$path"
   test "$(readlink -f "$HOME/.config/$path")" = "$expected"
 done
-test "$(find "$TEST_ROOT/repo/omarchy/dot-config" -type f | wc -l)" -eq 3
+test "$(readlink -f "$launcher")" = \
+  "$TEST_ROOT/repo/omarchy/dot-local/bin/dev"
+test -x "$launcher"
+test "$(find "$TEST_ROOT/repo/omarchy/dot-config" -type f | wc -l)" \
+  -eq 3
+test "$(find "$TEST_ROOT/repo/omarchy/dot-local" -type f | wc -l)" \
+  -eq 1
 grep -q '^pi$' "$HOME/.config/omarchy/defaults/agent"
 grep -q "kb_options = 'ctrl:swapcaps'" "$HOME/.config/hypr/bindings.lua"
 test ! -e "$HOME/AGENT.md"
 test ! -e "$HOME/.config/omarchy/plugins/tnez.menu"
-printf 'ok - only three preference files managed; restow is repeatable\n'
+printf 'ok - three preferences and dev command are repeatable\n'
 
 stow_package --delete
 test ! -e "$HOME/.config/hypr/bindings.lua"
@@ -70,5 +88,7 @@ test ! -e "$HOME/.config/omarchy/defaults/agent"
 test ! -L "$HOME/.config/omarchy/defaults/agent"
 test ! -e "$navigation"
 test ! -L "$navigation"
+test ! -e "$launcher"
+test ! -L "$launcher"
 diff -r "$TEST_ROOT/original-home" "$HOME"
-printf 'ok - unstow preserves all unmanaged config and Dottie files\n'
+printf 'ok - unstow preserves unmanaged config and Dottie files\n'

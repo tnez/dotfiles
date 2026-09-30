@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: dev [--help]\n'
+}
+
+die() {
+  printf 'dev: %s\n' "$*" >&2
+  exit 1
+}
+
+if (( $# )); then
+  if [[ $1 == --help || $1 == -h ]]; then
+    usage
+    exit 0
+  fi
+  usage >&2
+  exit 2
+fi
+
+for program in tmux nvim pi; do
+  command -v "$program" >/dev/null 2>&1 ||
+    die "required program not found: $program"
+done
+
+project_root=$(pwd -P) || die 'could not resolve the current directory'
+[[ -d $project_root ]] || die 'the current directory is unavailable'
+
+if command -v sha256sum >/dev/null 2>&1; then
+  path_hash=$(printf '%s' "$project_root" | sha256sum)
+elif command -v shasum >/dev/null 2>&1; then
+  path_hash=$(printf '%s' "$project_root" | shasum -a 256)
+else
+  die 'neither sha256sum nor shasum is available'
+fi
+path_hash=${path_hash%% *}
+path_hash=${path_hash:0:12}
+
+label=${project_root##*/}
+[[ -n $label ]] || label=root
+label=${label//[^a-zA-Z0-9_.-]/-}
+label=${label:0:24}
+[[ -n $label ]] || label=project
+
+session_name="dev-${label}-${path_hash}"
+session_target=$session_name
+tmux_bin=$(command -v tmux)
+nvim_bin=$(command -v nvim)
+pi_bin=$(command -v pi)
+
+agent_context=$'The selected directory is the project root.\n'
+agent_context+=$'Read project AGENTS.md and other project guidance first.\n'
+agent_context+=$'Follow project-specific workflow where defined.\n'
+agent_context+=$'A project may not use version control or worktrees;\n'
+agent_context+=$'do not assume or impose them.\n'
+agent_context+=$'Apply relevant tnezdev knowledge-base guidance only\n'
+agent_context+=$'when TNEZDEV_KNOWLEDGE_BASE_ROOT is available. If\n'
+agent_context+=$'needed but unavailable, report it and do not search\n'
+agent_context+=$'for another checkout or guess.\n'
+agent_context+=$'This launcher creates no branches or worktrees.'
+
+find_owned_session() {
+  local sessions candidate owner found=''
+  sessions=$("$tmux_bin" list-sessions -F '#{session_name}' \
+    2>/dev/null || true)
+  while IFS= read -r candidate; do
+    [[ -n $candidate ]] || continue
+    owner=$("$tmux_bin" show-option -qv -t "$candidate" \
+      @dev_workflow_root 2>/dev/null || true)
+    if [[ $owner == "$project_root" ]]; then
+      [[ -z $found ]] || die \
+        "multiple launcher sessions claim this directory"
+      found=$candidate
+    fi
+  done <<< "$sessions"
+  printf '%s' "$found"
+}
+
+validate_existing_session() {
+  local owner ready
+  owner=$("$tmux_bin" show-option -qv -t "$session_target" \
+    @dev_workflow_root 2>/dev/null || true)
+  [[ $owner == "$project_root" ]] || die \
+    "session name collision or unverified ownership: $session_name"
+
+  ready=$("$tmux_bin" show-option -qv -t "$session_target" \
+    @dev_workflow_ready 2>/dev/null || true)
+  [[ $ready == 1 ]] || die \
+    "launcher session is incomplete; left it unchanged: $session_name"
+}
+
+shell_command() {
+  local argument quoted result=''
+  for argument in "$@"; do
+    printf -v quoted '%q' "$argument"
+    result+="${result:+ }$quoted"
+  done
+  printf '%s' "$result"
+}
+
+send_command() {
+  local pane=$1 command=$2
+  "$tmux_bin" send-keys -l -t "$pane" "$command" || die \
+    "could not start a command in pane $pane"
+  "$tmux_bin" send-keys -t "$pane" C-m || die \
+    "could not submit a command in pane $pane"
+}
+
+identify_invoking_client() {
+  local clients candidate pane_id
+  local found=''
+  [[ -n ${TMUX_PANE:-} ]] || die \
+    'TMUX is set but the invoking pane is unknown'
+  clients=$("$tmux_bin" list-clients \
+    -F '#{client_name}|#{pane_id}') || die \
+    'could not inspect tmux clients'
+  while IFS='|' read -r candidate pane_id; do
+    [[ $pane_id == "$TMUX_PANE" ]] || continue
+    [[ -z $found ]] || die \
+      'multiple clients display the invoking pane; no session was changed'
+    found=$candidate
+  done <<< "$clients"
+  [[ -n $found ]] || die \
+    'no client displays the invoking pane; no session was changed'
+  invoking_client=$found
+}
+
+invoking_client=''
+if [[ -n ${TMUX:-} ]]; then
+  identify_invoking_client
+fi
+
+created=0
+owned_session=$(find_owned_session)
+if [[ -n $owned_session ]]; then
+  session_name=$owned_session
+  session_target=$session_name
+  validate_existing_session
+elif "$tmux_bin" has-session -t "$session_target" 2>/dev/null; then
+  validate_existing_session
+else
+  if "$tmux_bin" new-session -d -s "$session_name" -n dev \
+    -c "$project_root"; then
+    created=1
+  elif "$tmux_bin" has-session -t "$session_target" 2>/dev/null; then
+    # A concurrent launch may have created the session. Verify it before use.
+    validate_existing_session
+  else
+    die "could not create tmux session: $session_name"
+  fi
+fi
+
+if (( created )); then
+  "$tmux_bin" set-option -t "$session_target" @dev_workflow_root \
+    "$project_root" || die "could not mark the new session as owned"
+
+  window_id=$("$tmux_bin" list-windows -t "$session_target" \
+    -F '#{window_id}') || die 'could not find the new tmux window'
+  window_id=${window_id%%$'\n'*}
+  [[ -n $window_id ]] || die 'the new tmux session has no window'
+
+  "$tmux_bin" set-window-option -t "$window_id" automatic-rename off || die \
+    'could not disable automatic renaming for the new window'
+  "$tmux_bin" rename-window -t "$window_id" dev || die \
+    'could not name the new window'
+
+  editor_pane=$("$tmux_bin" list-panes -t "$window_id" \
+    -F '#{pane_id}') || die 'could not find the editor pane'
+  editor_pane=${editor_pane%%$'\n'*}
+  [[ -n $editor_pane ]] || die 'the new tmux window has no pane'
+
+  "$tmux_bin" split-window -v -p 15 -t "$editor_pane" \
+    -c "$project_root" >/dev/null || die \
+    'could not create the bottom shell pane; incomplete session preserved'
+  agent_pane=$("$tmux_bin" split-window -h -p 30 -t "$editor_pane" \
+    -c "$project_root" -P -F '#{pane_id}') || die \
+    'could not create the agent pane; incomplete session preserved'
+
+  send_command "$editor_pane" "$(shell_command "$nvim_bin" .)"
+  send_command "$agent_pane" "$(shell_command "$pi_bin" \
+    --append-system-prompt "$agent_context")"
+  "$tmux_bin" select-pane -t "$editor_pane" || die \
+    'could not focus the editor pane; incomplete session preserved'
+  "$tmux_bin" select-window -t "$window_id" || die \
+    'could not select the new window; incomplete session preserved'
+  "$tmux_bin" set-option -t "$session_target" @dev_workflow_ready 1 || die \
+    'could not mark the new session ready; incomplete session preserved'
+fi
+
+printf 'dev: opening session %s\n' "$session_name"
+if [[ -n ${TMUX:-} ]]; then
+  exec "$tmux_bin" switch-client -c "$invoking_client" \
+    -t "$session_target"
+else
+  exec "$tmux_bin" attach-session -t "$session_target"
+fi

@@ -8,7 +8,7 @@ stow standard
 
 ## Desired state
 
-Own only these preference files:
+Own only these preference files and the focused project-entry command:
 
 - `~/.config/hypr/bindings.lua`: Caps Lock/Ctrl swap. Use this existing
   entrypoint so we do not take ownership of machine-local `input.lua`.
@@ -17,6 +17,8 @@ Own only these preference files:
   navigation across LazyVim splits and tmux panes, paired with the tmux package.
   Load smart-splits eagerly so it marks Neovim panes before navigation. Keep
   wrapping at outer edges, matching macOS. No resizing overrides on Omarchy.
+- `~/.local/bin/dev`: start or resume the project layout from the current
+  directory. The command does not inspect Git or create branches/worktrees.
 
 Preserve LazyVim's other plugins, theme, clipboard, and machine-local lockfile.
 This one plugin spec does not activate the macOS-only standalone nvim package.
@@ -36,12 +38,28 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
   and `dotfiles plan`; both are read-only on Omarchy.
 - Activation is deliberately manual. After explicit approval, use GNU Stow
   with `--dotfiles --restow omarchy` from the canonical checkout.
+- Run `dev` from the chosen project directory. It treats the physical current
+  directory as the project root and creates one owned tmux session with a
+  `dev` window: Neovim left, Pi right, and a shell across the bottom. The
+  editor is initially focused; its window-local automatic rename is disabled.
+- Re-entry resumes a session only when its tmux ownership metadata matches the
+  canonical directory. Existing panes/windows are left as-is. Unowned name
+  collisions and incomplete sessions are reported, not adopted or repaired.
+  Inside tmux, `dev` switches only the unique client displaying the invoking
+  pane; it refuses ambiguous or detached-pane targets.
+- Pi receives a one-shot context note. The launcher does not search for or
+  configure the tnezdev knowledge base; its normal root environment variable
+  must be configured separately for Pi to read that guidance.
+- `dev` does not run repository startup scripts or Git/worktree operations.
+  Project instructions and user guidance remain conditional on the project and
+  task; no project-specific settings table is created.
 - Existing stowed-file edits are already live. Validate Hyprland changes with
   `hyprctl reload` and `hyprctl configerrors`; shell files hot-reload.
 - Manage missing software through Omarchy, never Homebrew. Selecting `pi` in
   a file does not install it; use Omarchy's default-agent setup if Pi is absent.
-- Test package link/unlink isolation with `bash tests/omarchy.sh` and navigation
-  bindings with `bash tests/tmux.sh`. Run `python3 tests/tmux-navigation.py`
+- Test package link/unlink isolation with `bash tests/omarchy.sh`; test the
+  project launcher with `bash tests/dev.sh`. Test navigation bindings with
+  `bash tests/tmux.sh`. Run `python3 tests/tmux-navigation.py`
   with an installed plugin (or `SMART_SPLITS_PATH` pointing to a reviewed
   checkout) for native editor split movement, tmux boundary crossing, and exit
   marker cleanup. This uses a disposable home/server, not the live desktop.
@@ -49,6 +67,10 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
 - For navigation activation, install only `smart-splits.nvim` through Lazy,
   restart Neovim, then source the tmux overlay. Do not update all plugins.
   Existing Neovim processes need restarting to acquire the pane marker.
+- Launcher rollback: verify `~/.local/bin/dev` points to this package, then
+  remove only that symlink; do not un-stow the whole Omarchy package just to
+  remove the command. This does not kill or alter tmux sessions created by
+  `dev`.
 - Navigation rollback: remove the four `C-h/j/k/l` root bindings from the tmux
   source, unbind them in the running server, then remove only the owned
   `smart-splits.lua` link and restart Neovim. Keep the other Omarchy preferences
