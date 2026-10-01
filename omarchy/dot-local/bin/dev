@@ -126,6 +126,32 @@ identify_invoking_client() {
   invoking_client=$found
 }
 
+# Only new sessions are sized. Never rebaseline an existing layout on entry.
+measure_terminal() {
+  local dimensions
+  if [[ -n $invoking_client ]]; then
+    dimensions=$("$tmux_bin" display-message -p -c "$invoking_client" \
+      '#{client_width} #{client_height}') || die \
+      'could not measure invoking client; no session was created'
+    read -r terminal_width terminal_height <<< "$dimensions"
+  else
+    dimensions=$(stty size 2>/dev/null) || die \
+      'terminal size unavailable; run dev from an interactive terminal'
+    read -r terminal_height terminal_width <<< "$dimensions"
+  fi
+  [[ $terminal_width =~ ^[1-9][0-9]*$ &&
+     $terminal_height =~ ^[1-9][0-9]*$ ]] || die \
+    'invalid terminal dimensions; no session was created'
+}
+
+new_role_window() {
+  local pane
+  pane=$("$tmux_bin" new-window -d -t "$session_target:" -n "$1" \
+    -c "$project_root" -P -F '#{pane_id}') || return 1
+  "$tmux_bin" set-window-option -t "$pane" automatic-rename off || return 1
+  printf '%s' "$pane"
+}
+
 invoking_client=''
 if [[ -n ${TMUX:-} ]]; then
   identify_invoking_client
@@ -140,8 +166,9 @@ if [[ -n $owned_session ]]; then
 elif "$tmux_bin" has-session -t "$session_target" 2>/dev/null; then
   validate_existing_session
 else
+  measure_terminal
   if "$tmux_bin" new-session -d -s "$session_name" -n dev \
-    -c "$project_root"; then
+    -x "$terminal_width" -y "$terminal_height" -c "$project_root"; then
     created=1
   elif "$tmux_bin" has-session -t "$session_target" 2>/dev/null; then
     # A concurrent launch may have created the session. Verify it before use.
@@ -170,12 +197,51 @@ if (( created )); then
   editor_pane=${editor_pane%%$'\n'*}
   [[ -n $editor_pane ]] || die 'the new tmux window has no pane'
 
-  "$tmux_bin" split-window -v -p 15 -t "$editor_pane" \
-    -c "$project_root" >/dev/null || die \
-    'could not create the bottom shell pane; incomplete session preserved'
-  agent_pane=$("$tmux_bin" split-window -h -p 30 -t "$editor_pane" \
-    -c "$project_root" -P -F '#{pane_id}') || die \
-    'could not create the agent pane; incomplete session preserved'
+  # Detached creation does not subtract the status area. Size the new window
+  # before splitting, then restore its normal tmux sizing policy (no watcher).
+  status=$("$tmux_bin" display-message -p -t "$editor_pane" '#{status}')
+  case $status in
+    off) status_rows=0 ;;
+    on) status_rows=1 ;;
+    [2-5]) status_rows=$status ;;
+    *) die 'unknown status height; incomplete session preserved' ;;
+  esac
+  usable_height=$((terminal_height - status_rows))
+  (( usable_height > 0 )) || die \
+    'terminal has no usable rows; incomplete session preserved'
+  "$tmux_bin" set-option -t "$session_target" default-size \
+    "${terminal_width}x${usable_height}"
+  size_policy=$("$tmux_bin" show-window-options -v \
+    -t "$window_id" window-size)
+  "$tmux_bin" resize-window -t "$window_id" \
+    -x "$terminal_width" -y "$usable_height" || die \
+    'could not size new window; incomplete session preserved'
+  if [[ -n $size_policy ]]; then
+    "$tmux_bin" set-window-option -t "$window_id" window-size "$size_policy"
+  else
+    "$tmux_bin" set-window-option -u -t "$window_id" window-size
+  fi
+
+  # Reserve 120 columns and 50 rows for editing. Each fallback is independent.
+  if (( usable_height >= 50 + 1 + 15 )); then
+    "$tmux_bin" split-window -v -l 15 -t "$editor_pane" \
+      -c "$project_root" >/dev/null || die \
+      'could not create the bottom shell pane; incomplete session preserved'
+  fi
+  if (( terminal_width >= 120 + 1 + 80 )); then
+    agent_width=$((terminal_width - 120 - 1))
+    (( agent_width <= 100 )) || agent_width=100
+    agent_pane=$("$tmux_bin" split-window -h -l "$agent_width" \
+      -t "$editor_pane" -c "$project_root" -P -F '#{pane_id}') || die \
+      'could not create the agent pane; incomplete session preserved'
+  else
+    agent_pane=$(new_role_window agent) || die \
+      'could not create the agent window; incomplete session preserved'
+  fi
+  if (( usable_height < 50 + 1 + 15 )); then
+    new_role_window shell >/dev/null || die \
+      'could not create the shell window; incomplete session preserved'
+  fi
 
   send_command "$editor_pane" "$(shell_command "$nvim_bin" .)"
   send_command "$agent_pane" "$(shell_command "$pi_bin" \

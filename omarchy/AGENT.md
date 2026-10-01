@@ -44,14 +44,28 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
 - Activation is deliberately manual. After explicit approval, use GNU Stow
   with `--dotfiles --restow omarchy` from the canonical checkout.
 - Run `dev` from the chosen project directory. It treats the physical current
-  directory as the project root and creates one owned tmux session with a
-  `dev` window: Neovim left, Pi right, and a shell across the bottom. The
-  editor is initially focused; its window-local automatic rename is disabled.
+  directory as the project root and creates one owned tmux session. The `dev`
+  window holds Neovim, initially focused. At creation, reserve 120 columns and
+  50 rows for editing; choose the agent and shell placements independently:
+  - At 201–220 columns, Pi takes the remaining 80–99 columns on the right.
+    At 221+ columns, Pi takes 100; below 201 it gets an `agent` window.
+  - At 66+ usable rows, create a full-width bottom shell 15 rows high;
+    otherwise create a `shell` window. Status rows are not usable rows.
+  - All panes/windows start in the chosen directory. Automatic rename is
+    disabled locally on the created `dev`, `agent` and `shell` windows.
+  Use the unique invoking client's full dimensions inside tmux, not the shell
+  pane's dimensions. Outside tmux, read the terminal on stdin with `stty size`;
+  missing/invalid size fails before new-session creation. Re-entry needs no new
+  size measurement. Preserve the normal tmux window-sizing policy.
 - Re-entry resumes a session only when its tmux ownership metadata matches the
   canonical directory. Existing panes/windows are left as-is. Unowned name
   collisions and incomplete sessions are reported, not adopted or repaired.
   Inside tmux, `dev` switches only the unique client displaying the invoking
-  pane; it refuses ambiguous or detached-pane targets.
+  pane; it refuses ambiguous or detached-pane targets. No resize watcher,
+  layout hook or automatic pane/window migration is installed. Normal tmux
+  resizing still operates, but creation sizes are not continually enforced.
+  If the layout no longer fits, ask an agent to inspect the terminal/config
+  and propose revised defaults. Changing an existing layout requires approval.
 - Pi receives a one-shot context note. The launcher does not search for or
   configure the tnezdev knowledge base; its normal root environment variable
   must be configured separately for Pi to read that guidance.
@@ -84,7 +98,8 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
 - Manage missing software through Omarchy, never Homebrew. Selecting `pi` in
   a file does not install it; use Omarchy's default-agent setup if Pi is absent.
 - Test package link/unlink isolation with `bash tests/omarchy.sh`; test the
-  project launcher with `bash tests/dev.sh`, utility entry with
+  project launcher with `bash tests/dev.sh` and `python3 tests/dev-layout.py`
+  (real pseudo-terminals, private server, inert editor/agent), utility entry with
   `bash tests/mux.sh`, and profile preservation with
   `python3 tests/cliamp-profile.py`. These use inert fake players, not live
   dashboards/audio. Test navigation bindings with
@@ -99,7 +114,9 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
 - Launcher rollback: verify `~/.local/bin/dev` points to this package, then
   remove only that symlink; do not un-stow the whole Omarchy package just to
   remove the command. This does not kill or alter tmux sessions created by
-  `dev`.
+  `dev`. To undo only the adaptive layout policy, restore the reviewed launcher
+  revision; an already stowed source is live for subsequent invocations. Do not
+  rebuild existing sessions or remove user-created windows as rollback.
 - Utility-entry rollback: remove only verified new `mux` and HUD-input links.
   Stow may fold `~/.config/mux` into one directory symlink: remove that verified
   link, never files through it. If it is a real directory, remove only verified

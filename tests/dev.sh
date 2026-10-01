@@ -40,11 +40,23 @@ cat > "$BIN/tmux" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 case ${1-} in
+  new-window)
+    if [[ ${DEV_TEST_FAIL_WINDOW:-0} == 1 ]]; then
+      printf 'fixture window failure\n' >&2
+      exit 1
+    fi
+    ;;
   attach-session)
     printf 'attach' >> "$DEV_TEST_CALLS"
     printf ' <%s>' "${@:2}" >> "$DEV_TEST_CALLS"
     printf '\n' >> "$DEV_TEST_CALLS"
     exit 0
+    ;;
+  display-message)
+    if [[ ${DEV_TEST_INSIDE:-0} == 1 && ${3:-} == -c ]]; then
+      printf '%s %s\n' "${DEV_TEST_COLS:-300}" "${DEV_TEST_ROWS:-100}"
+      exit 0
+    fi
     ;;
   list-clients)
     if [[ ${DEV_TEST_INSIDE:-0} == 1 ]]; then
@@ -81,7 +93,12 @@ cat > "$BIN/git" <<'EOF'
 printf 'git called\n' >> "$DEV_TEST_CALLS"
 exit 99
 EOF
-chmod +x "$BIN/tmux" "$BIN/nvim" "$BIN/pi" "$BIN/git"
+cat > "$BIN/stty" <<'EOF'
+#!/usr/bin/env bash
+[[ ${DEV_TEST_NO_SIZE:-0} == 0 ]] || exit 1
+printf '%s %s\n' "${DEV_TEST_ROWS:-100}" "${DEV_TEST_COLS:-300}"
+EOF
+chmod +x "$BIN/tmux" "$BIN/nvim" "$BIN/pi" "$BIN/git" "$BIN/stty"
 
 wait_for_log() {
   local text=$1 attempt
@@ -139,14 +156,16 @@ read -r window_height window_width < <(
 )
 pane_sizes=$("$REAL_TMUX" -L "$SOCKET" -f /dev/null \
   list-panes -t "$session:dev" -F '#{pane_height},#{pane_width}')
-expected_shell_height=$((window_height * 15 / 100))
-expected_agent_width=$((window_width * 30 / 100))
+[[ $window_width == 300 && $window_height == 99 ]] || \
+  fail 'new layout did not use terminal size minus the status row'
+expected_shell_height=15
+expected_agent_width=100
 agent_width=$(tail -n +2 <<<"$pane_sizes" | head -n1 | cut -d, -f2)
 [[ $agent_width == "$expected_agent_width" ]] || \
-  fail 'agent pane does not use 30% of the upper width'
+  fail 'agent pane is not 100 columns wide'
 shell_height=$(tail -n1 <<<"$pane_sizes" | cut -d, -f1)
 [[ $shell_height == "$expected_shell_height" ]] || \
-  fail 'shell pane does not use 15% of the window height'
+  fail 'shell pane is not 15 rows high'
 wait_for_log "nvim|cwd=$project|."
 assert_contains "$CALLS" "pi|cwd=$project|--append-system-prompt|" \
   'Pi did not receive startup context'
@@ -156,17 +175,24 @@ assert_contains "$CALLS" 'attach' 'outside-tmux invocation did not attach'
 ! grep -Fq 'git called' "$CALLS" || fail 'launcher invoked git'
 printf 'ok - new path starts editor/agent/shell layout and passes context\n'
 
+"$REAL_TMUX" -L "$SOCKET" resize-pane -t "$session:dev.1" -x 91
+layout_before=$("$REAL_TMUX" -L "$SOCKET" display-message \
+  -p -t "$session:dev" '#{window_layout}')
 pane_ids_before=$("$REAL_TMUX" -L "$SOCKET" -f /dev/null \
-  list-panes -t "$session:dev" -F '#{pane_id}')
+  list-panes -t "$session:dev" -F '#{pane_id}|#{pane_pid}')
 "$REAL_TMUX" -L "$SOCKET" -f /dev/null new-window \
   -t "$session" -n extra -c "$project" >/dev/null
 renamed_session="${session}-renamed"
 "$REAL_TMUX" -L "$SOCKET" -f /dev/null rename-session \
   -t "$session" "$renamed_session"
 session=$renamed_session
-run_dev "$project" > "$TEST_ROOT/repeat.log"
+DEV_TEST_COLS=80 DEV_TEST_ROWS=24 run_dev "$project" \
+  > "$TEST_ROOT/repeat.log"
+[[ $("$REAL_TMUX" -L "$SOCKET" display-message \
+  -p -t "$session:dev" '#{window_layout}') == "$layout_before" ]] || \
+  fail 're-entry changed the manually resized layout'
 pane_ids_after=$("$REAL_TMUX" -L "$SOCKET" -f /dev/null \
-  list-panes -t "$session:dev" -F '#{pane_id}')
+  list-panes -t "$session:dev" -F '#{pane_id}|#{pane_pid}')
 [[ $pane_ids_after == "$pane_ids_before" ]] || \
   fail 're-entry rebuilt or replaced existing panes'
 [[ $("$REAL_TMUX" -L "$SOCKET" -f /dev/null \
@@ -289,3 +315,118 @@ if (cd "$TEST_ROOT/missing" && env -u TMUX -u TMUX_PANE \
   fail 'missing Pi executable was accepted'
 fi
 printf 'ok - missing required program fails before activation\n'
+
+# Independent boundary decisions; status rows are not editing space.
+for spec in '200 67 on 0 1' '201 67 on 80 1' '220 67 on 99 1' \
+  '221 67 on 100 1' '221 66 on 100 0' '200 66 on 0 0' \
+  '80 24 on 0 0' '221 67 2 100 0' '221 66 off 100 1'; do
+  read -r cols rows status agent_width shell_pane <<< "$spec"
+  "$REAL_TMUX" -L "$SOCKET" set-option -g status "$status"
+  directory="$TEST_ROOT/layout-$cols-$rows-$status"
+  mkdir -p "$directory"
+  DEV_TEST_COLS=$cols DEV_TEST_ROWS=$rows run_dev "$directory" \
+    > "$TEST_ROOT/layout.log"
+  target=$("$REAL_TMUX" -L "$SOCKET" list-sessions \
+    -F '#{session_name}|#{@dev_workflow_root}' | \
+    awk -F '|' -v root="$directory" '$2 == root {print $1}')
+  pane_count=$("$REAL_TMUX" -L "$SOCKET" list-panes \
+    -t "$target:dev" -F '#{pane_id}' | wc -l)
+  [[ $pane_count == $((1 + (agent_width > 0) + shell_pane)) ]] || \
+    fail "wrong primary pane count for $spec"
+  window_count=$("$REAL_TMUX" -L "$SOCKET" list-windows \
+    -t "$target" -F '#{window_id}' | wc -l)
+  [[ $window_count == $((3 - (agent_width > 0) - shell_pane)) ]] || \
+    fail "wrong fallback window count for $spec"
+  sizes=$("$REAL_TMUX" -L "$SOCKET" list-panes -t "$target:dev" \
+    -F '#{pane_left}|#{pane_top}|#{pane_width}|#{pane_height}')
+  if (( agent_width )); then
+    grep -Eq "^[1-9][0-9]*\|0\|$agent_width\|" <<< "$sizes" || \
+      fail "wrong agent width for $spec"
+  else
+    "$REAL_TMUX" -L "$SOCKET" list-windows -t "$target" \
+      -F '#{window_name}' | grep -qx agent || \
+      fail "missing agent window for $spec"
+  fi
+  if (( shell_pane )); then
+    grep -Eq "^0\|[1-9][0-9]*\|$cols\|15$" <<< "$sizes" || \
+      fail "wrong shell height for $spec"
+  else
+    "$REAL_TMUX" -L "$SOCKET" list-windows -t "$target" \
+      -F '#{window_name}' | grep -qx shell || \
+      fail "missing shell window for $spec"
+  fi
+  wait_for_log "nvim|cwd=$directory|."
+  wait_for_log "pi|cwd=$directory|--append-system-prompt|"
+  while IFS= read -r path; do
+    [[ $path == "$directory" ]] || fail "wrong fallback cwd for $spec"
+  done < <("$REAL_TMUX" -L "$SOCKET" list-panes -s -t "$target" \
+    -F '#{pane_current_path}')
+  [[ $("$REAL_TMUX" -L "$SOCKET" display-message -p -t "$target" \
+    '#{window_name}|#{pane_left}|#{pane_top}') == 'dev|0|0' ]] || \
+    fail "editor not focused for $spec"
+  # Re-entry does not add windows or rebaseline after terminal size changes.
+  before=$("$REAL_TMUX" -L "$SOCKET" list-panes -s -t "$target" \
+    -F '#{window_id}|#{window_layout}|#{pane_id}|#{pane_pid}')
+  DEV_TEST_COLS=400 DEV_TEST_ROWS=120 run_dev "$directory" >/dev/null
+  after=$("$REAL_TMUX" -L "$SOCKET" list-panes -s -t "$target" \
+    -F '#{window_id}|#{window_layout}|#{pane_id}|#{pane_pid}')
+  [[ $before == "$after" ]] || fail "re-entry changed layout for $spec"
+  "$REAL_TMUX" -L "$SOCKET" kill-session -t "$target"
+done
+"$REAL_TMUX" -L "$SOCKET" set-option -g status on
+printf 'ok - independent fallbacks, exact boundaries and resume preservation\n'
+
+mkdir -p "$TEST_ROOT/no-size"
+sessions_before=$("$REAL_TMUX" -L "$SOCKET" list-sessions \
+  -F '#{session_id}')
+if DEV_TEST_NO_SIZE=1 run_dev "$TEST_ROOT/no-size" \
+  > "$TEST_ROOT/no-size.log" 2>&1; then
+  fail 'unknown terminal dimensions were accepted for a new session'
+fi
+[[ $("$REAL_TMUX" -L "$SOCKET" list-sessions -F '#{session_id}') \
+  == "$sessions_before" ]] || fail 'missing size created a session'
+printf 'ok - unknown terminal size fails without creating state\n'
+
+# Mocked inside-client dimensions; native client targeting is tested separately.
+mkdir -p "$TEST_ROOT/inside-new"
+# shellcheck disable=SC2016
+env TMUX=fake-socket,1,0 TMUX_PANE=%99 DEV_TEST_INSIDE=1 \
+  DEV_TEST_CLIENT=/dev/pts/test-client DEV_TEST_PANE=%99 \
+  DEV_TEST_COLS=201 DEV_TEST_ROWS=67 DEV_TEST_NO_SIZE=1 \
+  bash -c 'cd "$1" && "$2"' _ "$TEST_ROOT/inside-new" "$DEV" \
+  > "$TEST_ROOT/inside-new.log"
+printf 'ok - inside creation uses client dimensions, not pane stty size\n'
+
+for cols in 0 invalid; do
+  if DEV_TEST_COLS=$cols run_dev "$TEST_ROOT/no-size" \
+    > "$TEST_ROOT/invalid-size.log" 2>&1; then
+    fail 'invalid terminal dimensions were accepted'
+  fi
+  assert_contains "$TEST_ROOT/invalid-size.log" 'invalid terminal dimensions' \
+    'invalid size diagnostic missing'
+done
+printf 'ok - invalid terminal dimensions are rejected\n'
+
+mkdir -p "$TEST_ROOT/fallback-failure"
+if DEV_TEST_COLS=80 DEV_TEST_ROWS=24 DEV_TEST_FAIL_WINDOW=1 \
+  run_dev "$TEST_ROOT/fallback-failure" \
+  > "$TEST_ROOT/fallback-failure.log" 2>&1; then
+  fail 'fallback window failure was hidden'
+fi
+target=$("$REAL_TMUX" -L "$SOCKET" list-sessions \
+  -F '#{session_name}|#{@dev_workflow_root}' | \
+  awk -F '|' -v root="$TEST_ROOT/fallback-failure" \
+    '$2 == root {print $1}')
+[[ -n $target ]] || fail 'partial session was removed after failure'
+[[ $("$REAL_TMUX" -L "$SOCKET" show-option -qv -t "$target" \
+  @dev_workflow_ready) != 1 ]] || fail 'partial session was marked ready'
+before=$("$REAL_TMUX" -L "$SOCKET" list-panes -s -t "$target" \
+  -F '#{window_id}|#{pane_id}|#{pane_pid}')
+if run_dev "$TEST_ROOT/fallback-failure" \
+  > "$TEST_ROOT/fallback-repeat.log" 2>&1; then
+  fail 'partial fallback session was silently repaired'
+fi
+[[ $("$REAL_TMUX" -L "$SOCKET" list-panes -s -t "$target" \
+  -F '#{window_id}|#{pane_id}|#{pane_pid}') == "$before" ]] || \
+  fail 'partial fallback session was changed on re-entry'
+printf 'ok - failed fallback creation preserves incomplete state for review\n'
