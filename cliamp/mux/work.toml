@@ -1,0 +1,18 @@
+# Fixed starting presets, in selection order. No authentication or browsing.
+# Stream URLs: first HTTPS MP3 entries in SomaFM's official station PLS files.
+# Sources checked 2026-09-30; programming (including speech) is not guaranteed.
+
+[[track]]
+path = "https://ice6.somafm.com/dronezone-128-mp3"
+title = "Ambient — Drone Zone"
+realtime = true
+
+[[track]]
+path = "https://ice6.somafm.com/groovesalad-128-mp3"
+title = "Electronic — Groove Salad"
+realtime = true
+
+[[track]]
+path = "https://ice6.somafm.com/synphaera-128-mp3"
+title = "Atmospheric — Synphaera"
+realtime = true

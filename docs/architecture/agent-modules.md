@@ -61,10 +61,17 @@ Codex seeding, and LaunchAgent loading) to the component
 that owns it. Capabilities select reviewed implementation; they are not command
 strings and cannot execute Markdown.
 
+A component can also declare `stow none` without a lifecycle capability for
+mixed-ownership settings. The Omarchy-only `cliamp` component uses this for its
+focused `mux-profile` runbook: discovery lists the component, but lifecycle
+commands do not execute its runbook. The component's explicit read-only checks
+and approved setup are separate operations. This needs no new declaration syntax
+or general synchronization framework; application-written state is not Stowed.
+
 Platform selection is conservative:
 
 - existing configuration remains `darwin` until it is reviewed for portability;
-- the `omarchy` component is `omarchy` only;
+- the `omarchy` and `cliamp` components are `omarchy` only;
 - `agents`, `codex`, `pi`, `git`, and `tmux` now list both platforms after
   isolated layout validation; native macOS verification remains a delivery gate;
 - shared declarations do not enable macOS-only copy or service capabilities

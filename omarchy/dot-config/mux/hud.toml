@@ -1,0 +1,22 @@
+title = "HUD setup pending"
+default_timeout_secs = 5
+
+[[panels]]
+id = "sessions"
+title = "tmux sessions"
+command = "tmux list-sessions -F '#{session_name}: #{session_windows} windows'"
+
+[[panels]]
+id = "keys"
+title = "Quick reference"
+command = '''
+printf '%s\n' \
+  'tmux: Ctrl-Space, then s — choose session' \
+  'tmux: Ctrl-Space, then d — detach' \
+  '' \
+  'HUD: r — refresh panel; R — refresh all' \
+  'HUD: Enter — details; ? — help; q — quit' \
+  '' \
+  'Music starts silent. Choose a preset and play.' \
+  'Dashboard content will be refined later.'
+'''

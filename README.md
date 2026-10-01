@@ -32,6 +32,11 @@ Stow links make primary-checkout edits live, even without running apply.
   alongside its existing `h`/`v` splits.
 - Omarchy: Caps Lock/Ctrl swap, default coding agent `pi`, and a small LazyVim
   smart-splits extension for `Ctrl+h/j/k/l` navigation across Neovim and tmux.
+  The explicit `dev` project entry and `mux` utility entry are described in
+  [Omarchy guidance](omarchy/AGENT.md); neither changes vanilla tmux startup.
+- A separate Omarchy `mux` music profile, managed by the focused
+  [cliamp runbook](cliamp/AGENT.md), not whole-file Stow ownership of app settings.
+  General music preferences, credentials and runtime state remain machine-local.
 - macOS shell/editor/tool preferences, Homebrew inventory, and the GUI environment
   bridge. Neovim is deliberately preserved pending a separate review, including
   its guarded Herdr navigation and CodeCompanion/Anthropic configuration.
@@ -39,7 +44,8 @@ Stow links make primary-checkout edits live, even without running apply.
 Lazygit remains installed via Homebrew but uses upstream defaults. Its old file
 contained only UI toggles/bookkeeping, not an essential workflow. Several keys
 were under `gui` although the installed default schema places them at the root.
-There is no replacement configuration framework or custom workflow launcher.
+There is no replacement general configuration framework or background
+workstation manager; the two explicit entry commands have bounded responsibilities.
 
 Existing unreviewed modules (`bat`, `bun`, `env`, `ssh`, `starship`, `vim`, `yazi`,
 editor defaults) are not proof of current usage; they remain for separate review.

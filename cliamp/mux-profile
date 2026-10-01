@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+"""Explicit setup and read-only health checks for the isolated mux profile."""
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import sys
+import tomllib
+
+ROOT = Path(__file__).resolve().parents[1]
+SEED = ROOT / 'cliamp' / 'mux'
+MARKER = '.dotfiles-mux.json'
+FILES = ('config.toml', 'playlists/work.toml')
+
+
+class Conflict(Exception):
+    pass
+
+
+def profile_path():
+    base = Path(os.environ.get('XDG_CONFIG_HOME') or Path.home() / '.config')
+    if not base.is_absolute():
+        raise Conflict('XDG_CONFIG_HOME must be absolute')
+    return base / 'cliamp' / 'profiles' / 'mux'
+
+
+def check_paths(profile):
+    # Never write through a symlink, even an apparently familiar parent.
+    for path in (*reversed(profile.parents), profile):
+        if path.is_symlink():
+            raise Conflict(f'refusing symlink directory: {path}')
+        if path.exists() and not path.is_dir():
+            raise Conflict(f'not a directory: {path}')
+    for name in (*FILES, MARKER):
+        path = profile / name
+        if path.parent.is_symlink() or path.is_symlink():
+            raise Conflict(f'refusing symlink: {path}')
+        if path.exists() and not path.is_file():
+            raise Conflict(f'not a regular file: {path}')
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def inspect(profile):
+    check_paths(profile)
+    if not profile.exists():
+        return False
+    marker = profile / MARKER
+    if not marker.is_file():
+        raise Conflict(f'unowned or incomplete profile: {profile}')
+    ownership = {'owner': 'dotfiles-mux', 'version': 1}
+    if json.loads(marker.read_text()) != ownership:
+        raise Conflict(f'unrecognized ownership: {marker}')
+    if any(not (profile / name).is_file() for name in FILES):
+        raise Conflict('owned profile is incomplete; restore only after review')
+    expected = tomllib.loads((SEED / 'config.toml').read_text())
+    actual = tomllib.loads((profile / 'config.toml').read_text())
+    for key, value in expected.items():
+        if isinstance(value, dict):
+            local = actual.get(key, {})
+            if not isinstance(local, dict):
+                raise Conflict(f'preference drift: {key}')
+            for child, desired in value.items():
+                if (local.get(child) != desired
+                        or type(local.get(child)) is not type(desired)):
+                    raise Conflict(f'preference drift: {key}.{child}')
+        elif (actual.get(key) != value
+              or type(actual.get(key)) is not type(value)):
+            raise Conflict(f'preference drift: {key}')
+    # This radio-only profile must not initialize unreviewed account providers.
+    providers = {
+        'navidrome', 'lyrion', 'plex', 'jellyfin', 'emby', 'audiobookshelf',
+        'spotify', 'qobuz', 'tidal', 'soundcloud', 'mixcloud', 'netease',
+        'plugins',
+    }
+    if providers.intersection(actual):
+        raise Conflict('additional provider/plugin config needs review')
+    if set(actual.get('ytmusic', {})) != {'enabled'}:
+        raise Conflict('additional YouTube settings need review')
+    if digest(profile / 'playlists/work.toml') != digest(SEED / 'work.toml'):
+        raise Conflict('preset list drift; choose shared update or restoration')
+    return True
+
+
+def create(profile):
+    # This only seeds a missing profile. No reset, adoption or full-file update.
+    profile.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    profile.mkdir(mode=0o700)  # exclusive; never adopt a concurrent creation
+    (profile / 'playlists').mkdir(mode=0o700)
+    for name, source in zip(FILES, ('config.toml', 'work.toml')):
+        fd = os.open(profile / name,
+                     os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, 'wb') as target:
+            target.write((SEED / source).read_bytes())
+    fd = os.open(profile / MARKER, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, 'w') as target:
+        json.dump({'owner': 'dotfiles-mux', 'version': 1}, target)
+        target.write('\n')
+    inspect(profile)
+
+
+def authorize(yes):
+    if not yes:
+        raise Conflict('setup requires explicit approval and --yes')
+    if not (ROOT / '.git').is_dir() or (ROOT / '.git').is_symlink():
+        raise Conflict('setup requires the primary checkout (.git directory)')
+    if (platform.system() != 'Linux'
+            or platform.freedesktop_os_release().get('ID') != 'omarchy'):
+        raise Conflict('setup is supported only on Omarchy')
+    # Root health checks are operator prerequisites, not bypassed by --yes.
+    import subprocess
+    for command in ('doctor', 'plan'):
+        result = subprocess.run([str(ROOT / 'dotfiles'), command], check=False)
+        if result.returncode:
+            raise Conflict(f'resolve dotfiles {command} findings before setup')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('command', choices=('check', 'plan', 'apply'))
+    parser.add_argument('--yes', action='store_true')
+    args = parser.parse_args()
+    try:
+        profile = profile_path()
+        ready = inspect(profile)
+        if args.command == 'check':
+            print(f'{"OK" if ready else "MISSING"}: mux profile {profile}')
+            return 0 if ready else 1
+        print(f'{"NOOP" if ready else "CREATE"}: mux profile {profile}')
+        if args.command == 'apply':
+            authorize(args.yes)
+            ready = inspect(profile)  # recheck after the external health gates
+            if not ready:
+                create(profile)
+            print('OK: mux profile verified; no player was started')
+        return 0
+    except (Conflict, OSError, ValueError) as exc:
+        print(f'ACTION_REQUIRED: {exc}', file=sys.stderr)
+        print('Preserve local state; review ownership and preferences first.',
+              file=sys.stderr)
+        return 3
+
+
+if __name__ == '__main__':
+    sys.exit(main())

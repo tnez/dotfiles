@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+# Explicit Omarchy entry; never installed as a tmux alias or startup hook.
+set -euo pipefail
+
+usage() { printf 'Usage: mux [--check | --help]\n'; }
+die() { printf 'mux: %s\n' "$*" >&2; exit 1; }
+check=0
+case ${1:-} in
+  '') ;;
+  --check) check=1 ;;
+  --help|-h) usage; exit 0 ;;
+  *) usage >&2; exit 2 ;;
+esac
+(( $# <= 1 )) || { usage >&2; exit 2; }
+
+# Deliberately support only the normal server. No opt-in real-app test socket.
+[[ ${TMUX_TMPDIR:-/tmp} == /tmp ]] || die \
+  'custom TMUX_TMPDIR: use plain tmux; utilities were not started'
+socket="/tmp/tmux-$UID/default"
+if [[ -n ${TMUX:-} && ${TMUX%%,*} != "$socket" ]]; then
+  die 'custom tmux socket: use plain tmux; utilities were not started'
+fi
+for program in tmux python3 realpath flock; do
+  command -v "$program" >/dev/null || die "required program missing: $program"
+done
+tmux_bin=$(command -v tmux)
+tm() { "$tmux_bin" -S "$socket" "$@"; }
+repo=$(realpath "$(dirname "$(realpath "$0")")/../../..")
+config_home=${XDG_CONFIG_HOME:-$HOME/.config}
+data_home=${XDG_DATA_HOME:-$HOME/.local/share}
+[[ $config_home == /* && $data_home == /* && $HOME == /* ]] || die \
+  'HOME and XDG paths must be absolute'
+profile="$config_home/cliamp/profiles/mux"
+hud_config="$config_home/mux/hud.toml"
+
+# Fail before mutation when the invoking pane has no unique interactive client.
+client=''
+if [[ -n ${TMUX:-} && $check == 0 ]]; then
+  [[ -n ${TMUX_PANE:-} ]] || die 'invoking tmux pane is unknown'
+  clients=$(tm -N list-clients -F '#{client_name}|#{pane_id}') || die \
+    'could not inspect invoking client'
+  while IFS='|' read -r candidate pane; do
+    [[ $pane == "$TMUX_PANE" ]] || continue
+    [[ -z $client ]] || die 'multiple clients display the invoking pane'
+    client=$candidate
+  done <<< "$clients"
+  [[ -n $client ]] || die 'no client displays the invoking pane'
+fi
+
+hud_session=''
+cliamp_session=''
+destination=''
+scan() {
+  local sessions id role ready attached dead best=-1 best_id=0 number
+  hud_session='' cliamp_session='' destination=''
+  if ! sessions=$(tm -N list-sessions \
+    -F '#{session_id}|#{@mux_role}|#{@mux_ready}|#{session_last_attached}' \
+    2>&1); then
+    case $sessions in
+      'no server running on '*|*'No such file or directory'*) sessions='' ;;
+      *) die "cannot inspect tmux server: $sessions" ;;
+    esac
+  fi
+  while IFS='|' read -r id role ready attached; do
+    [[ -n $id ]] || continue
+    [[ $id =~ ^\$[0-9]+$ ]] || die 'invalid session identity'
+    case $role in
+      hud|cliamp)
+        [[ $ready == 1 ]] || die "incomplete $role session $id; left unchanged"
+        if [[ $role == hud ]]; then
+          [[ -z $hud_session ]] || die 'multiple sessions claim HUD ownership'
+          hud_session=$id
+        else
+          [[ -z $cliamp_session ]] || die \
+            'multiple sessions claim cliamp ownership'
+          cliamp_session=$id
+        fi
+        dead=$(tm -N list-panes -s -t "$id" -F '#{pane_dead}') || die \
+          "cannot inspect $role session $id"
+        [[ $dead != *1* ]] || die "$role has a dead pane; left unchanged"
+        ;;
+      '')
+        attached=${attached:-0}
+        [[ $attached =~ ^[0-9]+$ ]] || die 'invalid last-attachment timestamp'
+        number=${id#\$}
+        if (( attached > best ||
+              (attached == best && number < best_id) )); then
+          destination=$id best=$attached best_id=$number
+        fi
+        ;;
+      *) die "unrecognized mux ownership on $id; left unchanged" ;;
+    esac
+  done <<< "$sessions"
+  for role in hud cliamp; do
+    local existing
+    if [[ $role == hud ]]; then existing=$hud_session
+    else existing=$cliamp_session; fi
+    if [[ -z $existing ]] && tm -N has-session -t "=mux-$role" 2>/dev/null; then
+      die "unowned name collision: mux-$role; left unchanged"
+    fi
+  done
+}
+
+preflight() {
+  if [[ -z $hud_session ]]; then
+    [[ -r $config_home/mux/hud-revision && -r $hud_config ]] || die \
+      'HUD inputs missing; review the Omarchy package activation plan'
+    revision=$(<"$config_home/mux/hud-revision")
+    [[ $revision =~ ^[a-f0-9]{40}$ ]] || die 'invalid HUD revision declaration'
+    hud_bin="$data_home/dotfiles/hud/$revision/hud"
+    [[ -x $hud_bin ]] || die "pinned HUD build missing: $hud_bin"
+    "$hud_bin" --config "$hud_config" --check-config || die \
+      'HUD config validation failed; no utility was started'
+  fi
+  if [[ -z $cliamp_session ]]; then
+    cliamp_bin=$(command -v cliamp) || die 'required program missing: cliamp'
+    python3 "$repo/cliamp/mux-profile" check || die \
+      'cliamp profile needs explicit setup/review; no utility was started'
+  fi
+}
+
+if (( check )); then
+  scan
+  printf 'HUD: %s\ncliamp: %s\n' \
+    "${hud_session:-missing}" "${cliamp_session:-missing}"
+  preflight
+  [[ -n $hud_session && -n $cliamp_session ]] || exit 1
+  printf 'mux: owned sessions present (not an application health probe)\n'
+  exit 0
+fi
+
+# Serialize inspection as well as creation: a concurrent entry must not
+# mistake another invocation's in-progress initialization for abandoned state.
+# Lock only explicit entry, not read-only inspection. Release before attach.
+lock_dir="${XDG_RUNTIME_DIR:-/tmp}/dotfiles-mux-$UID"
+if ! mkdir -m 700 "$lock_dir" 2>/dev/null; then
+  [[ -d $lock_dir && ! -L $lock_dir && -O $lock_dir ]] || die \
+    "unsafe lock directory: $lock_dir"
+fi
+lock_file="$lock_dir/entry.lock"
+[[ ! -L $lock_file ]] || die 'refusing a symlink lock file'
+if [[ -e $lock_file ]]; then
+  [[ -f $lock_file && -O $lock_file ]] || die 'unsafe lock file'
+fi
+exec 9>>"$lock_file"
+flock -x 9
+scan
+preflight
+
+create_utility() {
+  local role=$1 id
+  shift
+  id=$(tm new-session -d -P -F '#{session_id}' -s "mux-$role" \
+    -n "$role" -c "$HOME" "$@") || die "could not start $role"
+  tm set-option -t "$id" @mux_role "$role" \; \
+    set-window-option -t "$id:" remain-on-exit off \; \
+    set-option -t "$id" @mux_ready 1 || die \
+    "$role exited or initialization failed; inspect before retry"
+  tm has-session -t "$id" || die "$role exited during startup"
+}
+
+if [[ -z $hud_session ]]; then
+  create_utility hud "$hud_bin" --config "$hud_config"
+fi
+if [[ -z $cliamp_session ]]; then
+  # Override inherited profile/provider discovery without changing global env.
+  create_utility cliamp /usr/bin/env -u NAVIDROME_URL -u LYRION_URL \
+    CLIAMP_CONFIG_DIR="$profile" "$cliamp_bin" \
+    --no-auto-play --no-shuffle --repeat off --provider radio --playlist work
+fi
+scan
+[[ -n $hud_session && -n $cliamp_session ]] || die \
+  'a utility exited during entry; inspect its launch before retry'
+if [[ -z $destination ]]; then
+  name=Work
+  suffix=1
+  while tm has-session -t "=$name" 2>/dev/null; do
+    suffix=$((suffix + 1))
+    name="Work-$suffix"
+  done
+  destination=$(tm new-session -d -P -F '#{session_id}' \
+    -s "$name" -n shell -c "$(pwd -P)") || die 'could not create shell session'
+fi
+flock -u 9
+exec 9>&-
+printf 'mux: opening %s\n' "$destination"
+if [[ -n $client ]]; then
+  exec "$tmux_bin" -S "$socket" switch-client -c "$client" -t "$destination"
+fi
+exec "$tmux_bin" -S "$socket" attach-session -t "$destination"

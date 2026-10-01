@@ -1,0 +1,8 @@
+# Seed for the separate mux profile; cliamp may add local preferences.
+# Shared settings below are checked, never silently reset.
+auto_play = false
+provider = "radio"
+
+# Disable even cliamp's built-in fallback OAuth credentials.
+[ytmusic]
+enabled = false

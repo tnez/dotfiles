@@ -7,7 +7,7 @@ REPO_ROOT=$ROOT
 # shellcheck source=../lib/dotfiles/modules.sh
 . "$ROOT/lib/dotfiles/modules.sh"
 selected=$(list_modules omarchy | cut -d '|' -f 1 | paste -sd ' ' -)
-test "$selected" = 'agents codex git omarchy pi tmux'
+test "$selected" = 'agents cliamp codex git omarchy pi tmux'
 printf 'ok - Omarchy selection excludes macOS shells and Neovim\n'
 python3 - "$ROOT" <<'PY'
 import json
@@ -31,7 +31,8 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
         shutil.copytree(root / package, repo / package, symlinks=True)
     unmanaged = ('.pi/agent/auth.json', '.codex/config.toml',
                  '.agents/skills/dottie/SKILL.md', '.config/nvim-local/file',
-                 '.config/herdr/config.toml')
+                 '.config/herdr/config.toml', '.config/cliamp/config.toml',
+                 '.config/cliamp/profiles/mux/history.toml')
     for relative in unmanaged:
         path = home / relative
         path.parent.mkdir(parents=True, exist_ok=True)
