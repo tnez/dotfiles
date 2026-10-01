@@ -115,6 +115,20 @@ for ownership-checked retirement of prior installations, not new workflows.
 See `docs/retirement.md` before integrating source deletions into a live checkout.
 Future removal of those capabilities waits for retirement evidence.
 
+## Deferred dependency-state design
+
+Track the cross-platform dependency direction in
+[issue #93](https://github.com/tnez/dotfiles/issues/93): declare what a machine
+needs independently of how a platform installs it. Dotfiles should inspect and
+plan drift, then reconcile approved missing requirements through reviewed
+providers. Declaration is not permission for automatic upgrades, removal of
+unrelated software, or background convergence.
+
+The declaration format, provider mapping, version policy and migration from the
+Brewfile remain design decisions. Preserve mise's project-runtime role and the
+existing platform, primary-checkout, approval and trust safeguards. No new schema
+or installer is introduced by this note; current provisioning remains unchanged.
+
 ## Original delivery plan
 
 1. Record this decision and the no-activation constraint for the current Arch
