@@ -68,6 +68,16 @@ commands do not execute its runbook. The component's explicit read-only checks
 and approved setup are separate operations. This needs no new declaration syntax
 or general synchronization framework; application-written state is not Stowed.
 
+The existing Omarchy module also owns small desktop preference inputs, without
+owning whole mixed-configuration directories. Its `hypr/preferences.lua` is a
+separately activated include; `omarchy/preferences.json` declares just the bar
+position. The repository-root `./omarchy-preferences` runbook offers explicit
+read-only checks and approved settings-level reconciliation of `shell.json`.
+It is not a lifecycle capability or background synchronizer. Root doctor/plan
+check links/prerequisites, while this focused check reports preference drift;
+neither automatically chooses between a local change and the shared preference.
+See `omarchy/AGENT.md` for activation, hot-reload and recovery boundaries.
+
 Platform selection is conservative:
 
 - existing configuration remains `darwin` until it is reviewed for portability;

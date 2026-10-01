@@ -67,20 +67,23 @@ printf 'ok - activation refuses an unmanaged dev command\n'
 
 mux="$HOME/.local/bin/mux"
 for target in "$mux" "$HOME/.config/mux/hud.toml" \
-  "$HOME/.config/mux/hud-revision"; do
-  printf 'unmanaged mux input\n' > "$target"
+  "$HOME/.config/mux/hud-revision" \
+  "$HOME/.config/hypr/preferences.lua" \
+  "$HOME/.config/omarchy/preferences.json"; do
+  printf 'unmanaged input\n' > "$target"
   if stow_package --simulate --restow > "$TEST_ROOT/conflict.log" 2>&1; then
-    printf 'FAIL: unmanaged mux input was not a conflict: %s\n' "$target" >&2
+    printf 'FAIL: unmanaged input was not a conflict: %s\n' "$target" >&2
     exit 1
   fi
-  grep -q '^unmanaged mux input$' "$target"
+  grep -q '^unmanaged input$' "$target"
   rm "$target"
 done
-printf 'ok - activation refuses unmanaged mux command and HUD inputs\n'
+printf 'ok - activation refuses unmanaged mux/HUD and desktop inputs\n'
 
 stow_package --restow
 stow_package --restow
-for path in hypr/bindings.lua omarchy/defaults/agent \
+for path in hypr/bindings.lua hypr/preferences.lua \
+  omarchy/defaults/agent omarchy/preferences.json \
   nvim/lua/plugins/smart-splits.lua mux/hud.toml mux/hud-revision; do
   expected="$TEST_ROOT/repo/omarchy/dot-config/$path"
   test "$(readlink -f "$HOME/.config/$path")" = "$expected"
@@ -92,7 +95,7 @@ test "$(readlink -f "$mux")" = \
   "$TEST_ROOT/repo/omarchy/dot-local/bin/mux"
 test -x "$mux"
 test "$(find "$TEST_ROOT/repo/omarchy/dot-config" -type f | wc -l)" \
-  -eq 5
+  -eq 7
 test "$(find "$TEST_ROOT/repo/omarchy/dot-local" -type f | wc -l)" \
   -eq 2
 grep -q '^pi$' "$HOME/.config/omarchy/defaults/agent"
@@ -111,7 +114,9 @@ test ! -L "$navigation"
 test ! -e "$launcher"
 test ! -L "$launcher"
 for target in "$mux" "$HOME/.config/mux/hud.toml" \
-  "$HOME/.config/mux/hud-revision"; do
+  "$HOME/.config/mux/hud-revision" \
+  "$HOME/.config/hypr/preferences.lua" \
+  "$HOME/.config/omarchy/preferences.json"; do
   test ! -e "$target"
   test ! -L "$target"
 done

@@ -1,0 +1,278 @@
+#!/usr/bin/env python3
+"""Inspect desktop preferences; explicitly reconcile only bar.position."""
+
+import argparse
+import json
+import os
+from pathlib import Path
+import platform
+import stat
+import subprocess
+import sys
+import tempfile
+
+ROOT = Path(__file__).resolve().parent
+INPUT = Path('hypr/preferences.lua')
+BAR = Path('omarchy/preferences.json')
+LOADER = ('-- dotfiles desktop preferences (keep last)\n'
+          'require("hypr.preferences")\n')
+POSITIONS = {'left', 'right', 'top', 'bottom'}
+
+
+class Conflict(Exception):
+    pass
+
+
+def config_path():
+    base = Path(os.environ.get('XDG_CONFIG_HOME') or Path.home() / '.config')
+    if not base.is_absolute():
+        raise Conflict('XDG_CONFIG_HOME must be absolute')
+    return base
+
+
+def regular(path):
+    # No symlink traversal or hard-linked application files on the write path.
+    for parent in path.parents:
+        if parent.is_symlink() or (parent.exists() and not parent.is_dir()):
+            raise Conflict(f'unsafe configuration parent: {parent}')
+    if path.is_symlink() or not path.is_file():
+        raise Conflict(f'expected a regular existing file: {path}')
+    info = path.stat()
+    if info.st_nlink != 1 or info.st_uid != os.getuid():
+        raise Conflict(f'expected a single-link user-owned file: {path}')
+    return info
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise Conflict('duplicate JSON keys; review configuration')
+        result[key] = value
+    return result
+
+
+def document(raw):
+    try:
+        return json.loads(raw, object_pairs_hook=unique_object,
+                          parse_constant=lambda _: invalid_constant())
+    except (ValueError, UnicodeError):
+        raise Conflict('invalid JSON; configuration contents not displayed')
+
+
+def invalid_constant():
+    raise Conflict('non-standard JSON constant; review configuration')
+
+
+def position(data):
+    if not isinstance(data, dict) or not isinstance(data.get('bar'), dict):
+        raise Conflict('expected an existing bar object')
+    value = data['bar'].get('position')
+    if not isinstance(value, str) or value not in POSITIONS:
+        raise Conflict('missing or unsupported bar.position; review first')
+    return value
+
+
+def desired_position():
+    data = document((ROOT / 'omarchy/dot-config' / BAR).read_bytes())
+    desired = position(data)
+    if set(data) != {'bar'} or set(data['bar']) != {'position'}:
+        raise Conflict('declaration may own only bar.position')
+    return desired
+
+
+def shell_snapshot(base):
+    path = base / 'omarchy/shell.json'
+    info = regular(path)
+    raw = path.read_bytes()
+    data = document(raw)
+    if not isinstance(data, dict) or type(data.get('version')) is not int \
+            or data['version'] != 1:
+        raise Conflict('unsupported shell schema; expected version 1')
+    return path, info, raw, position(data)
+
+
+def value_span(text, start, key):
+    """Locate one member in an already validated JSON object, without rewriting.
+
+    raw_decode skips complete values, including strings/objects containing the
+    same key. Duplicate keys were rejected before this bounded token walk.
+    """
+    decoder = json.JSONDecoder()
+
+    def whitespace(index):
+        while index < len(text) and text[index] in ' \t\r\n':
+            index += 1
+        return index
+
+    index = whitespace(start)
+    if text[index] != '{':
+        raise Conflict('expected JSON object while locating preference')
+    index = whitespace(index + 1)
+    while text[index] != '}':
+        name, end = decoder.raw_decode(text, index)
+        index = whitespace(end)
+        if text[index] != ':':
+            raise Conflict('expected JSON member separator')
+        begin = whitespace(index + 1)
+        _, end = decoder.raw_decode(text, begin)
+        if name == key:
+            return begin, end
+        index = whitespace(end)
+        if text[index] == ',':
+            index = whitespace(index + 1)
+        else:
+            break
+    raise Conflict(f'missing JSON member: {key}')
+
+
+def replace_position(raw, desired):
+    # UTF-8 decoding/re-encoding preserves every byte outside the value token.
+    text = raw.decode('utf-8')
+    bar_start, _ = value_span(text, 0, 'bar')
+    start, end = value_span(text, bar_start, 'position')
+    updated = (text[:start] + json.dumps(desired) + text[end:]).encode('utf-8')
+    before, after = document(raw), document(updated)
+    before['bar']['position'] = desired
+    if before != after:
+        raise Conflict('unexpected settings delta; refusing write')
+    return updated
+
+
+def integration(base):
+    pending = False
+    for name in (INPUT, BAR):
+        target = base / name
+        source = ROOT / 'omarchy/dot-config' / name
+        if not target.exists() and not target.is_symlink():
+            print(f'PENDING: approved Stow activation for {name}')
+            pending = True
+        elif not target.is_symlink() or target.resolve() != source.resolve():
+            raise Conflict(f'unowned preference target: {target}')
+        else:
+            print(f'OK: owned preference link {name}')
+    loader = base / 'hypr/hyprland.lua'
+    regular(loader)
+    text = loader.read_text()
+    if not text.rstrip().endswith(LOADER.rstrip()):
+        print('PENDING: review/add documented last include in hyprland.lua')
+        pending = True
+    else:
+        print('OK: documented last include present (static check only)')
+    return pending
+
+
+def live_input():
+    for key in ('input:natural_scroll', 'input:touchpad:natural_scroll'):
+        result = subprocess.run(['hyprctl', '-j', 'getoption', key],
+                                capture_output=True, text=True, check=False)
+        if result.returncode:
+            raise Conflict(f'cannot inspect live Hyprland option: {key}')
+        data = document(result.stdout)
+        if not isinstance(data, dict) or data.get('bool') is not True:
+            raise Conflict(f'live input preference drift: {key}')
+        print(f'OK: live {key} = true')
+
+
+def authorize(yes):
+    if not yes:
+        raise Conflict('apply requires explicit approval and --yes')
+    if not (ROOT / '.git').is_dir() or (ROOT / '.git').is_symlink():
+        raise Conflict('apply requires the primary checkout (.git directory)')
+    if (platform.system() != 'Linux'
+            or platform.freedesktop_os_release().get('ID') != 'omarchy'):
+        raise Conflict('apply is supported only on Omarchy')
+    for command in ('doctor', 'plan'):
+        result = subprocess.run([str(ROOT / 'dotfiles'), command],
+                                capture_output=True, text=True, check=False)
+        print(result.stdout, end='')
+        print(result.stderr, end='', file=sys.stderr)
+        if result.returncode or 'ACTION_REQUIRED' in (
+                result.stdout + result.stderr):
+            raise Conflict(f'resolve dotfiles {command} findings before apply')
+
+
+def reconcile(snapshot, desired):
+    path, info, original, _ = snapshot
+    updated = replace_position(original, desired)
+
+    def unchanged():
+        current = regular(path)
+        if (current.st_dev, current.st_ino, current.st_mode,
+                current.st_mtime_ns) != (
+                info.st_dev, info.st_ino, info.st_mode, info.st_mtime_ns
+                ) or path.read_bytes() != original:
+            raise Conflict('shell.json changed during review; inspect again')
+
+    unchanged()
+    # A private backup remains on failure. No automatic rollback can safely
+    # overwrite subsequent application writes. Keep settings UI closed.
+    fd, backup = tempfile.mkstemp(prefix='.shell.json.dotfiles-backup-',
+                                  dir=path.parent)
+    with os.fdopen(fd, 'wb') as stream:
+        stream.write(original)
+        stream.flush()
+        os.fsync(stream.fileno())
+    print(f'BACKUP: {backup}')
+    fd, temp_name = tempfile.mkstemp(prefix='.shell.json.dotfiles-write-',
+                                     dir=path.parent)
+    temp = Path(temp_name)
+    try:
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(updated)
+            stream.flush()
+            os.fsync(stream.fileno())
+            os.fchmod(stream.fileno(), stat.S_IMODE(info.st_mode))
+        unchanged()
+        os.replace(temp, path)
+        if path.read_bytes() != updated:
+            raise Conflict('post-write verification failed; inspect backup')
+    finally:
+        temp.unlink(missing_ok=True)
+    print('OK: bar.position reconciled; other bytes preserved')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('command', choices=('check', 'plan', 'apply'))
+    parser.add_argument('--yes', action='store_true')
+    parser.add_argument('--restore-bar-position', action='store_true',
+                        help='explicit reviewed choice to restore declared bar')
+    parser.add_argument('--live', action='store_true',
+                        help='also read effective Hyprland input options')
+    args = parser.parse_args()
+    try:
+        base = config_path()
+        desired = desired_position()
+        snapshot = shell_snapshot(base)
+        pending = integration(base)
+        actual = snapshot[3]
+        print(f'{"NOOP" if actual == desired else "DRIFT"}: '
+              f'bar.position = {actual}; declared = {desired}')
+        if actual != desired and not (
+                args.command == 'apply' and args.restore_bar_position):
+            raise Conflict('bar.position differs; choose shared preference '
+                           'update or approved --restore-bar-position')
+        if args.live:
+            live_input()
+        if args.command == 'apply':
+            authorize(args.yes)
+            # Do not let health checks or another writer change the reviewed
+            # preimage. Reconcile rechecks it again immediately before replace.
+            if actual != desired:
+                reconcile(snapshot, desired)
+            elif shell_snapshot(base)[2] != snapshot[2]:
+                raise Conflict('shell.json changed during checks; review again')
+            print('OK: bar preference verified; no explicit reload issued')
+        if not args.live:
+            print('NOTE: effective input not checked; use check --live')
+        return 1 if pending else 0
+    except (Conflict, OSError, ValueError) as exc:
+        print(f'ACTION_REQUIRED: {exc}', file=sys.stderr)
+        print('Preserve local settings; resolve the reported decision first.',
+              file=sys.stderr)
+        return 3
+
+
+if __name__ == '__main__':
+    sys.exit(main())

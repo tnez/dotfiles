@@ -13,6 +13,12 @@ Own only these preference files and focused entry commands:
 - `~/.config/hypr/bindings.lua`: Caps Lock/Ctrl swap. Use this existing
   entrypoint so we do not take ownership of machine-local `input.lua`.
 - `~/.config/omarchy/defaults/agent`: `pi`.
+- `~/.config/hypr/preferences.lua`: natural scrolling for mouse and touchpad.
+  This new include is inactive until separately approved loading from the local
+  `hyprland.lua`; Stow alone does not load it. Keep device settings local.
+- `~/.config/omarchy/preferences.json`: declares only `bar.position = "left"`.
+  This is an input to the focused `./omarchy-preferences` runbook, not an Omarchy
+  shell config replacement. `shell.json` stays a regular, app-managed file.
 - `~/.config/nvim/lua/plugins/smart-splits.lua`: normal-mode `Ctrl+h/j/k/l`
   navigation across LazyVim splits and tmux panes, paired with the tmux package.
   Load smart-splits eagerly so it marks Neovim panes before navigation. Keep
@@ -28,9 +34,11 @@ Own only these preference files and focused entry commands:
 Preserve LazyVim's other plugins, theme, clipboard, and machine-local lockfile.
 This one plugin spec does not activate the macOS-only standalone nvim package.
 
-Leave keyboard layout/repeat, shortcuts, shell/menu code, bar layout, idle
-policy, and theme sizing to Omarchy unless a new preference is explicitly
-approved. Do not vendor a stock plugin to change a few keybindings.
+Leave keyboard layout/repeat, shortcuts, shell/menu code, bar widget layout,
+idle policy, and theme sizing to Omarchy unless a new preference is explicitly
+approved. Only the two scrolling booleans and bar position are newly declared;
+monitor scaling, workspace toggles and all unrelated shell settings stay local.
+Do not vendor a stock plugin to change a few keybindings.
 
 Dottie Terminal, its transport, and `~/.agents/skills/dottie` belong to the
 separate Dottie project. This package must neither install nor remove them.
@@ -127,6 +135,110 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
   source, unbind them in the running server, then remove only the owned
   `smart-splits.lua` link and restart Neovim. Keep the other Omarchy preferences
   and local LazyVim files; Lazy can clean up the unused plugin separately.
+
+## Shared desktop preferences: ownership, setup and drift
+
+`~/.config/hypr` and `~/.config/omarchy` are mixed-ownership directories, not
+wholesale Stow targets. Stow owns only declared files (and may fold directories
+when wholly owned). It does not merge Lua or JSON settings. Never adopt a whole
+local file to capture one preference. The runbook lives at repository root so
+Stow does not accidentally install it as an unrelated home-directory file.
+
+Inspect from this checkout without mutation:
+
+```sh
+./omarchy-preferences plan
+./omarchy-preferences check --live
+```
+
+`check`/`plan` inspect exact preference link targets, the documented final Lua
+include, and the existing shell JSON's `bar.position`. `--live` additionally
+queries both effective input options through `hyprctl`; without it, no native
+input check is claimed. These checks do not execute local Lua. Static include
+recognition is not proof arbitrary local Lua executed it correctly; live option
+checks and native smoke are separate evidence. The Lua declaration test ties the
+fixed two `true` input checks to the owned source; update both if that policy
+changes. Missing activation returns 1 with `PENDING`; verified checks return 0.
+Drift, unsafe paths, malformed/duplicate-key JSON and unsupported shell schemas
+return 3 with `ACTION_REQUIRED`. Do not infer policy consent from `--yes`.
+
+Run these focused checks during desktop maintenance, after Omarchy updates and
+after changing scrolling or bar placement through local tools. Root
+`dotfiles doctor`/`plan` still check prerequisites and Stow conflicts; they do
+**not** automatically run this preference check or its mutator. No background
+watcher, startup reconciliation, new module capability or general config
+framework is introduced. On drift, ask whether to update the shared preference
+or restore it; do not silently select a winner.
+
+### Activation (separate explicit approval required)
+
+1. Run root doctor/plan and the focused plan. Review current files and exact
+   source/target paths. Do not edit the already-live bindings to bypass setup.
+2. Stow the two new preference files using the existing approved Omarchy
+   procedure. Preserve local `input.lua`, monitor settings, Dottie and shell
+   files; unmanaged target conflicts require a decision, not `--adopt`.
+3. Back up the unmanaged `hyprland.lua`. After approval, append only this block
+   at its end, after local files, toggles and Dottie. If it already has another
+   loading arrangement, inspect it rather than appending duplicate loads:
+
+   ```lua
+   -- dotfiles desktop preferences (keep last)
+   require("hypr.preferences")
+   ```
+
+   Keep existing local input declarations intact; these two shared options are
+   intentionally the final override. Removing the include exposes the original
+   local behavior again. Saving Hyprland config may auto-reload; this edit itself
+   requires activation approval, followed by an approved reload/configerrors
+   check and native mouse/touchpad smoke. The runbook never edits Lua or reloads.
+4. The shell runbook only reconciles an existing version-1 JSON file with a
+   recognized `bar.position`. Close settings editors before mutation. If the
+   setting matches, approved `./omarchy-preferences apply --yes` is a no-op.
+   For reviewed drift, use the additional explicit choice:
+
+   ```sh
+   ./omarchy-preferences apply --yes --restore-bar-position
+   ```
+
+   Primary-checkout, Omarchy and root doctor/plan gates are enforced. Only the
+   position value token changes; other bytes, settings and permission bits are
+   preserved. A private `.shell.json.dotfiles-backup-*` is created alongside
+   `shell.json` before an atomic replacement. Changed preimages are refused and
+   the result is read back. Missing files/keys are not seeded or adopted; unknown
+   schemas require review. This does not modify plugins, idle, themes or runtime
+   toggles. The shell can hot-reload the JSON write: approval covers that visible
+   change even though the runbook issues no explicit reload.
+5. Run `check --live`, `hyprctl configerrors`, and the native scrolling/bar
+   walkthrough. File checks do not prove shell rendering, device feel or startup
+   behavior. Verify the left bar remains usable with normal tiling.
+
+The runbook honors absolute `XDG_CONFIG_HOME`, defaulting to `~/.config`.
+Stow's documented home target uses `~/.config`; non-default XDG placement and
+Hyprland's corresponding load path require separate review, not guessed links.
+No writer can guarantee isolation from an uncooperative application between the
+last comparison and replacement. Keep settings writers idle; concurrent changes
+are not automatically rolled back. New input/config candidates are not activated
+just because their isolated fixtures pass.
+
+### Recovery and verification
+
+- Run `python3 tests/omarchy-preferences.py` for fixture-only preservation,
+  explicit restoration, validation/ownership gates, concurrency refusal and
+  failure handling. Lua validation uses a stub `hl.config`, not a live reload.
+- Run `bash tests/omarchy.sh` and `bash tests/portable.sh` for initial/restow,
+  exact-link, unmanaged-conflict and unstow preservation checks, plus root
+  lifecycle/module checks as required by `AGENTS.md`.
+- To retire scrolling ownership after approval, remove only the documented
+  include from the local entrypoint **before** removing the verified preference
+  link. Preserve later local edits and all other configuration. Reload and
+  verify separately; never leave a required module dangling.
+- For bar rollback, inspect the private backup and current JSON, then restore
+  only the reviewed prior position. Never copy an old whole-file backup over
+  newer shell settings. Backups are recovery artifacts, not Stow sources; do not
+  commit them or remove them automatically after a failure.
+- Removing the bar declaration link alone does not undo the reconciled local
+  value. Do not un-stow the whole Omarchy package, reset runtime state or kill
+  applications to roll back these preferences.
 
 ## First installation
 
