@@ -216,6 +216,8 @@ dev_windows=$("$REAL_TMUX" -L "$SOCKET" -f /dev/null \
 printf 'ok - concurrent entry creates at most one project layout\n'
 
 : > "$CALLS"
+# The child Bash expands its own positional arguments.
+# shellcheck disable=SC2016
 env TMUX=fake-socket,1,0 TMUX_PANE=%99 \
   DEV_TEST_INSIDE=1 DEV_TEST_CLIENT=/dev/pts/test-client \
   DEV_TEST_PANE=%99 bash -c 'cd "$1" && "$2"' _ "$project" "$DEV" \
@@ -230,6 +232,8 @@ ambiguous_project="$TEST_ROOT/ambiguous"
 mkdir -p "$ambiguous_project"
 sessions_before=$("$REAL_TMUX" -L "$SOCKET" -f /dev/null \
   list-sessions -F '#{session_name}' | grep -c .)
+# The child Bash expands its own positional arguments.
+# shellcheck disable=SC2016
 if env TMUX=fake-socket,1,0 TMUX_PANE=%99 DEV_TEST_INSIDE=1 \
   DEV_TEST_CLIENTS=$'/dev/pts/a|%99\n/dev/pts/b|%99' \
   bash -c 'cd "$1" && "$2"' _ "$ambiguous_project" "$DEV" \
