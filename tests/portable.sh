@@ -29,7 +29,8 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
     packages = sorted(p.parent.name for p in root.glob('*/AGENT.md'))
     for package in packages:
         shutil.copytree(root / package, repo / package, symlinks=True)
-    unmanaged = ('.pi/agent/auth.json', '.codex/config.toml',
+    unmanaged = ('.pi/agent/auth.json', '.pi/agent/settings.json',
+                 '.codex/config.toml',
                  '.agents/skills/dottie/SKILL.md', '.config/nvim-local/file',
                  '.config/herdr/config.toml', '.config/cliamp/config.toml',
                  '.config/cliamp/profiles/mux/history.toml')
@@ -62,6 +63,9 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
         stow(package)
     assert not (home / 'AGENT.md').exists()
     assert not (home / 'README.md').exists()
+    pi_settings = home / '.pi/agent/settings.json'
+    assert not pi_settings.is_symlink()
+    assert pi_settings.read_text() == 'unmanaged\n'
     for harness in ('.codex', '.pi/agent'):
         instructions = home / harness / 'AGENTS.md'
         assert instructions.resolve() == repo / 'agents/AGENTS.md'

@@ -66,8 +66,11 @@ plan from the updated primary checkout. On macOS use apply only after approval;
 on Omarchy choose reviewed modules and their correct Stow modes manually.
 Preserve existing regular config conflicts instead of force-linking them.
 
-An existing Codex config is not reseeded. Existing Pi settings require a reviewed
-migration if regular; if already stowed, edits become live when sources change.
+An existing Codex config is not reseeded. Pi's `settings.json` is
+application-owned and machine-local; the documented preferences are agent
+guidance, not a whole-file seed. Preserve regular settings without migration or
+adoption. If a host still has a symlink to the retired repository settings source,
+review its exact target and retire only that owned link before deleting the source.
 Check both agents' instruction discovery and KB reading without a model/network
 request where possible. Check native macOS GUI environment inheritance separately.
 Omarchy's shell, LazyVim, unmanaged desktop configuration, and Dottie remain intact.
