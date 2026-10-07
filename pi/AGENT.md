@@ -15,7 +15,8 @@ or normalize settings during routine dotfiles work. For an explicitly requested
 preference change, preserve all unrelated values and obtain approval before
 editing live state.
 
-Use upstream retry, compaction, thinking-level, and resource-discovery defaults.
+Use the model lineup and high reasoning preferences in `README.md`; use upstream
+retry, compaction, and resource-discovery defaults.
 No persistent personal workflow prompts, skills, or automatic extension
 installations. On Omarchy, the separate `dev` command may pass a one-shot
 project-work context note through the CLI; it does not alter Pi settings,
