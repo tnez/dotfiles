@@ -13,6 +13,15 @@ key by key, preserving all other application-managed values:
 - `theme`: `system`.
 - `enableInstallTelemetry`: `false`; `quietStartup`: `true`.
 - `treeFilterMode`: `no-tools`.
+- `defaultTools`: add `+codemode` to the existing selection (or use
+  `["+codemode"]` when unset), preserving all other tool choices.
+
+Codemode is built into Pi 1.0.4; no package installation is needed. Keep its
+upstream `codemode.mode: "on"` default so tools remain callable directly as well
+as through JavaScript scripts. Run `/reload` after the approved edit or start a
+new session; CLI tool overrides and project settings can override this choice.
+To undo, restore only the changed `defaultTools` entries, removing the key if it
+was previously unset. Settings remain machine-owned, not Stow-managed.
 
 Separately, Stow owns `keybindings.json`: Alt-h/j/k/l cursor navigation and
 `ctrl+shift+t` for the session tree.
