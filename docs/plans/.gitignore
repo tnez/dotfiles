@@ -1,0 +1,4 @@
+# Local plans and receipts are private, untracked working material.
+*
+!/README.md
+!/.gitignore

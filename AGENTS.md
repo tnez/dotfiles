@@ -23,6 +23,19 @@ GNU Stow is one delivery mechanism, not a requirement for every configuration.
 - Git distributes reviewed preferences; this does not authorize automatic
   commits, pushes, activation, or overwriting local state.
 
+## Planning and publication boundary
+
+- Keep execution plans, task handoffs, and session receipts in ignored local
+  `docs/plans/` files or an appropriate private store. Only that directory's
+  `README.md` and `.gitignore` are tracked; see its README for the full policy.
+- Do not force-add local plans. Promote only concise, privacy-reviewed decisions
+  and reusable guidance into public architecture or component documentation.
+  Public docs must not depend on an untracked plan for operating instructions.
+- Before publication, remove private host/account/network details, private paths,
+  personal narratives, and raw operational receipts. Never put credentials in
+  plans, even ignored ones. Local plans are not backed up by Git and must not be
+  deleted merely to make status clean.
+
 ## Lifecycle Commands
 
 - `./dotfiles doctor` - Read-only prerequisite and conflict checks

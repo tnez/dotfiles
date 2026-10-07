@@ -99,8 +99,13 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
   The dedicated writable profile must be explicitly set up before first entry.
   HUD's pinned executable is expected at
   `$XDG_DATA_HOME/dotfiles/hud/<hud-revision>/hud` (fallback `~/.local/share`).
-  See `docs/plans/2026-09-30-minipc-workflow.md` for build/verification evidence
-  and the separate installation/activation gates. Do not use a stale debug build.
+  Export the exact committed `hud-revision` from a reviewed source checkout
+  into an isolated build directory. With its locked dependencies cached, run
+  `cargo build --frozen --offline --release --bin hud` there. Record the revision,
+  toolchain and artifact checksum privately. Validate the built binary with `--config
+  omarchy/dot-config/mux/hud.toml --check-config` from this repository root.
+  Installation and live startup require separate approval after doctor/plan;
+  verify the installed checksum matches. Do not use a stale debug build.
 - Existing stowed-file edits are already live. Validate Hyprland changes with
   `hyprctl reload` and `hyprctl configerrors`; shell files hot-reload.
 - Manage missing software through Omarchy, never Homebrew. Selecting `pi` in
