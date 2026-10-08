@@ -24,7 +24,8 @@ Own only these preference files and focused entry commands:
   Load smart-splits eagerly so it marks Neovim panes before navigation. Keep
   wrapping at outer edges, matching macOS. No resizing overrides on Omarchy.
 - `~/.local/bin/dev`: start or resume the project layout from the current
-  directory. The command does not inspect Git or create branches/worktrees.
+  directory. Bare entry does not inspect Git or create branches/worktrees.
+  `dev resize` is an explicit headless-Pi refit of owned `dev-*` sessions.
 - `~/.local/bin/mux`: explicitly ensure independent HUD/cliamp sessions and
   enter the most recently attached non-utility session. Plain tmux stays vanilla.
 - `~/.config/mux/hud.toml` and `hud-revision`: reviewed placeholder dashboard and
@@ -72,8 +73,18 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
   pane; it refuses ambiguous or detached-pane targets. No resize watcher,
   layout hook or automatic pane/window migration is installed. Normal tmux
   resizing still operates, but creation sizes are not continually enforced.
-  If the layout no longer fits, ask an agent to inspect the terminal/config
-  and propose revised defaults. Changing an existing layout requires approval.
+  If the layout no longer fits after changing screens, run `dev resize` from
+  an attached tmux shell. Invocation approves automatic application of
+  [the dev layout runbook](../docs/runbooks/dev-layout.md) to all verified
+  `dev-*` sessions only. `dev resize --check` requests preview without mutation.
+  The thin wrapper runs default headless Pi from the primary checkout; it
+  preserves invoking-client context and does not install prompts, edit Pi
+  settings or grant project trust. It needs tmux, Pi and realpath, not Neovim.
+  Ambiguous clients, non-primary checkouts and non-Omarchy hosts fail before Pi.
+  The agent must stop/report unexpected state or `ACTION_REQUIRED`, not ask
+  questions in headless mode. Inspect its final summary: Pi exit status alone
+  does not prove layout success. Preserve processes, non-dev sessions and normal
+  sizing; no new layout engine, fixed ratio or automatic re-entry reset.
 - Pi receives a one-shot context note. The launcher does not search for or
   configure the tnezdev knowledge base; its normal root environment variable
   must be configured separately for Pi to read that guidance.
@@ -111,7 +122,9 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
 - Manage missing software through Omarchy, never Homebrew. Selecting `pi` in
   a file does not install it; use Omarchy's default-agent setup if Pi is absent.
 - Test package link/unlink isolation with `bash tests/omarchy.sh`; test the
-  project launcher with `bash tests/dev.sh` and `python3 tests/dev-layout.py`
+  resize wrapper with `bash tests/dev-resize.sh` (fake Pi/clients, no model
+  requests). Test the project launcher with `bash tests/dev.sh` and
+  `python3 tests/dev-layout.py`
   (real pseudo-terminals, private server, inert editor/agent), utility entry with
   `bash tests/mux.sh`, and profile preservation with
   `python3 tests/cliamp-profile.py`. These use inert fake players, not live

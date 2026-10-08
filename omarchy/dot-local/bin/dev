@@ -2,13 +2,102 @@
 set -euo pipefail
 
 usage() {
-  printf 'Usage: dev [--help]\n'
+  printf 'Usage: dev [--help]\n       dev resize [--check | --help]\n'
 }
 
 die() {
   printf 'dev: %s\n' "$*" >&2
   exit 1
 }
+
+identify_invoking_client() {
+  local clients candidate pane_id
+  local found=''
+  [[ -n ${TMUX_PANE:-} ]] || die \
+    'TMUX is set but the invoking pane is unknown'
+  clients=$("$tmux_bin" list-clients \
+    -F '#{client_name}|#{pane_id}') || die \
+    'could not inspect tmux clients'
+  while IFS='|' read -r candidate pane_id; do
+    [[ $pane_id == "$TMUX_PANE" ]] || continue
+    [[ -z $found ]] || die \
+      'multiple clients display the invoking pane; no session was changed'
+    found=$candidate
+  done <<< "$clients"
+  [[ -n $found ]] || die \
+    'no client displays the invoking pane; no session was changed'
+  invoking_client=$found
+}
+
+resize_sessions() {
+  local mode=apply repo program prompt
+  local tmux_bin invoking_client=''
+  (( $# <= 1 )) || { usage >&2; exit 2; }
+  case ${1:-} in
+    '') ;;
+    --check) mode=check ;;
+    --help|-h)
+      printf 'Usage: dev resize [--check | --help]\n'
+      printf 'Refit all owned dev-* sessions using headless Pi.\n'
+      printf 'Invocation approves the refit; --check previews only.\n'
+      exit 0
+      ;;
+    *) usage >&2; exit 2 ;;
+  esac
+  for program in tmux pi realpath; do
+    command -v "$program" >/dev/null 2>&1 ||
+      die "required program not found: $program"
+  done
+  repo=$(realpath "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/../../..")
+  [[ -d $repo/.git ]] || die \
+    'ACTION_REQUIRED: run dev resize from the canonical primary checkout'
+  [[ -r $repo/lib/dotfiles/modules.sh &&
+     -r $repo/docs/runbooks/dev-layout.md && -x $repo/dotfiles ]] || die \
+    'resize runbook or checkout prerequisites are missing'
+  # shellcheck source=lib/dotfiles/modules.sh
+  . "$repo/lib/dotfiles/modules.sh"
+  [[ $(detect_host_platform) == omarchy ]] || die \
+    'dev resize requires an Omarchy host'
+  [[ -n ${TMUX:-} ]] || die 'run dev resize inside an attached tmux client'
+  tmux_bin=$(command -v tmux)
+  identify_invoking_client
+
+  prompt=$'Follow the supplied dev layout runbook from this checkout.\n'
+  prompt+=$'Read AGENTS.md and omarchy/AGENT.md before acting.\n'
+  prompt+=$'Run doctor and plan; stop on ACTION_REQUIRED.\n'
+  prompt+=$'Target only verified dev-* sessions, never non-dev sessions.\n'
+  prompt+="Invoking client: $invoking_client. Invoking pane: $TMUX_PANE."
+  prompt+=$'\nRecheck that unique client and measure its full dimensions.\n'
+  prompt+=$'The invoking shell may temporarily show Pi as its command.\n'
+  prompt+=$'Do not confuse this headless run with an existing agent role.\n'
+  if [[ $mode == check ]]; then
+    prompt+=$'PREVIEW ONLY: inspect and propose; no mutations are approved.\n'
+    prompt+=$'Do not write receipts or change any files or tmux state.\n'
+  else
+    prompt+=$'The user invoked dev resize, approving preview then automatic\n'
+    prompt+=$'application of the scoped refit, including replacing manual\n'
+    prompt+=$'role layouts. Do not ask for another confirmation.\n'
+    prompt+=$'Preserve existing processes and unrelated state. Do not edit\n'
+    prompt+=$'code/config, activate dotfiles, install software or run Git.\n'
+    prompt+=$'Save recovery state privately and verify the result.\n'
+  fi
+  prompt+=$'This is headless: on ambiguity, changed state or a decision\n'
+  prompt+=$'outside the approved scope, stop and report the blocker.\n'
+  prompt+=$'Return a concise completed/no-op/blocked session summary.\n'
+  prompt+=$'Do not claim success without tmux read-back verification.\n'
+
+  cd "$repo"
+  printf 'dev resize: %s via headless Pi (owned dev-* sessions only)\n' \
+    "$mode" >&2
+  exec pi --print --no-session --no-approve --no-mcp --tools read,bash \
+    --append-system-prompt "$repo/docs/runbooks/dev-layout.md" -- \
+    "$prompt" </dev/null
+}
+
+if [[ ${1:-} == resize ]]; then
+  shift
+  resize_sessions "$@"
+fi
 
 if (( $# )); then
   if [[ $1 == --help || $1 == -h ]]; then
@@ -105,25 +194,6 @@ send_command() {
     "could not start a command in pane $pane"
   "$tmux_bin" send-keys -t "$pane" C-m || die \
     "could not submit a command in pane $pane"
-}
-
-identify_invoking_client() {
-  local clients candidate pane_id
-  local found=''
-  [[ -n ${TMUX_PANE:-} ]] || die \
-    'TMUX is set but the invoking pane is unknown'
-  clients=$("$tmux_bin" list-clients \
-    -F '#{client_name}|#{pane_id}') || die \
-    'could not inspect tmux clients'
-  while IFS='|' read -r candidate pane_id; do
-    [[ $pane_id == "$TMUX_PANE" ]] || continue
-    [[ -z $found ]] || die \
-      'multiple clients display the invoking pane; no session was changed'
-    found=$candidate
-  done <<< "$clients"
-  [[ -n $found ]] || die \
-    'no client displays the invoking pane; no session was changed'
-  invoking_client=$found
 }
 
 # Only new sessions are sized. Never rebaseline an existing layout on entry.

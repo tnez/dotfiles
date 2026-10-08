@@ -56,6 +56,11 @@ helper scripts, forced shell or PATH, clipboard commands, or session creation.
   restarting sessions. It must not change Omarchy's `C-b` prefix, terminal/RGB,
   escape/session options, status, help UI, or `h/v`, `r/R` bindings. A new server
   loads both user config files automatically.
+- For an Omarchy `dev` session refit after switching screens, run `dev resize`
+  from an attached tmux shell, or follow
+  [the agent-run runbook](../docs/runbooks/dev-layout.md). Invocation approves
+  automatic refitting of verified `dev-*` sessions only; `--check` previews.
+  This is a live pane-layout operation, not a tmux config change or reload.
 - Check link health with `./dotfiles doctor` and `./dotfiles plan`.
 - Install or update tmux through the platform provider; on macOS, it is declared
   in `brew/Brewfile`.

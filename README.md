@@ -36,6 +36,8 @@ Stow links make primary-checkout edits live, even without running apply.
   smart-splits extension for `Ctrl+h/j/k/l` navigation across Neovim and tmux.
   The explicit `dev` project entry and `mux` utility entry are described in
   [Omarchy guidance](omarchy/AGENT.md); neither changes vanilla tmux startup.
+  After switching screens, `dev resize` refits all owned `dev-*` sessions using
+  default headless Pi; `dev resize --check` previews without approving changes.
 - A separate Omarchy `mux` music profile, managed by the focused
   [cliamp runbook](cliamp/AGENT.md), not whole-file Stow ownership of app settings.
   General music preferences, credentials and runtime state remain machine-local.
