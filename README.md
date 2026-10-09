@@ -29,6 +29,9 @@ Stow links make primary-checkout edits live, even without running apply.
 - Shared KB instructions and Codex configuration. Pi preferences are
   agent-guided and per-setting; the complete application-managed
   `~/.pi/agent/settings.json` remains machine-owned, not Stow-managed.
+- Yazi preferences and a Shift+T preview-toggle binding for both platforms.
+  Only its two configuration files are Stow-owned; plugins and package state
+  remain machine-local. See [Yazi guidance](yazi/AGENT.md).
 - Git preferences and an additive tmux overlay for both platforms. On Omarchy,
   keep the XDG terminal/status config; add `prefix+-` and `prefix+/` split aliases
   alongside its existing `h`/`v` splits.
@@ -51,7 +54,7 @@ were under `gui` although the installed default schema places them at the root.
 There is no replacement general configuration framework or background
 workstation manager; the two explicit entry commands have bounded responsibilities.
 
-Existing unreviewed modules (`bat`, `bun`, `env`, `ssh`, `starship`, `vim`, `yazi`,
+Existing unreviewed modules (`bat`, `bun`, `env`, `ssh`, `starship`, `vim`,
 editor defaults) are not proof of current usage; they remain for separate review.
 Brewfile entries unrelated to retired tools are also preserved, not endorsed as a
 minimal dependency list. Do not uninstall software because its config is retired.

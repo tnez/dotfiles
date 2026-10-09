@@ -1,0 +1,6 @@
+# Requires yazi-rs/plugins:toggle-pane
+# Install on other machines: ya pkg add yazi-rs/plugins:toggle-pane
+[[mgr.prepend_keymap]]
+on = "T"
+run = "plugin toggle-pane max-preview"
+desc = "Maximize or restore preview"

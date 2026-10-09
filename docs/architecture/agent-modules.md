@@ -82,8 +82,10 @@ Platform selection is conservative:
 
 - existing configuration remains `darwin` until it is reviewed for portability;
 - the `omarchy` and `cliamp` components are `omarchy` only;
-- `agents`, `codex`, `pi`, `git`, and `tmux` now list both platforms after
+- `agents`, `codex`, `pi`, `git`, `tmux`, and `yazi` list both platforms after
   isolated layout validation; native macOS verification remains a delivery gate;
+- Yazi shares its configuration and preview-toggle keymap, while installed
+  plugins and package inventory remain machine-owned; see `yazi/AGENT.md`;
 - shared declarations do not enable macOS-only copy or service capabilities
   on Omarchy. Its Stow activation remains manual.
 

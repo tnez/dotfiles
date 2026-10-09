@@ -7,8 +7,12 @@ REPO_ROOT=$ROOT
 # shellcheck source=../lib/dotfiles/modules.sh
 . "$ROOT/lib/dotfiles/modules.sh"
 selected=$(list_modules omarchy | cut -d '|' -f 1 | paste -sd ' ' -)
-test "$selected" = 'agents cliamp codex git omarchy pi tmux'
-printf 'ok - Omarchy selection excludes macOS shells and Neovim\n'
+test "$selected" = 'agents cliamp codex git omarchy pi tmux yazi'
+for platform in darwin omarchy; do
+  list_modules "$platform" | grep '^yazi|no-folding|darwin omarchy|' \
+    >/dev/null
+done
+printf 'ok - Yazi is shared; Omarchy excludes macOS shells and Neovim\n'
 python3 - "$ROOT" <<'PY'
 import json
 import os
@@ -33,7 +37,9 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
                  '.codex/config.toml',
                  '.agents/skills/dottie/SKILL.md', '.config/nvim-local/file',
                  '.config/herdr/config.toml', '.config/cliamp/config.toml',
-                 '.config/cliamp/profiles/mux/history.toml')
+                 '.config/cliamp/profiles/mux/history.toml',
+                 '.config/yazi/package.toml',
+                 '.config/yazi/plugins/toggle-pane.yazi/main.lua')
     for relative in unmanaged:
         path = home / relative
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -43,7 +49,7 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
         args = ['stow', '--dir=' + str(repo), '--target=' + str(home),
                 '--dotfiles', '--ignore=^(AGENT[.]md|README.*|[.]gitignore|'
                 'knowledge-base-skill-adapter)$', action]
-        if package in ('agents', 'codex', 'pi'):
+        if package in ('agents', 'codex', 'pi', 'yazi'):
             args.append('--no-folding')
         result = subprocess.run(args + [package], env=environment,
                                 capture_output=True, text=True)
@@ -55,6 +61,14 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
     stow('bash', '--simulate', success=False)
     assert conflict.read_text() == 'keep me\n'
     conflict.unlink()
+    yazi_keymap = home / '.config/yazi/keymap.toml'
+    yazi_keymap.write_text('keep my keymap\n')
+    stow('yazi', '--simulate', success=False)
+    assert yazi_keymap.read_text() == 'keep my keymap\n'
+    yazi_keymap.unlink()
+    stow('yazi', '--stow')
+    assert not (home / '.config').is_symlink()
+    assert not (home / '.config/yazi').is_symlink()
     for package in packages:
         declaration = (repo / package / 'AGENT.md').read_text()
         if 'stow none\n' in declaration:
@@ -76,6 +90,16 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
         config = tomllib.load(file)
     assert config['approval_policy'] == 'on-request'
     assert config['sandbox_mode'] == 'workspace-write'
+    with yazi_keymap.open('rb') as file:
+        keymap = tomllib.load(file)
+    assert keymap['mgr']['prepend_keymap'] == [{
+        'on': 'T', 'run': 'plugin toggle-pane max-preview',
+        'desc': 'Maximize or restore preview',
+    }]
+    assert 'ya pkg add yazi-rs/plugins:toggle-pane' in yazi_keymap.read_text()
+    with (home / '.config/yazi/yazi.toml').open('rb') as file:
+        tomllib.load(file)
+    print('ok - Yazi TOML, preview keymap and unmanaged conflict safety')
     # Validate every retained Stow leaf's exact resolved target.
     for package in packages:
         for source in (repo / package).rglob('*'):
@@ -98,5 +122,7 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
     for relative in unmanaged:
         assert (home / relative).read_text() == 'unmanaged\n'
     assert not (home / '.pi/agent/AGENTS.md').is_symlink()
+    assert not yazi_keymap.exists() and not yazi_keymap.is_symlink()
+    assert not (home / '.config/yazi/yazi.toml').exists()
     print('ok - unstow preserves unmanaged state, Dottie and retired configs')
 PY
