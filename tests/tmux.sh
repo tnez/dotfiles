@@ -86,6 +86,8 @@ EOF
   tmux_cmd set-environment -g PATH "$bin:$PATH"
   tmux_cmd set-environment -g TMUX_TEST_UNAME "$platform"
   default_terminal=$(tmux_cmd show-options -gqv default-terminal)
+  # Model a retired popup lingering in an existing server.
+  tmux_cmd bind-key p display-popup 'retired-review-popup'
   # tmux loads ~/.tmux.conf before its XDG user config.
   tmux_cmd source-file "$ACTIVE_HOME/.tmux.conf"
   if [[ $platform == Linux ]]; then
@@ -136,6 +138,8 @@ EOF
     ' r[[:space:]]+command-prompt -I "#W"' 'prefix r'
   assert_binding "$prefix_bindings" \
     ' x[[:space:]]+kill-pane' 'prefix x'
+  assert_binding "$prefix_bindings" \
+    ' p[[:space:]]+paste-buffer -p$' 'prefix p paste'
   if [[ $platform == Linux ]]; then
     assert_binding "$prefix_bindings" \
       ' h[[:space:]]+split-window -v -c "#\{pane_current_path\}"' \

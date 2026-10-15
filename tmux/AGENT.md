@@ -23,6 +23,13 @@ On macOS, retain the existing `h` / `l` window navigation, `v` copy-mode, `R`
 reload, session behavior, low escape-time, RGB override, and Alt-key resizing.
 The Darwin-only block prevents these from overriding Omarchy.
 
+On both hosts, `prefix+p` pastes the latest tmux buffer, matching Vim's put
+mnemonic. It replaces the default previous-window binding (use `prefix+h` on
+macOS) and supersedes the retired review popup on reload. `prefix+]` remains
+available for paste. Removing old popup bindings from the source does not
+unbind them in existing servers; handle any live cleanup separately with
+explicit approval, without restarting sessions.
+
 On both hosts, `C-h/j/k/l` uses smart-splits: forward keys into marked Neovim
 panes, otherwise select a tmux pane. Omarchy's companion LazyVim plugin spec is
 owned by the omarchy package; activate it before reloading these tmux bindings.
