@@ -93,8 +93,8 @@ EOF
   fi
 
   assert_option "$(tmux_cmd show-options -gqv prefix)" C-Space prefix
+  assert_option "$(tmux_cmd show-options -gqv prefix2)" C-b prefix2
   if [[ $platform == Linux ]]; then
-    assert_option "$(tmux_cmd show-options -gqv prefix2)" C-b prefix2
     assert_option \
       "$(tmux_cmd show-options -gqv default-terminal)" \
       tmux-256color default-terminal
@@ -110,7 +110,6 @@ EOF
       fail 'macOS terminal override leaked into Omarchy'
     fi
   else
-    assert_option "$(tmux_cmd show-options -gqv prefix2)" None prefix2
     assert_option \
       "$(tmux_cmd show-options -gqv default-terminal)" \
       "$default_terminal" default-terminal
@@ -131,6 +130,8 @@ EOF
     ' /[[:space:]]+split-window -h -c "#\{pane_current_path\}"' 'prefix /'
   assert_binding "$prefix_bindings" \
     'C-Space[[:space:]]+send-prefix' 'shared prefix'
+  assert_binding "$prefix_bindings" \
+    'C-b[[:space:]]+send-prefix -2' 'secondary prefix forwarding'
   assert_binding "$prefix_bindings" \
     ' r[[:space:]]+command-prompt -I "#W"' 'prefix r'
   assert_binding "$prefix_bindings" \

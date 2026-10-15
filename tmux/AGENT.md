@@ -10,8 +10,10 @@ stow standard
 ## Desired state
 
 `dot-tmux.conf` is an additive overlay loaded alongside the host's
-configuration. Use `C-Space` as the primary prefix, but leave `prefix2`, terminal,
-status, and help bindings to each host. The `prefix+-` and `prefix+/` split
+configuration. Use `C-Space` as the primary prefix and `C-b` as the secondary
+prefix on both hosts, including clients that intercept Control-Space. Press
+`C-b C-b` to send a literal Control-B. Leave terminal, status, and help bindings
+to each host. The `prefix+-` and `prefix+/` split
 aliases intentionally replace tmux's default `delete-buffer` and key-list
 bindings. On Omarchy preserve its `C-b` secondary prefix, `h` / `v` splits,
 `r` / `R` renames, terminal and RGB setup, status, help UI, escape time, and
