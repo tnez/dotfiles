@@ -21,4 +21,10 @@ On Omarchy use manual Stow only after approval; copied-skill/adapter retirement
 is not automated there. Preserve externally installed skills, especially Dottie,
 and the KB itself. See `docs/retirement.md` before integrating deletions.
 
-Verify with `bash tests/lifecycle.sh` and `bash tests/portable.sh`.
+The optional Omarchy-only `./omarchy-agent-links` runbook checks the shared
+home/Pi instruction links and Pi keybindings; approved hooks repair only absent
+links. It does not own `.agents`, install skills, or change Darwin behavior.
+See `omarchy/AGENT.md` for opt-in activation and recovery.
+
+Verify with `bash tests/lifecycle.sh` and `bash tests/portable.sh`; test the
+focused runbook with `python3 tests/omarchy-agent-links.py`.

@@ -88,6 +88,12 @@ than replacing its upstream shell setup. An export in a terminal does not change
 already-running GUI applications; launch agents from that terminal until a
 separately reviewed desktop environment setup is in place.
 
+For missing agent instruction/keybinding links on Omarchy, use the read-only
+`./omarchy-agent-links check`. Approved `repair --yes` and optional update/boot
+hooks repair only three absent links, never local settings or whole directories.
+See [the Omarchy runbook](omarchy/AGENT.md#optional-agent-link-recovery-hooks-omarchy-only)
+for approval, checks, platform boundaries, and recovery. Darwin is unchanged.
+
 Optional `TNEZDEV_LOCAL_CONTEXT_ROOT` points to a private `AGENTS.md` router and is
 loaded only when the task needs it. Dottie and Herdr are not required to read the
 local KB. The `present-for-decision` skill adapter is retired; its source remains
@@ -107,7 +113,7 @@ Homebrew still supplies the Codex desktop app. Omarchy owns its package setup.
 
 ## Activation (separate approval)
 
-Automated mutation is macOS-only and refuses linked worktrees:
+Shared lifecycle mutation is macOS-only and refuses linked worktrees:
 
 - `./dotfiles apply`: Stow, absent-only Codex seed, owned-copy retirement,
   launcher and GUI environment convergence; no packages or Herdr services.

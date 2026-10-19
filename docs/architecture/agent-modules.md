@@ -78,6 +78,15 @@ check links/prerequisites, while this focused check reports preference drift;
 neither automatically chooses between a local change and the shared preference.
 See `omarchy/AGENT.md` for activation, hot-reload and recovery boundaries.
 
+Agent-link recovery is another focused, opt-in runbook:
+`./omarchy-agent-links` checks three home/Pi links, KB entrypoints, and three Pi
+preferences on Omarchy only. Explicit repair creates only absent links; it never
+rewrites application settings. Approved installation creates machine-local
+update/boot hook copies referencing the primary checkout and configured KB root.
+They are not Stow sources or a new lifecycle capability. Existing conflicts and
+preference drift stop for review, and Darwin skips all operations. See
+`omarchy/AGENT.md` for the exact allowlist, guards, installation and recovery.
+
 Platform selection is conservative:
 
 - existing configuration remains `darwin` until it is reviewed for portability;

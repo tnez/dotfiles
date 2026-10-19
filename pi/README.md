@@ -44,6 +44,13 @@ no installed extension or skill is deleted by this change.
 Configure `TNEZDEV_KNOWLEDGE_BASE_ROOT` in the launching environment as described
 in the root README; no Dottie or Herdr bridge is needed for direct KB access.
 
+On Omarchy, `./omarchy-agent-links check` checks the global instruction and
+keybinding links, KB entrypoints, and three preferences: install telemetry off,
+quiet startup on, and `no-tools` tree filtering. Its approved optional hooks
+repair only absent links; they never rewrite settings or reset the machine's
+Omarchy theme. These checks supplement root doctor/plan and do not apply to
+Darwin. See [activation and recovery](../omarchy/AGENT.md#optional-agent-link-recovery-hooks-omarchy-only).
+
 Pi itself is installed separately using the supported platform or mise provider.
 Credentials, sessions, caches, and package installations remain machine-owned.
 The no-folding Stow package owns only personal keybindings and the shared
