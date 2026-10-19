@@ -11,6 +11,12 @@ stow standard
 The files in this directory are the source of truth for the `ssh`
 configuration activated with GNU Stow on `darwin` hosts.
 
+On Omarchy, use the existing packaged OpenSSH user agent as documented in
+[README.md](README.md). Linux SSH and shell configuration remain machine-local;
+this package is still Darwin-only. Never stow the macOS `UseKeychain` or OrbStack
+configuration onto Linux, replace Omarchy's shell, or persist decrypted keys.
+Setup/activation requires approval; doctor/plan do not check SSH agent health.
+
 ## Operations
 
 - Install or update configuration with `dotfiles apply` from the canonical
