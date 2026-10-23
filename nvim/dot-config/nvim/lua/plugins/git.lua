@@ -1,5 +1,29 @@
 return {
   {
+    'sindrets/diffview.nvim',
+    cmd = {
+      'DiffviewOpen',
+      'DiffviewClose',
+      'DiffviewToggleFiles',
+      'DiffviewFocusFiles',
+      'DiffviewRefresh',
+      'DiffviewFileHistory',
+    },
+    keys = {
+      {
+        '<leader>gd',
+        '<cmd>DiffviewOpen origin/main...HEAD<CR>',
+        desc = 'Review Branch (merge base)',
+      },
+      { '<leader>gD', '<cmd>DiffviewClose<CR>', desc = 'Close Diff Review' },
+    },
+    opts = {
+      -- mini.icons is already used; do not add a second icon provider.
+      use_icons = false,
+      view = { default = { layout = 'diff2_horizontal' } },
+    },
+  },
+  {
     "lewis6991/gitsigns.nvim",
     event = "BufReadPost",
     opts = {

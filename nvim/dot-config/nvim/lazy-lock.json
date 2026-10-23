@@ -2,6 +2,7 @@
   "auto-dark-mode.nvim": { "branch": "main", "commit": "4531f8b2b09ed8f0b8875a706419f9cecda1d969" },
   "codecompanion.nvim": { "branch": "main", "commit": "72d95c0126c82f02d1b3f43744f7b333d3dc5d22" },
   "conform.nvim": { "branch": "master", "commit": "6dc21d4ce050c2e592d9635b7983d67baf216e3d" },
+  "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "fzf-lua": { "branch": "main", "commit": "9f0432fdd7825ab163520045831a40b6df82ea28" },
   "gitsigns.nvim": { "branch": "main", "commit": "817bd848fffe82e697b4da656e3f2834cd0665c5" },
   "lazy.nvim": { "branch": "main", "commit": "85c7ff3711b730b4030d03144f6db6375044ae82" },

@@ -20,6 +20,16 @@ configuration activated with GNU Stow on `darwin` hosts.
 - Install or update application binaries through the platform provider; on
   macOS, the declared provider inventory is `brew/Brewfile`.
 
+## Review workflow and verification
+
+See `README.md` for Diffview keys, the explicit three-dot PR range, portable
+terminal launch, and the boundary between local Git and GitHub reviews.
+Run `python3 tests/nvim-diffview.py` for changes to that workflow; it requires
+installed Diffview and Lazy checkouts (or the documented path overrides) and
+uses only disposable repositories/config state. Also run the read-only doctor
+and plan checks above. Keep the existing Gitsigns mappings and avoid adding
+GitHub authentication, automatic fetches, or tmux session policy to local review.
+
 ## Agent guidance
 
 Preserve unmanaged files and machine-local state. Read any colocated README
