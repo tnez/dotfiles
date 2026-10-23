@@ -12,8 +12,8 @@ stow standard
 `dot-tmux.conf` is an additive overlay loaded alongside the host's
 configuration. Use `C-Space` as the primary prefix and `C-b` as the secondary
 prefix on both hosts, including clients that intercept Control-Space. Press
-`C-b C-b` to send a literal Control-B. Leave terminal, status, and help bindings
-to each host. The `prefix+-` and `prefix+/` split
+`C-b C-b` to send a literal Control-B. Leave terminal and help bindings to each
+host; Omarchy also owns its status configuration. The `prefix+-` and `prefix+/` split
 aliases intentionally replace tmux's default `delete-buffer` and key-list
 bindings. On Omarchy preserve its `C-b` secondary prefix, `h` / `v` splits,
 `r` / `R` renames, terminal and RGB setup, status, help UI, escape time, and
@@ -22,6 +22,17 @@ session behavior. Do not remove or rewrite `~/.config/tmux/tmux.conf`.
 On macOS, retain the existing `h` / `l` window navigation, `v` copy-mode, `R`
 reload, session behavior, low escape-time, RGB override, and Alt-key resizing.
 The Darwin-only block prevents these from overriding Omarchy.
+
+On macOS, match stock Omarchy's single-row top status bar: a session badge on
+the left, numbered windows, and conditional COPY/PREFIX/ZOOM indicators plus
+hostname on the right. Use the terminal's default background/foreground and
+ANSI `blue`, `black`, and `brightblack` palette entries, not fixed RGB colors,
+plugins, or theme-parsing scripts. The same layout follows each terminal's
+palette; identical colors require matching terminal themes. Terminal themes
+control contrast, including the black-on-blue badge and muted brightblack text.
+Do not change window naming, pane borders, or copy-mode styling as part of this
+status-only preference. Omarchy's own config continues to supply its status;
+reloading this overlay there must preserve even customized host status settings.
 
 On both hosts, `prefix+p` pastes the latest tmux buffer, matching Vim's put
 mnemonic. It replaces the default previous-window binding (use `prefix+h` on
@@ -53,9 +64,11 @@ helper scripts, forced shell or PATH, clipboard commands, or session creation.
   ```
 
 - The source command reloads the additive overlay into the current server without
-  restarting sessions. It must not change Omarchy's `C-b` prefix, terminal/RGB,
-  escape/session options, status, help UI, or `h/v`, `r/R` bindings. A new server
-  loads both user config files automatically.
+  restarting sessions. On macOS it also applies the palette-based top bar;
+  visually check contrast in light/dark terminal themes after an approved reload.
+  It must not change Omarchy's `C-b` prefix, terminal/RGB, escape/session options,
+  status, help UI, or `h/v`, `r/R` bindings. A new server loads both user config
+  files automatically.
 - For an Omarchy `dev` session refit after switching screens, run `dev resize`
   from an attached tmux shell, or follow
   [the agent-run runbook](../docs/runbooks/dev-layout.md). Invocation approves
@@ -68,6 +81,12 @@ helper scripts, forced shell or PATH, clipboard commands, or session creation.
   `tmux -L` server for config checks, never the user's server during tests.
 
 ## Recovery
+
+To roll back the macOS status preference, revert only the Darwin status block.
+Removing options from the source does not clear them in existing servers. With
+approval, reset the affected `status*` options and the three `window-status-*`
+options to their prior values in the live server; do not restart or kill sessions.
+Omarchy needs no status rollback because the overlay never sets its status.
 
 For the Omarchy overlay, restore the two tmux defaults in a running server
 before unstowing it:
@@ -87,5 +106,5 @@ Stow options and `--delete`. Do not kill sessions or remove Omarchy's XDG config
 ## Agent guidance
 
 Preserve unmanaged files and machine-local state. Read the live host tmux config
-before changing the overlay. Never silently rebind a host-owned key, alter
-terminal/status settings, or reload a live server without explicit approval.
+before changing the overlay. Never silently rebind a host-owned key, alter terminal or
+Omarchy-owned status settings, or reload a live server without explicit approval.

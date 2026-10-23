@@ -67,6 +67,20 @@ bind r command-prompt -I "#W" "rename-window -- '%%'"
 bind R command-prompt -I "#S" "rename-session -- '%%'"
 bind x kill-pane
 bind ? display-message "Omarchy help"
+# Stock Omarchy status layout; colors come from the terminal palette.
+set -g status-position top
+set -g status-interval 5
+set -g status-left-length 30
+set -g status-right-length 50
+set -g window-status-separator ""
+set -g status-style "bg=default,fg=default"
+set -g status-left "#[fg=black,bg=blue,bold] #S #[bg=default] "
+set -g status-right "#[fg=blue]"
+set -ag status-right "#{?pane_in_mode,COPY ,}"
+set -ag status-right "#{?client_prefix,PREFIX ,}"
+set -ag status-right "#{?window_zoomed_flag,ZOOM ,}#[fg=brightblack]#h "
+set -g window-status-format "#[fg=brightblack] #I:#W "
+set -g window-status-current-format "#[fg=blue,bold] #I:#W "
 EOF
   fi
   cat > "$bin/uname" <<'EOF'
@@ -164,7 +178,7 @@ EOF
 
   root_bindings=$(tmux_cmd list-keys -T root)
   for key in C-h C-j C-k C-l M-h M-j M-k M-l; do
-    binding_pattern="$key[[:space:]]+if-shell -F \"#{@pane-is-vim}\""
+    binding_pattern="${key}[[:space:]]+if-shell -F \"#{@pane-is-vim}\""
     if [[ $platform == Darwin || $key == C-* ]]; then
       assert_binding "$root_bindings" "$binding_pattern" \
         "$platform smart-splits $key"
@@ -172,6 +186,60 @@ EOF
       fail "Omarchy must not capture resize key $key"
     fi
   done
+
+  # Both hosts should have the stock layout without fixed RGB colors.
+  expected_right='#[fg=blue]#{?pane_in_mode,COPY ,}'
+  expected_right+='#{?client_prefix,PREFIX ,}'
+  expected_right+='#{?window_zoomed_flag,ZOOM ,}#[fg=brightblack]#h '
+  for pass in initial reload; do
+    assert_option "$(tmux_cmd show-options -gqv status)" on status
+    assert_option "$(tmux_cmd show-options -gqv status-position)" top \
+      status-position
+    assert_option "$(tmux_cmd show-options -gqv status-justify)" left \
+      status-justify
+    assert_option "$(tmux_cmd show-options -gqv status-interval)" 5 \
+      status-interval
+    assert_option "$(tmux_cmd show-options -gqv status-left-length)" 30 \
+      status-left-length
+    assert_option "$(tmux_cmd show-options -gqv status-right-length)" 50 \
+      status-right-length
+    assert_option "$(tmux_cmd show-options -gqv status-style)" \
+      'bg=default,fg=default' status-style
+    assert_option "$(tmux_cmd show-options -gqv status-left)" \
+      '#[fg=black,bg=blue,bold] #S #[bg=default] ' status-left
+    assert_option "$(tmux_cmd show-options -gqv status-right)" \
+      "$expected_right" status-right
+    assert_option "$(tmux_cmd show-options -gwqv window-status-format)" \
+      '#[fg=brightblack] #I:#W ' window-status-format
+    assert_option \
+      "$(tmux_cmd show-options -gwqv window-status-current-format)" \
+      '#[fg=blue,bold] #I:#W ' window-status-current-format
+    assert_option "$(tmux_cmd show-options -gwqv window-status-separator)" \
+      '' window-status-separator
+    if [[ $pass == initial ]]; then
+      tmux_cmd source-file "$ACTIVE_HOME/.tmux.conf"
+    fi
+  done
+  printf 'ok - %s palette-based status layout survives reload\n' "$platform"
+
+  if [[ $platform == Linux ]]; then
+    # A host customization must also survive a later overlay-only reload.
+    tmux_cmd set-option -g status-position bottom
+    tmux_cmd set-option -g status-style 'bg=default,fg=yellow'
+    tmux_cmd set-option -g status-left 'host-owned session'
+    tmux_cmd set-option -g status-right 'host-owned indicators'
+    tmux_cmd set-window-option -g window-status-format 'host-owned window'
+    tmux_cmd set-window-option -g window-status-current-format 'host active'
+    host_status=$(tmux_cmd show-options -g | grep '^status')
+    host_windows=$(tmux_cmd show-window-options -g | grep '^window-status')
+    tmux_cmd source-file "$ACTIVE_HOME/.tmux.conf"
+    assert_option "$(tmux_cmd show-options -g | grep '^status')" \
+      "$host_status" 'Omarchy status ownership'
+    assert_option \
+      "$(tmux_cmd show-window-options -g | grep '^window-status')" \
+      "$host_windows" 'Omarchy window status ownership'
+    printf 'ok - overlay reload preserves customized Omarchy status\n'
+  fi
 
   tmux_cmd kill-server
   ACTIVE_SOCKET=
