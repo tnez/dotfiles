@@ -4,6 +4,9 @@ This is a human-approved migration checklist, **not an executable cleanup hook**
 No live migration was performed while preparing the candidate. Read-only checks
 and candidate verification do not authorize activation or deletion.
 
+Later scope update: Ghostty is managed again on macOS; do not retire it as part
+of this historical cleanup. See `ghostty/AGENT.md` for its current ownership.
+
 ## Before merging into a live Stow checkout
 
 Deleting source files in the primary checkout can instantly leave live links
@@ -20,7 +23,7 @@ plan and recoverable backup. Keep the old source revision `97158b7` available.
    primary checkout and its original Stow mode, first simulate unstow. Review
    each operation before executing it. Do not unstow from the candidate or move
    the old checkout and assume its relative links still work.
-4. Whole retired packages: `gh-dash ghostty glow raycast sesh television claude
+4. Whole retired packages: `gh-dash glow raycast sesh television claude
    opencode herdr hunk hud lazygit`. Each used standard folding.
 5. Changed surviving packages with deleted paths: `agents codex pi scripts
    launchagents yazi`. Unstow these before merge as well, then restow surviving

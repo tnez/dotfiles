@@ -2,6 +2,11 @@
 
 Base: `97158b7`. Candidate only; no live activation, uninstall, or KB edits.
 
+Later scope update: Ghostty's small appearance configuration is restored on
+macOS only. Its font, decoration, padding, and automatic light/dark preferences
+are personal settings, not workflow integrations. See `ghostty/AGENT.md`; the
+historical removal scope below no longer applies to that package.
+
 ## Outcome and acceptance
 
 Keep personal preferences, not a workstation workflow platform. Support macOS
