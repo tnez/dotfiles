@@ -37,6 +37,31 @@ assert_binding() {
     fail "$name binding is missing: $expected"
 }
 
+prefix_binding() {
+  tmux_cmd list-keys -T prefix -F '#{key_string}|#{key_command}' | \
+    awk -F '|' -v key="$1" '$1 == key'
+}
+
+assert_reload_binding() {
+  local expected=$1 actual
+  actual=$(prefix_binding q)
+  grep -Fq -- "source-file $expected" <<<"$actual" || \
+    fail "prefix q must reload $expected; got: $actual"
+}
+
+assert_shared_workflow_bindings() {
+  assert_option "$(prefix_binding l)" 'l|last-window' 'last-used window'
+  assert_option "$(prefix_binding n)" 'n|next-window' 'next window'
+  assert_option "$(prefix_binding c)" \
+    'c|new-window -c "#{pane_current_path}"' 'new window directory'
+  local copy_bindings
+  copy_bindings=$(tmux_cmd list-keys -T copy-mode-vi)
+  assert_binding "$copy_bindings" \
+    ' v[[:space:]]+send-keys -X begin-selection$' 'copy-mode v selection'
+  assert_binding "$copy_bindings" \
+    ' y[[:space:]]+send-keys -X copy-selection-and-cancel$' 'copy-mode y copy'
+}
+
 for platform in Linux Darwin; do
   ACTIVE_HOME="$TEST_ROOT/$platform"
   ACTIVE_SOCKET="dotfiles-tmux-${platform}-$$"
@@ -55,18 +80,22 @@ setw -g pane-base-index 1
 set -g mouse on
 set -g renumber-windows on
 setw -g mode-keys vi
+bind -T copy-mode-vi v send-keys -X begin-selection
+bind -T copy-mode-vi y send-keys -X copy-selection-and-cancel
 set -g extended-keys on
 set -g extended-keys-format csi-u
 set -g escape-time 0
 set -g detach-on-destroy off
 set -sg escape-time 10
 set -ag terminal-overrides ",*:RGB"
+bind c new-window -c "#{pane_current_path}"
 bind h split-window -v -c "#{pane_current_path}"
 bind v split-window -h -c "#{pane_current_path}"
 bind r command-prompt -I "#W" "rename-window -- '%%'"
 bind R command-prompt -I "#S" "rename-session -- '%%'"
 bind x kill-pane
 bind ? display-message "Omarchy help"
+bind q source-file ~/.config/tmux/tmux.conf \; display "Configuration reloaded"
 # Stock Omarchy status layout; colors come from the terminal palette.
 set -g status-position top
 set -g status-interval 5
@@ -82,6 +111,9 @@ set -ag status-right "#{?window_zoomed_flag,ZOOM ,}#[fg=brightblack]#h "
 set -g window-status-format "#[fg=brightblack] #I:#W "
 set -g window-status-current-format "#[fg=blue,bold] #I:#W "
 EOF
+    # Approved Omarchy integration: retain the host config, load overrides last.
+    printf '\n# Personal overrides (keep last).\nsource-file ~/.tmux.conf\n' \
+      >> "$ACTIVE_HOME/.config/tmux/tmux.conf"
   fi
   cat > "$bin/uname" <<'EOF'
 #!/bin/sh
@@ -102,6 +134,12 @@ EOF
   default_terminal=$(tmux_cmd show-options -gqv default-terminal)
   # Model a retired popup lingering in an existing server.
   tmux_cmd bind-key p display-popup 'retired-review-popup'
+  if [[ $platform == Darwin ]]; then
+    # A reload must retire the old Mac shortcuts without restarting sessions.
+    tmux_cmd bind-key h previous-window
+    tmux_cmd bind-key l next-window
+    tmux_cmd bind-key R source-file "$ACTIVE_HOME/.tmux.conf"
+  fi
   # tmux loads ~/.tmux.conf before its XDG user config.
   tmux_cmd source-file "$ACTIVE_HOME/.tmux.conf"
   if [[ $platform == Linux ]]; then
@@ -139,6 +177,12 @@ EOF
     fi
   fi
 
+  reload_config="$ACTIVE_HOME/.tmux.conf"
+  if [[ $platform == Linux ]]; then
+    reload_config="$ACTIVE_HOME/.config/tmux/tmux.conf"
+  fi
+  assert_reload_binding "$reload_config"
+  assert_shared_workflow_bindings
   prefix_bindings=$(tmux_cmd list-keys -T prefix)
   assert_binding "$prefix_bindings" \
     ' -[[:space:]]+split-window -v -c "#\{pane_current_path\}"' 'prefix -'
@@ -154,27 +198,67 @@ EOF
     ' x[[:space:]]+kill-pane' 'prefix x'
   assert_binding "$prefix_bindings" \
     ' p[[:space:]]+paste-buffer -p$' 'prefix p paste'
+  assert_binding "$prefix_bindings" \
+    ' v[[:space:]]+copy-mode$' 'shared copy mode'
+  assert_binding "$prefix_bindings" \
+    ' R[[:space:]]+command-prompt -I "#S"' 'shared session rename'
   if [[ $platform == Linux ]]; then
     assert_binding "$prefix_bindings" \
       ' h[[:space:]]+split-window -v -c "#\{pane_current_path\}"' \
       'Omarchy prefix h'
     assert_binding "$prefix_bindings" \
-      ' v[[:space:]]+split-window -h -c "#\{pane_current_path\}"' \
-      'Omarchy prefix v'
-    assert_binding "$prefix_bindings" \
-      ' R[[:space:]]+command-prompt -I "#S"' 'Omarchy prefix R'
-    assert_binding "$prefix_bindings" \
       ' \?[[:space:]]+display-message "Omarchy help"' 'Omarchy help'
   else
-    assert_binding "$prefix_bindings" \
-      ' h[[:space:]]+previous-window' 'macOS previous window'
-    assert_binding "$prefix_bindings" \
-      ' v[[:space:]]+copy-mode' 'macOS copy mode'
-    assert_binding "$prefix_bindings" \
-      ' l[[:space:]]+next-window' 'macOS next window'
-    assert_binding "$prefix_bindings" \
-      ' R[[:space:]]+source-file' 'macOS reload'
+    if [[ -n $(prefix_binding h) ]]; then
+      fail 'macOS must retire the old prefix h binding'
+    fi
   fi
+
+  # Exercise the declared window actions in the isolated server. A directory
+  # with spaces catches quoting regressions; no interactive shell is started.
+  project="$ACTIVE_HOME/project with spaces"
+  mkdir -p "$project"
+  project=$(cd "$project" && pwd -P)
+  anchor=$(tmux_cmd new-window -P -F '#{window_id}' -c "$project" \
+    'exec sleep 60')
+  tmux_cmd set-option -g default-command \
+    'printf "tmux-copy-fixture\n"; exec sleep 60'
+  action=$(prefix_binding c)
+  tmux_cmd if-shell -F 1 "${action#*|}"
+  created=$(tmux_cmd display-message -p '#{window_id}')
+  [[ $created != "$anchor" ]] || fail 'prefix c did not create a window'
+  assert_option "$(tmux_cmd display-message -p '#{pane_current_path}')" \
+    "$project" 'new window inherits the active pane directory'
+  action=$(prefix_binding l)
+  tmux_cmd if-shell -F 1 "${action#*|}"
+  assert_option "$(tmux_cmd display-message -p '#{window_id}')" \
+    "$anchor" 'prefix l returns to the last-used window'
+  tmux_cmd if-shell -F 1 "${action#*|}"
+  assert_option "$(tmux_cmd display-message -p '#{window_id}')" \
+    "$created" 'prefix l toggles back'
+
+  # Wait for fixture output, then select and copy through tmux's own buffer.
+  for ((attempt = 0; attempt < 100; attempt++)); do
+    contents=$(tmux_cmd capture-pane -p)
+    if grep -Fq 'tmux-copy-fixture' <<<"$contents"; then
+      break
+    fi
+    sleep 0.02
+  done
+  grep -Fq 'tmux-copy-fixture' <<<"$contents" || fail 'missing copy fixture'
+  tmux_cmd copy-mode
+  tmux_cmd send-keys -X history-top
+  tmux_cmd send-keys -X start-of-line
+  tmux_cmd send-keys -X begin-selection
+  tmux_cmd send-keys -X end-of-line
+  assert_option "$(tmux_cmd display-message -p '#{selection_present}')" \
+    1 'copy-mode selection'
+  tmux_cmd send-keys -X copy-selection-and-cancel
+  assert_option "$(tmux_cmd display-message -p '#{pane_in_mode}')" \
+    0 'copy exits copy mode'
+  assert_option "$(tmux_cmd show-buffer)" 'tmux-copy-fixture' 'copied text'
+  printf 'ok - %s shared copy/window workflow behaves consistently\n' \
+    "$platform"
 
   root_bindings=$(tmux_cmd list-keys -T root)
   for key in C-h C-j C-k C-l M-h M-j M-k M-l; do
@@ -220,6 +304,8 @@ EOF
       tmux_cmd source-file "$ACTIVE_HOME/.tmux.conf"
     fi
   done
+  assert_reload_binding "$reload_config"
+  assert_shared_workflow_bindings
   printf 'ok - %s palette-based status layout survives reload\n' "$platform"
 
   if [[ $platform == Linux ]]; then
@@ -241,9 +327,37 @@ EOF
     printf 'ok - overlay reload preserves customized Omarchy status\n'
   fi
 
+  # Omarchy's own reload command must also finish with personal copy mode.
+  if [[ $platform == Linux ]]; then
+    tmux_cmd source-file "$ACTIVE_HOME/.config/tmux/tmux.conf"
+    assert_binding "$(tmux_cmd list-keys -T prefix)" \
+      ' v[[:space:]]+copy-mode$' 'Omarchy host reload copy mode'
+  fi
+
+  tmux_cmd kill-server
+  # Exercise native startup queues, not just source-file into a running server.
+  configs=(-f "$ACTIVE_HOME/.tmux.conf")
+  if [[ $platform == Linux ]]; then
+    configs+=(-f "$ACTIVE_HOME/.config/tmux/tmux.conf")
+  fi
+  tmux_cmd "${configs[@]}" new-session -d -s fresh -c "$ACTIVE_HOME" \
+    'exec sleep 60'
+  assert_reload_binding "$reload_config"
+  assert_shared_workflow_bindings
+  fresh_bindings=$(tmux_cmd list-keys -T prefix)
+  assert_binding "$fresh_bindings" \
+    ' v[[:space:]]+copy-mode$' 'fresh server copy mode'
+  assert_binding "$fresh_bindings" \
+    ' R[[:space:]]+command-prompt -I "#S"' 'fresh server session rename'
+  if [[ $platform == Linux ]]; then
+    assert_binding "$fresh_bindings" \
+      ' h[[:space:]]+split-window -v' 'fresh Omarchy split'
+  elif [[ -n $(prefix_binding h) ]]; then
+    fail 'fresh macOS server must leave prefix h unbound'
+  fi
   tmux_cmd kill-server
   ACTIVE_SOCKET=
-  printf 'ok - %s overlay preserves host bindings and adds split keys\n' \
+  printf 'ok - %s startup/reload preserves host keys with shared v/R/q\n' \
     "$platform"
 done
 
