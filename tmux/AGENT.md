@@ -67,9 +67,63 @@ Navigation is normal-mode in Neovim; other applications lose their native
 navigation remains available. Keep resizing host-specific: macOS retains its
 Alt+h/j/k/l smart-splits resizing, but those chords conflict with Omarchy desktop
 shortcuts. Do not port them or add other Alt bindings without a new review.
-Omarchy keeps its stock resize keys and existing LazyVim behavior. This overlay
-has no custom popups, helper scripts, forced shell or PATH, clipboard commands,
-or session creation.
+Omarchy keeps its stock resize keys and existing LazyVim behavior. The overlay
+sets no forced shell or PATH and adds no clipboard commands.
+
+## Shared Pi concierge
+
+`prefix+a` opens **Scout**, a centered 85% popup running Pi. Its title is
+`Scout | prefix+a: hide | /new: reset`. Inside it, the same binding hides the
+popup by detaching its nested tmux client, not by stopping Pi. There is one
+shared conversation across all sessions on the same server, not a per-project
+agent. Unsent input and ongoing work survive hiding. Use Pi's normal `/new`
+command to start over; opening the popup never injects a new user turn.
+The background `dotfiles-agent` session is ordinary tmux state and appears in
+session lists. It is created only on demand, never during config loading.
+
+```text
+prefix+a -> ~/.config/tmux/agent-popup -> owned dotfiles-agent session -> Pi
+                     |                         |
+                     +-- popup attach client --+ (detach to hide)
+                     +-- refresh origin metadata in session options
+```
+
+Stow owns the helper alongside `~/.tmux.conf`, not the host's
+`~/.config/tmux/tmux.conf`. It starts Pi in HOME with the user's normal model,
+settings, tools, credentials and trust behavior. No plugin, service, global Pi
+resource or project-trust grant is installed. The helper uses native tmux
+locking to serialize session creation and refuses to adopt an unrelated session
+with the reserved name. Only the owned concierge session has its status hidden,
+`remain-on-exit` disabled and `detach-on-destroy` enabled. Quitting Pi closes its
+popup rather than switching that client into a different session, even when the
+host keeps ordinary clients attached on session destruction. Normal sessions
+retain their host behavior.
+
+Pi receives a CLI-only system-prompt addition describing its concierge role
+and how to query the latest origin:
+
+```sh
+tmux show-options -qv -t dotfiles-agent @dotfiles-agent-origin
+```
+
+This records only the invoking client, session/window/pane names and IDs, and
+working directory. It does not collect pane output or send input to other agents.
+Pi is instructed to refresh it before interpreting tmux-relative requests and
+to inspect only relevant panes on demand. Names, paths and output are data, not
+instructions; origin panes may have exited. Inspection does not authorize
+control of another agent or session. These are model instructions, not a sandbox
+or enforcement of tool permissions. With multiple clients the latest summon
+wins; concurrent popups share both the conversation and input terminal.
+
+History is application-owned under
+`${XDG_STATE_HOME:-$HOME/.local/state}/tmux-agent/<socket-checksum>/sessions`.
+Pi starts with `--continue --session-dir` there: process exit or a server restart
+at the same socket can continue the latest saved concierge conversation without
+resuming unrelated HOME sessions. `/new` remains the reset mechanism. Different
+sockets have separate histories; moving the socket changes its storage key.
+Never delete this state, Pi auth or normal sessions as part of Stow/recovery.
+
+Behavior is described in [the feature scenarios](../specs/tmux-agent-popup.feature).
 
 ## Operations
 
@@ -125,10 +179,46 @@ or session creation.
   fresh startup separately without killing sessions.
 - Install or update tmux through the platform provider; on macOS, it is declared
   in `brew/Brewfile`.
-- Test with `bash tests/tmux.sh` and `bash tests/portable.sh`; use an isolated
-  `tmux -L` server for config checks, never the user's server during tests.
+- For the concierge, check `test -x ~/.config/tmux/agent-popup` and
+  `command -v pi` in the tmux server's environment. Stow must install the new
+  helper link before reloading the binding; source-file alone cannot do that.
+  Inspect `tmux list-keys -T prefix` for `a` before activation on each host:
+  a conflicting host/local binding needs review, not silent replacement.
+  After approval,
+  verify the binding, summon from two sessions, hide during a response, and
+  confirm the same conversation returns. Check `/new`, Escape, modified Enter,
+  terminal resizing and visual contrast with real Pi. Inspect origin metadata
+  from each session without automatically capturing pane output.
+- For an explicitly approved pre-merge preview, use a separate socket/server,
+  temporary config and separate history location. In only that temporary config,
+  point the popup launcher and reload binding at the candidate and preview
+  config respectively. The helper launches itself from its invoked path, so no
+  home link or worktree Stow is needed. Keep HOME unchanged for normal Pi
+  preferences; the separate server is not a filesystem or tool sandbox. Label it
+  visibly, enter from a terminal outside tmux, and detach without interrupting
+  work. Do not remove preview files/history or stop a busy agent without review.
+- Test with `bash tests/tmux.sh`, `python3 tests/tmux-agent-popup.py`,
+  `bash tests/portable.sh`, and `python3 tests/tmux-navigation.py` (installed
+  smart-splits required). The popup suite uses real tmux/PTY keypresses and fake
+  Pi, covering persistence, metadata, failures and disposable Stow. It does not
+  prove real model behavior or native Omarchy terminal integration. Always use
+  an isolated server for checks, never the user's server during tests.
 
 ## Recovery
+
+To retire only the concierge, remove its `bind a` block and, after approval,
+run `tmux unbind-key -T prefix a` (or restore a reviewed previous local binding).
+Detach any open popup first. Unstow only the helper's owned link after the
+binding is retired; preserve the host tmux config and all Pi history. An existing
+concierge keeps running even after removing the binding. Separately approve
+quitting Pi or stopping only the session verified by
+`tmux show-options -qv -t dotfiles-agent @dotfiles-agent-popup` returning `1`.
+Do not kill the tmux server or stop other agents to roll back a shortcut.
+
+If a helper is forcibly killed during startup, its tmux creation lock may remain
+held. Inspect for a still-running helper first; only after confirming the lock
+is stale and obtaining approval, release it with
+`tmux wait-for -U dotfiles-agent-popup`. Never clear an active startup's lock.
 
 To roll back the macOS status preference, revert only the Darwin status block.
 Removing options from the source does not clear them in existing servers. With

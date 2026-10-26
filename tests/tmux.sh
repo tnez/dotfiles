@@ -54,6 +54,11 @@ assert_shared_workflow_bindings() {
   assert_option "$(prefix_binding n)" 'n|next-window' 'next window'
   assert_option "$(prefix_binding c)" \
     'c|new-window -c "#{pane_current_path}"' 'new window directory'
+  local agent_binding
+  agent_binding=$(prefix_binding a)
+  assert_binding "$agent_binding" 'detach-client' 'agent popup hide'
+  assert_binding "$agent_binding" '[.]config/tmux/agent-popup' \
+    'agent popup launcher'
   local copy_bindings
   copy_bindings=$(tmux_cmd list-keys -T copy-mode-vi)
   assert_binding "$copy_bindings" \
@@ -361,8 +366,8 @@ EOF
     "$platform"
 done
 
-if grep -Eq 'display-popup|run-shell|scripts/|herdr|sesh|television' \
+if grep -Eq 'scripts/|herdr|sesh|television|retired-review' \
   "$ROOT/tmux/dot-tmux.conf"; then
-  fail 'tmux overlay contains a retired workflow or popup'
+  fail 'tmux overlay contains a retired workflow dependency'
 fi
-printf 'ok - overlay has no retired helper or popup dependencies\n'
+printf 'ok - overlay has no retired workflow dependencies\n'
