@@ -1,4 +1,5 @@
--- Extend LazyVim, not the whole editor config. Pair with tmux/dot-tmux.conf.
+-- Extend LazyVim, not the whole editor config.
+-- Pair with tmux/dot-config/tmux/tmux.conf.
 return {
   {
     'mrjones2014/smart-splits.nvim',

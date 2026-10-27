@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify the personal tmux overlay with a disposable Omarchy-style config.
+# Verify the XDG entrypoint with disposable Omarchy defaults and servers.
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -57,8 +57,8 @@ assert_shared_workflow_bindings() {
   local agent_binding
   agent_binding=$(prefix_binding a)
   assert_binding "$agent_binding" 'detach-client' 'agent popup hide'
-  assert_binding "$agent_binding" '[.]config/tmux/agent-popup' \
-    'agent popup launcher'
+  assert_binding "$agent_binding" \
+    'XDG_CONFIG_HOME:.*[.]config[}]/tmux/agent-popup' 'agent popup launcher'
   local copy_bindings
   copy_bindings=$(tmux_cmd list-keys -T copy-mode-vi)
   assert_binding "$copy_bindings" \
@@ -67,16 +67,24 @@ assert_shared_workflow_bindings() {
     ' y[[:space:]]+send-keys -X copy-selection-and-cancel$' 'copy-mode y copy'
 }
 
-for platform in Linux Darwin; do
-  ACTIVE_HOME="$TEST_ROOT/$platform"
-  ACTIVE_SOCKET="dotfiles-tmux-${platform}-$$"
+for scenario in Linux Darwin Linux-custom Darwin-custom; do
+  platform=${scenario%%-*}
+  ACTIVE_HOME="$TEST_ROOT/$scenario"
+  ACTIVE_SOCKET="dotfiles-tmux-${scenario}-$$"
   bin="$ACTIVE_HOME/bin"
-  mkdir -p "$bin" "$ACTIVE_HOME/.config/tmux"
-  ln -s "$ROOT/tmux/dot-tmux.conf" "$ACTIVE_HOME/.tmux.conf"
+  config_home="$ACTIVE_HOME/.config"
+  if [[ $scenario == *-custom ]]; then
+    config_home="$ACTIVE_HOME/custom-config"
+  fi
+  mkdir -p "$bin" "$config_home/tmux"
+  config="$config_home/tmux/tmux.conf"
+  ln -s "$ROOT/tmux/dot-config/tmux/tmux.conf" "$config"
 
-  # Model Omarchy's later-loaded XDG config only on the Linux branch.
+  # Model Omarchy's shipped defaults, not a second user entrypoint.
+  host_config="$ACTIVE_HOME/.local/share/omarchy/config/tmux/tmux.conf"
   if [[ $platform == Linux ]]; then
-    cat > "$ACTIVE_HOME/.config/tmux/tmux.conf" <<'EOF'
+    mkdir -p "$(dirname "$host_config")"
+    cat > "$host_config" <<'EOF'
 set -g prefix C-Space
 set -g prefix2 C-b
 set -g default-terminal "tmux-256color"
@@ -116,9 +124,6 @@ set -ag status-right "#{?window_zoomed_flag,ZOOM ,}#[fg=brightblack]#h "
 set -g window-status-format "#[fg=brightblack] #I:#W "
 set -g window-status-current-format "#[fg=blue,bold] #I:#W "
 EOF
-    # Approved Omarchy integration: retain the host config, load overrides last.
-    printf '\n# Personal overrides (keep last).\nsource-file ~/.tmux.conf\n' \
-      >> "$ACTIVE_HOME/.config/tmux/tmux.conf"
   fi
   cat > "$bin/uname" <<'EOF'
 #!/bin/sh
@@ -128,7 +133,7 @@ EOF
 
   tmux_cmd() {
     env -u TMUX HOME="$ACTIVE_HOME" \
-      XDG_CONFIG_HOME="$ACTIVE_HOME/.config" \
+      XDG_CONFIG_HOME="$config_home" \
       PATH="$bin:$PATH" TMUX_TEST_UNAME="$platform" \
       tmux -L "$ACTIVE_SOCKET" "$@"
   }
@@ -145,11 +150,11 @@ EOF
     tmux_cmd bind-key l next-window
     tmux_cmd bind-key R source-file "$ACTIVE_HOME/.tmux.conf"
   fi
-  # tmux loads ~/.tmux.conf before its XDG user config.
-  tmux_cmd source-file "$ACTIVE_HOME/.tmux.conf"
-  if [[ $platform == Linux ]]; then
-    tmux_cmd source-file "$ACTIVE_HOME/.config/tmux/tmux.conf"
-  fi
+  # Migrate a running server explicitly; never restart it to change config.
+  before=$(tmux_cmd display-message -p '#{pid}|#{pane_id}')
+  tmux_cmd source-file "$config"
+  assert_option "$(tmux_cmd display-message -p '#{pid}|#{pane_id}')" \
+    "$before" 'reload preserves the server and pane'
 
   assert_option "$(tmux_cmd show-options -gqv prefix)" C-Space prefix
   assert_option "$(tmux_cmd show-options -gqv prefix2)" C-b prefix2
@@ -182,10 +187,7 @@ EOF
     fi
   fi
 
-  reload_config="$ACTIVE_HOME/.tmux.conf"
-  if [[ $platform == Linux ]]; then
-    reload_config="$ACTIVE_HOME/.config/tmux/tmux.conf"
-  fi
+  reload_config="$config"
   assert_reload_binding "$reload_config"
   assert_shared_workflow_bindings
   prefix_bindings=$(tmux_cmd list-keys -T prefix)
@@ -306,7 +308,10 @@ EOF
     assert_option "$(tmux_cmd show-options -gwqv window-status-separator)" \
       '' window-status-separator
     if [[ $pass == initial ]]; then
-      tmux_cmd source-file "$ACTIVE_HOME/.tmux.conf"
+      action=$(prefix_binding q)
+      # key_command escapes separators for display; parse as tmux commands.
+      action=${action//\\;/;}
+      tmux_cmd if-shell -F 1 "${action#*|}"
     fi
   done
   assert_reload_binding "$reload_config"
@@ -314,38 +319,32 @@ EOF
   printf 'ok - %s palette-based status layout survives reload\n' "$platform"
 
   if [[ $platform == Linux ]]; then
-    # A host customization must also survive a later overlay-only reload.
-    tmux_cmd set-option -g status-position bottom
-    tmux_cmd set-option -g status-style 'bg=default,fg=yellow'
-    tmux_cmd set-option -g status-left 'host-owned session'
-    tmux_cmd set-option -g status-right 'host-owned indicators'
-    tmux_cmd set-window-option -g window-status-format 'host-owned window'
-    tmux_cmd set-window-option -g window-status-current-format 'host active'
+    # Custom base settings survive the personal settings applied after them.
+    printf '\nset -g status-position bottom\n' >> "$host_config"
+    printf 'set -g status-left "host-owned session"\n' >> "$host_config"
+    tmux_cmd source-file "$host_config"
     host_status=$(tmux_cmd show-options -g | grep '^status')
     host_windows=$(tmux_cmd show-window-options -g | grep '^window-status')
-    tmux_cmd source-file "$ACTIVE_HOME/.tmux.conf"
+    tmux_cmd source-file "$config"
     assert_option "$(tmux_cmd show-options -g | grep '^status')" \
       "$host_status" 'Omarchy status ownership'
     assert_option \
       "$(tmux_cmd show-window-options -g | grep '^window-status')" \
       "$host_windows" 'Omarchy window status ownership'
-    printf 'ok - overlay reload preserves customized Omarchy status\n'
+    printf 'ok - entrypoint preserves Omarchy base status\n'
   fi
 
-  # Omarchy's own reload command must also finish with personal copy mode.
+  # Reloading the entrypoint must finish with personal copy mode.
   if [[ $platform == Linux ]]; then
-    tmux_cmd source-file "$ACTIVE_HOME/.config/tmux/tmux.conf"
+    tmux_cmd source-file "$config"
     assert_binding "$(tmux_cmd list-keys -T prefix)" \
       ' v[[:space:]]+copy-mode$' 'Omarchy host reload copy mode'
   fi
 
   tmux_cmd kill-server
   # Exercise native startup queues, not just source-file into a running server.
-  configs=(-f "$ACTIVE_HOME/.tmux.conf")
-  if [[ $platform == Linux ]]; then
-    configs+=(-f "$ACTIVE_HOME/.config/tmux/tmux.conf")
-  fi
-  tmux_cmd "${configs[@]}" new-session -d -s fresh -c "$ACTIVE_HOME" \
+  # No -f: exercise tmux's actual automatic discovery of the XDG config.
+  tmux_cmd new-session -d -s fresh -c "$ACTIVE_HOME" \
     'exec sleep 60'
   assert_reload_binding "$reload_config"
   assert_shared_workflow_bindings
@@ -367,7 +366,7 @@ EOF
 done
 
 if grep -Eq 'scripts/|herdr|sesh|television|retired-review' \
-  "$ROOT/tmux/dot-tmux.conf"; then
+  "$ROOT/tmux/dot-config/tmux/tmux.conf"; then
   fail 'tmux overlay contains a retired workflow dependency'
 fi
 printf 'ok - overlay has no retired workflow dependencies\n'

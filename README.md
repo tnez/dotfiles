@@ -32,11 +32,15 @@ Stow links make primary-checkout edits live, even without running apply.
 - Yazi preferences and a Shift+T preview-toggle binding for both platforms.
   Only its two configuration files are Stow-owned; plugins and package state
   remain machine-local. See [Yazi guidance](yazi/AGENT.md).
-- Git preferences and an additive tmux overlay for both platforms. Preserve
-  Omarchy's XDG terminal/status config; shared `prefix+-` and `prefix+/` splits
-  complement its `h` split, while `prefix+v` enters copy mode. `prefix+a` toggles
+- Git preferences and the XDG tmux user entrypoint for both platforms. Tmux
+  loads Omarchy's shipped defaults first, preserving its terminal/status setup;
+  shared `prefix+-` and `prefix+/` splits complement its `h` split, while
+  `prefix+v` enters copy mode. `prefix+a` toggles
   Scout, a persistent shared popup running Pi; `/new` resets its conversation.
-  See [tmux usage, context and recovery](tmux/AGENT.md#shared-pi-concierge).
+  See [tmux usage](tmux/AGENT.md#shared-pi-concierge) and
+  [path migration/setup](tmux/AGENT.md#operations). Retire the verified legacy
+  `~/.tmux.conf` link before integrating its source move; installation and a
+  one-time reload of the new path require approval, never a server restart.
 - Omarchy: Caps Lock/Ctrl swap, default coding agent `pi`, and a small LazyVim
   smart-splits extension for `Ctrl+h/j/k/l` navigation across Neovim and tmux.
   The explicit `dev` project entry and `mux` utility entry are described in

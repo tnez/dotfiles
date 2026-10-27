@@ -88,7 +88,7 @@ vim.cmd('wincmd h')
                       '-F', '#{pane_id}', '-s', 'test', '-x', '160', '-y', '40',
                       'nvim', '-i', 'NONE', '-u', str(init), '--listen', rpc)
         tmux('set-option', '-g', 'remain-on-exit', 'on')
-        tmux('source-file', str(ROOT / 'tmux/dot-tmux.conf'))
+        tmux('source-file', str(ROOT / 'tmux/dot-config/tmux/tmux.conf'))
         shell = tmux('split-window', '-h', '-d', '-P', '-F', '#{pane_id}',
                      'sleep', '120')
         client = subprocess.Popen(

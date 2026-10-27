@@ -32,33 +32,49 @@ with tempfile.TemporaryDirectory(prefix='agent-popup-') as directory:
     temp = Path(directory)
     home = temp / "home with 'quotes; $dollars"
     home.mkdir()
-    config = home / '.config/tmux'
+    custom_xdg = os.environ.get('TMUX_TEST_XDG') == '1'
+    config_home = home / ('custom config' if custom_xdg else '.config')
+    config = config_home / 'tmux'
     config.mkdir(parents=True)
-    host_config = config / 'tmux.conf'
-    host_config.write_text('host-owned\n')
+    user_config = config / 'tmux.conf'
+    user_config.write_text('unmanaged config\n')
+    unrelated = config / 'local.conf'
+    unrelated.write_text('machine-owned\n')
     helper = config / 'agent-popup'
     helper.write_text('unmanaged helper\n')
     env = {k: v for k, v in os.environ.items()
            if k not in ('TMUX', 'TMUX_PANE', 'XDG_CONFIG_HOME',
                         'XDG_STATE_HOME', 'PI_CODING_AGENT_DIR')}
     env.update(HOME=str(home), SHELL='/bin/sh', TERM='xterm-256color')
+    if custom_xdg:
+        env['XDG_CONFIG_HOME'] = str(config_home)
+    elif os.environ.get('TMUX_TEST_XDG') == 'empty':
+        env['XDG_CONFIG_HOME'] = ''
 
     def stow(action, success=True):
-        result = subprocess.run([
-            shutil.which('stow'), '--dir=' + str(ROOT),
-            '--target=' + str(home), '--dotfiles',
-            '--ignore=^AGENT[.]md$', action, 'tmux',
-        ], env=env, capture_output=True, text=True, timeout=15)
+        args = ([shutil.which('stow'),
+                 '--dir=' + str(ROOT / 'tmux/dot-config'),
+                 '--target=' + str(config)] if custom_xdg else
+                [shutil.which('stow'), '--dir=' + str(ROOT),
+                 '--target=' + str(home), '--dotfiles',
+                 '--ignore=^AGENT[.]md$'])
+        result = subprocess.run(args + [action, 'tmux'], env=env,
+                                capture_output=True, text=True, timeout=15)
         assert (result.returncode == 0) == success, result.stderr
 
     stow('--stow', success=False)
     assert helper.read_text() == 'unmanaged helper\n'
+    assert user_config.read_text() == 'unmanaged config\n'
     helper.unlink()
+    stow('--stow', success=False)
+    assert user_config.read_text() == 'unmanaged config\n'
+    user_config.unlink()
     stow('--stow')
     stow('--restow')
     assert helper.resolve() == ROOT / 'tmux/dot-config/tmux/agent-popup'
-    assert (home / '.tmux.conf').resolve() == ROOT / 'tmux/dot-tmux.conf'
-    assert host_config.read_text() == 'host-owned\n'
+    assert user_config.resolve() == ROOT / 'tmux/dot-config/tmux/tmux.conf'
+    assert not (home / '.tmux.conf').exists()
+    assert unrelated.read_text() == 'machine-owned\n'
     print('ok - Stow conflict, initial stow, restow and exact helper targets')
 
     bin_dir = home / 'bin'
@@ -145,15 +161,27 @@ for line in sys.stdin:
     try:
         project = home / 'project with spaces; $(touch SHOULD-NOT-EXIST)'
         project.mkdir()
-        pane = tmux('-f', '/dev/null', 'new-session', '-d', '-P',
+        # No -f: load the stowed XDG entrypoint through native discovery.
+        pane = tmux('new-session', '-d', '-P',
                     '-F', '#{pane_id}', '-s', 'first', '-c', str(project),
                     'sleep', '120')
         tmux('set-option', '-g', 'default-shell', '/bin/sh')
         tmux('set-option', '-g', 'detach-on-destroy', 'off')
         tmux('set-window-option', '-g', 'remain-on-exit', 'on')
         tmux('set-environment', '-g', 'PATH', env['PATH'])
-        tmux('source-file', str(home / '.tmux.conf'))
+        assert tmux('show-options', '-gqv', 'prefix') == 'C-Space'
+        assert str(user_config) in tmux('display-message', '-p',
+                                       '#{config_files}')
+        tmux('source-file', str(user_config))
         master, client = attach('first')
+        before = tmux('display-message', '-p', '#{pid}|#{pane_id}')
+        tmux('set-option', '-g', 'prefix', 'C-z')
+        press(master, b'\x02q')
+        wait_for(lambda: tmux('show-options', '-gqv', 'prefix') == 'C-Space',
+                 'prefix q reloads the discovered XDG config')
+        assert tmux('display-message', '-p', '#{pid}|#{pane_id}') == before
+        assert tmux('list-sessions', '-F', '#{session_name}') == 'first'
+        print('ok - native XDG discovery and real reload preserve the pane')
         press(master, b'\x02a')
         wait_for(lambda: len(records('launches.jsonl')) == 1,
                  'prefix a launches Pi')
@@ -162,6 +190,8 @@ for line in sys.stdin:
                  in terminal_output, 'Scout popup title is rendered')
         launch = records('launches.jsonl')[0]
         agent_pane = tmux('display-message', '-p', '-t', target, '#{pane_id}')
+        agent_identity = tmux('display-message', '-p', '-t', target,
+                              '#{pid}|#{session_id}|#{pane_id}|#{pane_pid}')
         origin = tmux('show-options', '-qv', '-t', target,
                       '@dotfiles-agent-origin')
         assert f'Pane: {pane}' in origin and str(project) in origin
@@ -186,6 +216,14 @@ for line in sys.stdin:
             'list-clients', '-F', '#{client_name}|#{session_name}')
         assert tmux('display-message', '-p', '-t', 'first:',
                     '#{pane_id}') == pane
+        tmux('set-option', '-g', 'prefix', 'C-z')
+        press(master, b'\x02q')
+        wait_for(lambda: tmux('show-options', '-gqv', 'prefix') == 'C-Space',
+                 'reload completes while concierge is hidden')
+        assert tmux('display-message', '-p', '-t', target,
+                    '#{pid}|#{session_id}|#{pane_id}|#{pane_pid}') \
+            == agent_identity
+        assert len(records('launches.jsonl')) == 1
         press(master, b'\x00a')  # Primary Ctrl-Space prefix works too.
         wait_for(lambda: attached(), 'primary prefix reopens popup')
         press(master, b'\r')
@@ -318,7 +356,8 @@ for line in sys.stdin:
 
     stow('--delete')
     assert not helper.exists() and not helper.is_symlink()
+    assert not user_config.exists() and not user_config.is_symlink()
     assert not (home / '.tmux.conf').is_symlink()
-    assert host_config.read_text() == 'host-owned\n'
+    assert unrelated.read_text() == 'machine-owned\n'
     assert (home / 'launches.jsonl').exists()
-    print('ok - unstow preserves host config and machine-owned agent state')
+    print('ok - unstow preserves unrelated config and machine-owned state')

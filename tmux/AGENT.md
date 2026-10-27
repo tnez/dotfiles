@@ -9,9 +9,11 @@ stow standard
 
 ## Desired state
 
-`dot-tmux.conf` is an additive overlay loaded alongside the host's
-configuration. Use `C-Space` as the primary prefix and `C-b` as the secondary
-prefix on both hosts, including clients that intercept Control-Space. Press
+`dot-config/tmux/tmux.conf` is the Stow-owned user entrypoint at
+`${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf`. On Omarchy it first sources
+`~/.local/share/omarchy/config/tmux/tmux.conf` when present, then applies shared
+personal settings. That shipped file is not modified or Stow-owned here.
+Use `C-Space` as the primary prefix and `C-b` as the secondary prefix on both hosts, including clients that intercept Control-Space. Press
 `C-b C-b` to send a literal Control-B. Leave terminal and help bindings to each
 host; Omarchy also owns its status configuration. The `prefix+-` and `prefix+/`
 split aliases intentionally replace tmux's default `delete-buffer` and key-list
@@ -19,8 +21,10 @@ bindings. On both hosts, `prefix+v` enters copy mode and `prefix+R` renames the
 session. This deliberately replaces Omarchy's `v` split; use `prefix+/` for a
 side-by-side split instead. Preserve Omarchy's `C-b` secondary prefix, `h` split,
 `r` / `R` renames, terminal and RGB setup, status, help UI, escape time, and
-session behavior. Do not replace or Stow-own `~/.config/tmux/tmux.conf`; add only
-the reviewed final include described below.
+session behavior. The XDG path is user configuration space: Omarchy seeds it
+with a copy of its defaults, not an immutable system file. Inspect and preserve
+any existing regular user config before replacing it with a reviewed Stow link;
+Stow conflicts are a safety boundary, not permission to adopt or overwrite.
 
 Shared copy/window habits match stock Omarchy: inside vi copy mode, `v` begins
 selection and `y` copies to the tmux buffer and exits. Paste with `prefix+p` or
@@ -35,11 +39,11 @@ shortcut even on reload. The old `prefix+R` reload override is removed; the
 shared rename binding replaces it. Keep session behavior, low escape-time,
 RGB override, and Alt-key resizing. The Darwin-only block prevents these from
 overriding Omarchy. On both hosts, `prefix+q` reloads configuration and displays
-a confirmation. On macOS it sources `~/.tmux.conf`,
-replacing the default pane-number display binding. Omarchy retains its stock
-`prefix+q` binding, which sources `~/.config/tmux/tmux.conf`; the final include
-below then reloads the personal overlay. The overlay must not replace Omarchy's
-reload target or source the host config recursively.
+a confirmation. Both source `${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf`,
+replacing the default pane-number display binding on macOS and retaining
+Omarchy's mnemonic. The binding handles a nondefault XDG root too. Reloading
+on Omarchy loads shipped defaults first and personal bindings last; no reverse
+include from the shipped defaults or legacy home config is needed.
 
 On macOS, match stock Omarchy's single-row top status bar: a session badge on
 the left, numbered windows, and conditional COPY/PREFIX/ZOOM indicators plus
@@ -49,8 +53,9 @@ plugins, or theme-parsing scripts. The same layout follows each terminal's
 palette; identical colors require matching terminal themes. Terminal themes
 control contrast, including the black-on-blue badge and muted brightblack text.
 Do not change window naming, pane borders, or copy-mode styling as part of this
-status-only preference. Omarchy's own config continues to supply its status;
-reloading this overlay there must preserve even customized host status settings.
+status-only preference. Omarchy's shipped defaults continue to supply its
+status; the personal settings do not override its status configuration. A full
+reload reapplies the defaults, so ad-hoc runtime changes are not persisted.
 
 On both hosts, `prefix+p` pastes the latest tmux buffer, matching Vim's put
 mnemonic. It replaces the default previous-window binding; choose windows with
@@ -82,15 +87,15 @@ The background `dotfiles-agent` session is ordinary tmux state and appears in
 session lists. It is created only on demand, never during config loading.
 
 ```text
-prefix+a -> ~/.config/tmux/agent-popup -> owned dotfiles-agent session -> Pi
+prefix+a -> <XDG config>/tmux/agent-popup -> owned dotfiles-agent session -> Pi
                      |                         |
                      +-- popup attach client --+ (detach to hide)
                      +-- refresh origin metadata in session options
 ```
 
-Stow owns the helper alongside `~/.tmux.conf`, not the host's
-`~/.config/tmux/tmux.conf`. It starts Pi in HOME with the user's normal model,
-settings, tools, credentials and trust behavior. No plugin, service, global Pi
+Stow owns `agent-popup` alongside the XDG `tmux.conf`. Both use
+`${XDG_CONFIG_HOME:-$HOME/.config}`. It starts Pi in HOME with the user's normal
+model, settings, tools, credentials and trust behavior. No plugin, service, global Pi
 resource or project-trust grant is installed. The helper uses native tmux
 locking to serialize session creation and refuses to adopt an unrelated session
 with the reserved name. Only the owned concierge session has its status hidden,
@@ -127,84 +132,144 @@ Behavior is described in [the feature scenarios](../specs/tmux-agent-popup.featu
 
 ## Operations
 
-- Inspect `./dotfiles doctor` and `./dotfiles plan` before activation. On macOS,
-  this package participates in standard Stow activation; Omarchy activation is
-  manual and requires approval.
-- On Omarchy, inspect the existing regular `~/.config/tmux/tmux.conf` and
-  preserve all host settings. First verify `~/.tmux.conf` links to this package
-  (activate only this package after approval if needed). After approval, add
-  this include once as the host config's last executable line, or review/move
-  an existing equivalent include to the end:
+### Inspect and migrate existing installations
 
-  ```tmux
-  # Personal overrides (keep last).
-  source-file ~/.tmux.conf
-  ```
+- Run `./dotfiles doctor` and `./dotfiles plan` before proposing activation.
+  All link changes and live reloads require approval. Worktree tests do not
+  authorize activation; use the canonical primary checkout for installation.
+- The old filename was **`~/.tmux.conf`**, installed from `tmux/dot-tmux.conf`.
+  Before integrating the source move into a live primary checkout, inspect its
+  exact link ownership with `ls -ld` and `readlink`. With approval, retire only
+  that verified repo-owned link while the old source still exists. Simulate
+  unstowing the old tmux package first; inspect the operations before executing.
+  Preserve the old revision for recovery. Never merge the source deletion first
+  and leave the live link dangling.
+- Inspect both the old path and
+  `${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf`, including directory links.
+  A regular file, a foreign link or local modifications require a preservation
+  decision. Do not use Stow `--adopt` or force replacement. On Omarchy, review
+  the existing user file against the shipped defaults, preserve custom settings,
+  and remove the obsolete final `source-file ~/.tmux.conf` from the migration
+  copy only. Do not add that include to the new entrypoint: it would recurse.
+  If custom settings cannot be safely reconciled, stop before activation.
+- Omarchy's explicit `omarchy-refresh-config tmux/tmux.conf` replaces the user
+  config with a fresh default copy. Do not run it against a Stow-owned link:
+  its copy operation can follow the link and overwrite the repository source.
+  Review link ownership and backups before any such refresh.
 
-  Tmux loads `~/.tmux.conf` before the XDG user config at startup. This final
-  include reapplies personal preferences after the host's `v` split binding,
-  both on fresh startup and on Omarchy's `prefix+q` reload. The overlay must not
-  source the host config back: that would recurse. No hooks or config watchers
-  are installed. Stow alone does not add this include; without it, Omarchy's
-  `v` split wins at startup. Omarchy config refreshes may remove the include;
-  inspect and restore it only after review, never replace the whole host file.
-- From the canonical primary checkout, Stow only this package after review:
+### Install the reviewed package
+
+With the default XDG root, standard repo Stow conventions install both files:
+
+```sh
+repo=$(git rev-parse --show-toplevel)
+stow --dir="$repo" --target="$HOME" --dotfiles \
+  --ignore='^AGENT[.]md$' --simulate tmux
+# After reviewing the simulation and obtaining approval:
+stow --dir="$repo" --target="$HOME" --dotfiles \
+  --ignore='^AGENT[.]md$' tmux
+```
+
+The shared lifecycle also targets `$HOME/.config`; it does not relocate packages
+for a custom XDG root. For an explicitly configured, absolute
+`XDG_CONFIG_HOME` other than `$HOME/.config`, use this package-scoped Stow
+invocation instead, after reviewing directory ownership and obtaining approval
+to create the target directory:
+
+```sh
+repo=$(git rev-parse --show-toplevel)
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+mkdir -p -- "$config_home/tmux"
+stow --dir="$repo/tmux/dot-config" --target="$config_home/tmux" \
+  --simulate tmux
+# After reviewing the simulation and obtaining approval:
+stow --dir="$repo/tmux/dot-config" --target="$config_home/tmux" tmux
+```
+
+This uses `tmux/dot-config/tmux` as the Stow package and installs its contents
+directly into the target tmux directory. Do not also activate the top-level
+tmux package into HOME for a custom root. Set the same exported XDG root before
+starting new tmux servers; Stow itself does not interpret XDG variables.
+
+### Existing and new servers
+
+Installing links does not reread configuration in an existing server.
+Its old `prefix+q` binding may still point at `~/.tmux.conf`. After approved
+link migration, explicitly load the new path once from the intended server:
+
+```sh
+tmux source-file "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
+```
+
+Use an explicit `-S <socket>` when outside that server or when multiple servers
+exist. This preserves the server, sessions, windows, panes and the running
+concierge, while replacing `prefix+q` with the XDG reload binding. Do not press
+the stale reload key between retiring the old link and this one-time reload.
+If the existing server has a different XDG environment from the invoking shell,
+inspect it with `tmux show-environment -g XDG_CONFIG_HOME` and obtain approval
+to reconcile it before reloading: the binding and popup use the server's root.
+
+Fresh tmux servers discover the XDG entrypoint automatically; no `-f`, shell
+alias, launcher change, watcher or restart of an existing server is required.
+Remove the verified old link during migration rather than depending on the
+precedence of multiple user config paths. `#{config_files}` is diagnostic
+context, not by itself proof of execution; check loaded options and bindings.
+The tests start separate servers with no `-f` and verify actual behavior.
+
+After an approved reload, inspect `tmux list-keys -T prefix`: `q` must source
+the XDG entrypoint, `a` must launch the XDG helper, `v` must enter copy mode,
+`R` must rename the session, `l` must run `last-window`, and `c` must create
+a window in the current pane's directory. Inside copy mode check `v` selection
+and `y` copy/exit. On macOS, `h` should be absent; on Omarchy, it should retain
+`split-window -v`. On macOS also check top-bar contrast in light/dark themes.
+Native Omarchy terminal integration remains a separate host smoke check.
+
+### Other health checks
+
+- Install or update tmux through the platform provider; macOS declares it in
+  `brew/Brewfile`.
+- For the concierge, check
+  `test -x "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/agent-popup"` and
+  `command -v pi` in the server environment. Stow must install the helper link
+  before reloading the binding. Preserve all Pi settings, credentials and state.
+  After approval, summon from two sessions, hide during a response, and confirm
+  the same conversation returns. Check `/new`, Escape, modified Enter, resizing
+  and contrast with real Pi. Inspect origin metadata without automatically
+  capturing pane output.
+- For an approved pre-merge preview, use a separate socket/server, temporary
+  config and separate history. In only that temporary config, point the popup
+  launcher and reload binding at the candidate and preview config respectively.
+  The helper launches itself from its invoked path; no home link is needed.
+  A separate server is not a filesystem or tool sandbox. Never stop a busy
+  preview agent or remove its history without review.
+- For an Omarchy `dev` session refit, use `dev resize` or
+  [the agent-run runbook](../docs/runbooks/dev-layout.md). This changes verified
+  `dev-*` pane layouts, not tmux configuration; `--check` previews.
+- Run `bash tests/tmux.sh`, `bash tests/portable.sh`,
+  `bash tests/lifecycle.sh`, and `python3 tests/tmux-navigation.py`
+  (installed smart-splits required). Run the popup suite in all XDG modes:
 
   ```sh
-  repo=$(git rev-parse --show-toplevel)
-  stow --dir="$repo" --target="$HOME" --dotfiles \
-    --ignore='^AGENT[.]md$' tmux
-  tmux source-file "$HOME/.tmux.conf"
+  python3 tests/tmux-agent-popup.py
+  TMUX_TEST_XDG=empty python3 tests/tmux-agent-popup.py
+  TMUX_TEST_XDG=1 python3 tests/tmux-agent-popup.py
   ```
 
-- The source command reloads the additive overlay into the current server without
-  restarting sessions. On macOS it also applies the palette-based top bar;
-  visually check contrast in light/dark terminal themes after an approved reload.
-  It must not change Omarchy's `C-b` prefix, terminal/RGB, escape/session options,
-  status, help UI, or `h`, `r/R` bindings. Only `v` intentionally replaces a
-  host binding. A new server loads both user config files automatically, but
-  Omarchy needs the final include above for personal bindings to win.
-- For an Omarchy `dev` session refit after switching screens, run `dev resize`
-  from an attached tmux shell, or follow
-  [the agent-run runbook](../docs/runbooks/dev-layout.md). Invocation approves
-  automatic refitting of verified `dev-*` sessions only; `--check` previews.
-  This is a live pane-layout operation, not a tmux config change or reload.
-- Check link health with `./dotfiles doctor` and `./dotfiles plan`. These do not
-  check the machine-local final include. After an approved reload, inspect
-  `tmux list-keys -T prefix`: `v` should run `copy-mode`, `R` should rename the
-  session, and `q` should source the correct host-specific config above. `l`
-  should run `last-window`, and `c` should create a window in the pane's current
-  directory. Inside copy mode, check `v` selection and `y` copy/exit. On macOS,
-  `h` should be absent; on Omarchy it should retain `split-window -v`. Confirm
-  fresh startup separately without killing sessions.
-- Install or update tmux through the platform provider; on macOS, it is declared
-  in `brew/Brewfile`.
-- For the concierge, check `test -x ~/.config/tmux/agent-popup` and
-  `command -v pi` in the tmux server's environment. Stow must install the new
-  helper link before reloading the binding; source-file alone cannot do that.
-  Inspect `tmux list-keys -T prefix` for `a` before activation on each host:
-  a conflicting host/local binding needs review, not silent replacement.
-  After approval,
-  verify the binding, summon from two sessions, hide during a response, and
-  confirm the same conversation returns. Check `/new`, Escape, modified Enter,
-  terminal resizing and visual contrast with real Pi. Inspect origin metadata
-  from each session without automatically capturing pane output.
-- For an explicitly approved pre-merge preview, use a separate socket/server,
-  temporary config and separate history location. In only that temporary config,
-  point the popup launcher and reload binding at the candidate and preview
-  config respectively. The helper launches itself from its invoked path, so no
-  home link or worktree Stow is needed. Keep HOME unchanged for normal Pi
-  preferences; the separate server is not a filesystem or tool sandbox. Label it
-  visibly, enter from a terminal outside tmux, and detach without interrupting
-  work. Do not remove preview files/history or stop a busy agent without review.
-- Test with `bash tests/tmux.sh`, `python3 tests/tmux-agent-popup.py`,
-  `bash tests/portable.sh`, and `python3 tests/tmux-navigation.py` (installed
-  smart-splits required). The popup suite uses real tmux/PTY keypresses and fake
-  Pi, covering persistence, metadata, failures and disposable Stow. It does not
-  prove real model behavior or native Omarchy terminal integration. Always use
-  an isolated server for checks, never the user's server during tests.
+  These use disposable homes, real tmux/PTY keypresses and fake Pi, including
+  no-`-f` discovery, real reload keys, Stow/restow/unstow, unmanaged conflicts,
+  persistence, metadata and failures. They do not prove real model behavior
+  or native Omarchy behavior. Never use the user's server as a test fixture.
 
 ## Recovery
+
+To roll back this path migration, obtain approval, simulate and remove only the
+new owned links using the same Stow root/target used to install them, restore the
+old source revision, and restow its verified legacy links from the primary
+checkout. Restore any preserved regular user config from its reviewed backup;
+never replace unrelated settings or runtime state. Explicitly source the restored
+entrypoint once in the existing server to restore its reload binding. Do not
+restart the server or stop the concierge. Keep both source revisions available
+until native activation checks pass.
 
 To retire only the concierge, remove its `bind a` block and, after approval,
 run `tmux unbind-key -T prefix a` (or restore a reviewed previous local binding).
@@ -224,11 +289,13 @@ To roll back the macOS status preference, revert only the Darwin status block.
 Removing options from the source does not clear them in existing servers. With
 approval, reset the affected `status*` options and the three `window-status-*`
 options to their prior values in the live server; do not restart or kill sessions.
-Omarchy needs no status rollback because the overlay never sets its status.
+On Omarchy, restore reviewed user settings or the shipped defaults instead;
+the personal status block applies only to macOS.
 
-On Omarchy, remove only the reviewed final personal include before unstowing
-this package, so the host config never sources a missing overlay. Restore its
-`v` split in the running server with approval, without restarting sessions:
+When retiring this package on Omarchy, preserve a reviewed regular user config
+to restore after unstowing; there is no final legacy include to remove from the
+new entrypoint. Restore its `v` split in the running server with approval,
+without restarting sessions:
 
 ```sh
 tmux bind-key v split-window -h -c '#{pane_current_path}'
@@ -245,16 +312,18 @@ If retiring seamless navigation, remove these four bindings from this source,
 unbind them in the running server, and remove only the Omarchy-owned
 `smart-splits.lua` link. Restart Neovim; preserve the split and rename keys.
 
-Then delete only the package link from the primary checkout using the same
-Stow options and `--delete`. Do not kill sessions or remove Omarchy's XDG config.
+Then remove only verified package links from the primary checkout using the
+same Stow options and `--delete`, and restore the reviewed user config. Do not
+kill sessions, delete unrelated configuration, or leave a missing entrypoint.
 
 To roll back the earlier `h/R/v` changes on macOS, restore the previous source
 bindings and reload after approval. Restoring `h` explicitly rebinds it; `R`
 becomes reload again. To roll back only the macOS `q` reload binding, remove it
 from the source and, with approval, run `tmux bind-key q display-panes` to
-restore the default in an existing server. Omarchy needs no `q` rollback.
-On Omarchy, restore the previous source and reload the host config to recover
-its stock `v` split; preserve all unrelated settings.
+restore the default in an existing server. On Omarchy, restore the reviewed
+user entrypoint and its reload binding; the shipped default assumes
+`~/.config`, so retain the custom XDG target if applicable. Preserve all
+unrelated settings.
 
 To roll back only the later copy/window consistency changes on macOS, restore
 its prior `prefix+l` next-window and `prefix+c` default new-window bindings,
@@ -265,6 +334,8 @@ shared preferences and need no rollback for this slice.
 
 ## Agent guidance
 
-Preserve unmanaged files and machine-local state. Read the live host tmux config
-before changing the overlay. Never silently rebind a host-owned key, alter terminal or
-Omarchy-owned status settings, or reload a live server without explicit approval.
+Preserve unmanaged files and machine-local state. Read the live user tmux
+config before migration. The XDG user path may be Stow-owned after review;
+Omarchy's shipped defaults remain externally owned. Never silently replace a
+regular file or foreign link, rebind an unreviewed local key, alter host
+terminal/status preferences, or reload a live server without explicit approval.
