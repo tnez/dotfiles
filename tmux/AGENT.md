@@ -10,9 +10,13 @@ stow standard
 ## Desired state
 
 `dot-config/tmux/tmux.conf` is the Stow-owned user entrypoint at
-`${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf`. On Omarchy it first sources
-`~/.local/share/omarchy/config/tmux/tmux.conf` when present, then applies shared
-personal settings. That shipped file is not modified or Stow-owned here.
+`${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf`. On Linux it first sources
+Omarchy's shipped `config/tmux/tmux.conf` from an existing `$OMARCHY_PATH`,
+falling back to the legacy `~/.local/share/omarchy` installation and then the
+packaged `/usr/share/omarchy` installation. Personal settings apply last.
+That shipped file is not modified or Stow-owned here. The exported installation
+root must also be visible in the tmux server environment; the packaged fallback
+supports fresh servers without it.
 Use `C-Space` as the primary prefix and `C-b` as the secondary prefix on both hosts, including clients that intercept Control-Space. Press
 `C-b C-b` to send a literal Control-B. Leave terminal and help bindings to each
 host; Omarchy also owns its status configuration. The `prefix+-` and `prefix+/`
@@ -257,6 +261,7 @@ Native Omarchy terminal integration remains a separate host smoke check.
 
   These use disposable homes, real tmux/PTY keypresses and fake Pi, including
   no-`-f` discovery, real reload keys, Stow/restow/unstow, unmanaged conflicts,
+  explicit Omarchy installation roots (including spaces), legacy fallback,
   persistence, metadata and failures. They do not prove real model behavior
   or native Omarchy behavior. Never use the user's server as a test fixture.
 

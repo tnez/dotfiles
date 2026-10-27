@@ -67,7 +67,7 @@ assert_shared_workflow_bindings() {
     ' y[[:space:]]+send-keys -X copy-selection-and-cancel$' 'copy-mode y copy'
 }
 
-for scenario in Linux Darwin Linux-custom Darwin-custom; do
+for scenario in Linux Darwin Linux-custom Darwin-custom Linux-legacy; do
   platform=${scenario%%-*}
   ACTIVE_HOME="$TEST_ROOT/$scenario"
   ACTIVE_SOCKET="dotfiles-tmux-${scenario}-$$"
@@ -81,7 +81,12 @@ for scenario in Linux Darwin Linux-custom Darwin-custom; do
   ln -s "$ROOT/tmux/dot-config/tmux/tmux.conf" "$config"
 
   # Model Omarchy's shipped defaults, not a second user entrypoint.
-  host_config="$ACTIVE_HOME/.local/share/omarchy/config/tmux/tmux.conf"
+  omarchy_path="$ACTIVE_HOME/Omarchy installation"
+  host_config="$omarchy_path/config/tmux/tmux.conf"
+  if [[ $scenario == Linux-legacy ]]; then
+    omarchy_path=
+    host_config="$ACTIVE_HOME/.local/share/omarchy/config/tmux/tmux.conf"
+  fi
   if [[ $platform == Linux ]]; then
     mkdir -p "$(dirname "$host_config")"
     cat > "$host_config" <<'EOF'
@@ -133,7 +138,7 @@ EOF
 
   tmux_cmd() {
     env -u TMUX HOME="$ACTIVE_HOME" \
-      XDG_CONFIG_HOME="$config_home" \
+      XDG_CONFIG_HOME="$config_home" OMARCHY_PATH="$omarchy_path" \
       PATH="$bin:$PATH" TMUX_TEST_UNAME="$platform" \
       tmux -L "$ACTIVE_SOCKET" "$@"
   }
@@ -342,6 +347,8 @@ EOF
   fi
 
   tmux_cmd kill-server
+  # A distinct socket avoids racing the previous server's asynchronous exit.
+  ACTIVE_SOCKET+="-fresh"
   # Exercise native startup queues, not just source-file into a running server.
   # No -f: exercise tmux's actual automatic discovery of the XDG config.
   tmux_cmd new-session -d -s fresh -c "$ACTIVE_HOME" \
