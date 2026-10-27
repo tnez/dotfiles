@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import pty
+import re
 import shutil
 import struct
 import subprocess
@@ -26,6 +27,30 @@ def wait_for(predicate, description):
             return
         time.sleep(0.03)
     raise AssertionError(description)
+
+
+def background_at(output, label):
+    """Read the background SGR at a contiguous label in the tmux PTY output."""
+    position = output.rfind(label)
+    assert position >= 0, f'{label!r} was not rendered'
+    background = 'default'
+    for match in re.finditer(rb'\x1b\[([0-9;]*)m', output[:position]):
+        codes = [int(code or b'0') for code in match[1].split(b';')]
+        index = 0
+        while index < len(codes):
+            code = codes[index]
+            if code in (38, 48) and index + 1 < len(codes):
+                size = 3 if codes[index + 1] == 5 else 5
+                if code == 48:
+                    background = tuple(codes[index:index + size])
+                index += size
+                continue
+            if code in (0, 49):
+                background = 'default'
+            elif 40 <= code <= 47 or 100 <= code <= 107:
+                background = code
+            index += 1
+    return background
 
 
 with tempfile.TemporaryDirectory(prefix='agent-popup-') as directory:
@@ -182,12 +207,30 @@ for line in sys.stdin:
         assert tmux('display-message', '-p', '#{pid}|#{pane_id}') == before
         assert tmux('list-sessions', '-F', '#{session_name}') == 'first'
         print('ok - native XDG discovery and real reload preserve the pane')
+        # Scout must not inherit host popup backgrounds or change their values.
+        popup_styles = {
+            'popup-style': 'bg=colour201,fg=colour15',
+            'popup-border-style': 'bg=colour196,fg=colour15',
+        }
+        for option, value in popup_styles.items():
+            tmux('set-option', '-g', option, value)
         press(master, b'\x02a')
         wait_for(lambda: len(records('launches.jsonl')) == 1,
                  'prefix a launches Pi')
         wait_for(lambda: attached(), 'popup client attaches')
-        wait_for(lambda: b'Scout | prefix+a: hide | /new: reset'
-                 in terminal_output, 'Scout popup title is rendered')
+        title = b'Scout | prefix+a: hide | /new: reset'
+        wait_for(lambda: title in terminal_output,
+                 'Scout popup title is rendered')
+        wait_for(lambda: b'FAKE PI READY' in terminal_output,
+                 'Pi content is rendered through the nested client')
+        output = bytes(terminal_output)
+        for label in (title, b'FAKE PI READY'):
+            background = background_at(output, label)
+            assert background == 'default', (label, background)
+        for option, value in popup_styles.items():
+            assert tmux('show-options', '-gqv', option) == value
+        print('ok - popup body and border use the terminal default background; '
+              'global popup styles are preserved')
         launch = records('launches.jsonl')[0]
         agent_pane = tmux('display-message', '-p', '-t', target, '#{pane_id}')
         agent_identity = tmux('display-message', '-p', '-t', target,

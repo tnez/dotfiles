@@ -86,7 +86,9 @@ tmux_cmd set-option -t "$TARGET" @dotfiles-agent-origin "$origin"
 tmux_cmd wait-for -U dotfiles-agent-popup
 trap - EXIT
 
+# "default" inherits popup-style; "terminal" uses the terminal's background.
 # Unset only the attach client's nesting markers, not Pi's server identity.
 exec tmux -S "$socket" display-popup -c "$client" -E -w 85% -h 85% \
+  -s 'bg=terminal' -S 'bg=terminal' \
   -d "$HOME" -T 'Scout | prefix+a: hide | /new: reset' \
   env -u TMUX -u TMUX_PANE tmux -S "$socket" attach-session -t "$TARGET"

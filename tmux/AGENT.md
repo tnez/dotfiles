@@ -90,6 +90,14 @@ command to start over; opening the popup never injects a new user turn.
 The background `dotfiles-agent` session is ordinary tmux state and appears in
 session lists. It is created only on demand, never during config loading.
 
+Scout's body and border use `bg=terminal` so blank areas match the terminal's
+background rather than tmux's popup fill. `bg=default` is not equivalent: it
+inherits the host popup style, which can supply a separate grey background.
+The override applies only to Scout; it preserves global popup styles and their
+foreground colors. Pi's own palette and message/tool panel colors remain
+controlled by its machine-owned theme setting, not by this helper. On Omarchy,
+its generated `omarchy-system` theme can supply the matching application palette.
+
 ```text
 prefix+a -> <XDG config>/tmux/agent-popup -> owned dotfiles-agent session -> Pi
                      |                         |
@@ -262,10 +270,17 @@ Native Omarchy terminal integration remains a separate host smoke check.
   These use disposable homes, real tmux/PTY keypresses and fake Pi, including
   no-`-f` discovery, real reload keys, Stow/restow/unstow, unmanaged conflicts,
   explicit Omarchy installation roots (including spaces), legacy fallback,
+  terminal-default popup backgrounds under nondefault host popup styles,
   persistence, metadata and failures. They do not prove real model behavior
   or native Omarchy behavior. Never use the user's server as a test fixture.
 
 ## Recovery
+
+To undo only the popup-background preference, remove the helper's `-s` and `-S`
+background flags. The next summon will inherit the host popup body/border
+styles again; no server reload, agent restart or global style reset is needed.
+Pi theme selection is separate machine-local state: restore only its approved
+`theme` setting and use `/reload` in that Pi instance, preserving conversations.
 
 To roll back this path migration, obtain approval, simulate and remove only the
 new owned links using the same Stow root/target used to install them, restore the
