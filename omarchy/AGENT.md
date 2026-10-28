@@ -286,8 +286,8 @@ explicit personalization step, not part of the OS installer.
 
 Hyprland loads packaged defaults before these user overrides. The stock menu
 stays owned by Omarchy and receives its fixes without maintaining a fork.
-The optional, explicitly approved agent-link hooks below do not restow this
-package, modify desktop preferences, or reload applications.
+Legacy agent-link recovery hooks are retired; see the migration section below.
+Agent configuration is materialized through a separately approved runbook.
 
 The installed `omarchy update` runs system-package updates, migrations, then
 `post-update` hooks (before AUR/mise updates). Do not use that hook to force
@@ -299,76 +299,35 @@ review and reconcile rather than force activation. Explicit refresh/reset
 commands may write through a symlink into this repository. Back up first and
 never assume a refresh is read-only or safe for managed paths.
 
-### Optional agent-link recovery hooks (Omarchy only)
+### Agent configuration migration (formerly link recovery hooks)
 
-The repository-root `./omarchy-agent-links` is a focused executable runbook,
-not a lifecycle capability. Python 3.10+ and the existing lifecycle prerequisites
-are required. It skips Darwin and non-Omarchy Linux without reading agent state
-or invoking lifecycle commands. No Darwin declaration, Stow source, or shell
-startup changes are needed.
+Agent setup now materializes regular files through `./agent-config` rather than
+Stow or absent-link recovery. Follow
+[the agent configuration runbook](../docs/runbooks/agent-config.md) for declared
+models, keybindings, KB priming, inspection, approval, verification and recovery.
+It supports macOS and Omarchy, but remains a separately approved operation.
+It does not change this package's desktop ownership or activate other modules.
 
-```sh
-./omarchy-agent-links check                 # read-only; missing links exit 1
-./omarchy-agent-links repair --yes          # approved absent-only repair
-./omarchy-agent-links install-hooks --yes   # approved local hook installation
-```
-
-Only these three links can be repaired: `~/AGENTS.md`,
-`~/.pi/agent/AGENTS.md`, and `~/.pi/agent/keybindings.json`. Existing regular
-files, wrong/dangling links, missing/redirected parents, and missing/redirected
-sources require review; never replace them. An absent agent directory may mean
-lost runtime state, so it is not silently recreated. Correct links are no-ops.
-The check also requires the configured KB entrypoints and verifies just
-`enableInstallTelemetry = false`, `quietStartup = true`, and
-`treeFilterMode = "no-tools"`. Themes, models, packages, auth, sessions and
-skills remain unmanaged by this runbook. Settings drift is reported, never
-repaired automatically; choose the local or declared preference explicitly.
-
-Repair and installation require explicit approval, the canonical primary
-checkout's real `.git` directory, and successful root doctor/plan without
-`ACTION_REQUIRED`. Any conflict blocks link repair. Exit 3 means stop and
-inspect, including any partial operation after an I/O failure. Link creation
-never overwrites an existing target. Keep config/hook writers idle during
-installation: the native Omarchy installer copies files, not an atomic CAS.
-
-Installation uses `omarchy hook install` to create only
+`./omarchy-agent-links check` delegates to the materialized-state check. The old
+`repair` and `install-hooks` operations stop with `ACTION_REQUIRED` without
+writing. Existing installed hooks therefore cannot recreate links. After
+approval, disable only verified generated copies at
 `~/.config/omarchy/hooks/{post-update,post-boot}.d/90-dotfiles-agent-links`.
-Both event directories must already be real directories. All existing hooks
-are preserved; an identical generated hook is a no-op and different content
-requires review. No full Omarchy restow is needed. Installation opts into
-persistent approval for this exact three-link repair, not settings convergence.
-It does not start an update, reboot, restart a session, or install dependencies.
+Preserve unrelated hooks and any local modifications requiring review. No
+replacement background convergence hooks are installed.
 
-The tiny installed copies record the approved primary checkout and the current
-absolute `TNEZDEV_KNOWLEDGE_BASE_ROOT` as machine-local paths, retaining an
-inherited nonempty KB override. They do not guess another checkout or source
-shell startup. The fallback applies only to these hooks: it does not export the
-KB root to other GUI applications. Each invocation resolves the runbook in the
-primary checkout, whose future edits are therefore live on the next hook run.
-Keep the checkout available; moving it requires reviewing/reinstalling these
-copies. Private generated paths must not be committed.
+Legacy source links remain in the repo until migration is complete, so preparing
+the candidate does not strand live links. Migration replaces only verified
+repo-owned leaf links with regular files, never writes through a symlink, and
+requires the runbook's explicit `--migrate-links` choice. Preference drift needs
+`--restore-declared` after review. Themes, auth, sessions, skills and unrelated
+settings survive. No update, reboot, reload or dependency install is automatic.
 
-`post-update` runs before AUR/mise updates, so `post-boot` checks again after a
-later desktop start. Without a reboot, run `check` manually after the entire
-update. Hooks print their findings and attempt a desktop notification on failure
-when `notify-send` is available; a notification is not proof of repair. Omarchy's
-hook runner reports failures but may continue other hooks. An offline fresh Pi
-startup or `/reload` is still needed to confirm active instruction discovery.
-The root doctor currently checks prerequisites/conflicts, not these missing
-links or settings; it is not a substitute for this focused check.
-
-Test with `python3 tests/omarchy-agent-links.py` (requires ShellCheck for generated
-wrappers), plus the root module/lifecycle, portable, and Omarchy suites. Fixtures
-cover no-clobber repair, conflicts, preservation, approval/checkout/platform
-boundaries, native-installer handoff and wrapper behavior. Darwin platform fakes
-do not prove native macOS runtime behavior; no hook is installed there.
-
-Recovery: disable only the two verified generated hook files, preserving all
-other hooks. Removing them does not remove repaired agent links or change Pi
-settings. To retire a repaired link separately, first verify its exact repo
-source and unlink only that link. For a manual Pi preference rollback, restore
-only those keys from the reviewed before/after delta; never replace the entire
-application-managed settings file over subsequent edits.
+Run `python3 tests/agent-config.py` and
+`python3 tests/omarchy-agent-links.py`, plus module/lifecycle and portable suites.
+The fixtures prove file behavior and safety boundaries, not native Pi model
+cycling or macOS startup. Recovery uses private before-images and only reviewed
+deltas, not whole-directory resets or re-stowing the old agent components.
 
 ## Retiring the previous setup on another machine
 

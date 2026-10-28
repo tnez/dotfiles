@@ -1,0 +1,253 @@
+#!/usr/bin/env python3
+"""Materialize shared instructions and Pi preferences; no background sync."""
+
+import argparse
+import json
+import os
+from pathlib import Path
+import platform
+import stat
+import subprocess
+import sys
+import tempfile
+
+FILES = {
+    'AGENTS.md': 'agents/AGENTS.md',
+    '.codex/AGENTS.md': 'agents/AGENTS.md',
+    '.pi/agent/AGENTS.md': 'agents/AGENTS.md',
+}
+
+
+class Conflict(Exception):
+    pass
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise Conflict('duplicate JSON keys; preserve and review')
+        result[key] = value
+    return result
+
+
+def object_json(text):
+    value = json.loads(text, object_pairs_hook=unique_object)
+    if not isinstance(value, dict):
+        raise Conflict('expected a JSON object')
+    return value
+
+
+def snapshot(path):
+    if path.is_symlink():
+        return ('link', os.readlink(path))
+    if not path.exists():
+        return ('absent',)
+    if not path.is_file():
+        raise Conflict(f'not a regular file: {path.name}')
+    return ('file', path.read_bytes(), stat.S_IMODE(path.stat().st_mode))
+
+
+def parents(path, home):
+    for parent in (path.parent, *path.parent.parents):
+        if parent == home:
+            return
+        if parent.is_symlink() or not parent.is_dir():
+            raise Conflict(f'inspect missing or redirected parent: {parent}')
+    raise Conflict('target outside HOME')
+
+
+def inspect(root, home):
+    kb = Path(os.environ.get('TNEZDEV_KNOWLEDGE_BASE_ROOT', ''))
+    if not kb.is_absolute():
+        raise Conflict('configure absolute TNEZDEV_KNOWLEDGE_BASE_ROOT')
+    for relative in ('AGENTS.md', 'root/index.md',
+                     'root/meta/agent-consumption.md'):
+        if (not (kb / relative).is_file()
+                or not os.access(kb / relative, os.R_OK)):
+            raise Conflict(f'unreadable KB entrypoint: {relative}')
+    print('OK: KB entrypoints readable (content loading remains agent-driven)')
+    changes = []
+
+    def add(relative, desired, source=None, reviewed=None):
+        target = home / relative
+        parents(target, home)
+        before = snapshot(target)
+        if reviewed is not None and before != reviewed:
+            raise Conflict('config changed while inspecting; rerun plan')
+        if before[0] == 'link':
+            if source is None or target.resolve() != source.resolve():
+                raise Conflict(f'preserve unknown link: ~/{relative}')
+            print(f'MIGRATE: ~/{relative} (known repo link to regular file)')
+        elif before[0] == 'file' and before[1] == desired:
+            print(f'OK: ~/{relative}')
+            return
+        else:
+            print(f'WRITE: ~/{relative}')
+        changes.append((target, before, desired))
+
+    for relative, source_name in FILES.items():
+        source = root / source_name
+        if (source.is_symlink() or not source.is_file()
+                or not source.resolve().is_relative_to(root)):
+            raise Conflict(f'inspect instruction source: {source_name}')
+        add(relative, source.read_bytes(), source)
+
+    for relative, declaration in (
+            ('.pi/agent/settings.json', 'pi/preferences.json'),
+            ('.pi/agent/keybindings.json',
+             'pi/dot-pi/agent/keybindings.json')):
+        target = home / relative
+        parents(target, home)
+        source = root / declaration
+        if (source.is_symlink()
+                or not source.resolve().is_relative_to(root)):
+            raise Conflict(f'redirected declaration: {declaration}')
+        expected = object_json(source.read_text())
+        before = snapshot(target)
+        if before[0] == 'link':
+            if relative.endswith('settings.json') or (
+                    target.resolve() != source.resolve()):
+                raise Conflict(f'preserve redirected config: ~/{relative}')
+            linked_bytes = target.read_bytes()
+            actual = object_json(linked_bytes.decode())
+        else:
+            actual = object_json(before[1].decode()) if (
+                before[0] == 'file') else {}
+        merged = dict(actual)
+        for key, value in expected.items():
+            if key == 'modelThinkingLevels':
+                existing = actual.get(key, {})
+                if not isinstance(existing, dict):
+                    raise Conflict('modelThinkingLevels must be an object')
+                value = {**existing, **value}
+            elif key == 'defaultTools':
+                existing = actual.get(key, [])
+                if not isinstance(existing, list) or not all(
+                        isinstance(item, str) for item in existing):
+                    raise Conflict('defaultTools must be a string array')
+                value = [item for item in existing if item != '-codemode']
+                if '+codemode' not in value and 'codemode' not in value:
+                    value.append('+codemode')
+            merged[key] = value
+        changed_keys = [key for key in merged
+                        if key not in actual or json.dumps(merged[key]) !=
+                        json.dumps(actual[key])]
+        if changed_keys:
+            print('PREFERENCES: ' + ', '.join(changed_keys))
+        # Preserve formatting/timestamps when no semantic change is needed.
+        desired = ((json.dumps(merged, indent=2) + '\n').encode()
+                   if changed_keys or before[0] == 'absent'
+                   else before[1] if before[0] == 'file' else linked_bytes)
+        add(relative, desired, source if relative.endswith(
+            'keybindings.json') else None, reviewed=before)
+    return changes
+
+
+def authorize(root, args, changes):
+    if not args.yes:
+        raise Conflict('apply requires approval and --yes')
+    if (root / '.git').is_symlink() or not (root / '.git').is_dir():
+        raise Conflict('use canonical primary checkout (.git directory)')
+    if any(before[0] == 'link' for _, before, _ in changes):
+        if not args.migrate_links:
+            raise Conflict('review known links and approve --migrate-links')
+    if any(before[0] == 'file' for _, before, _ in changes):
+        if not args.restore_declared:
+            raise Conflict('choose declared state with --restore-declared')
+    for command in ('doctor', 'plan'):
+        result = subprocess.run([str(root / 'dotfiles'), command],
+                                capture_output=True, text=True, timeout=60)
+        output = result.stdout + result.stderr
+        if result.returncode or 'ACTION_REQUIRED' in output:
+            print(output, end='')
+            raise Conflict(f'resolve dotfiles {command} findings first')
+        print(f'OK: dotfiles {command}')
+
+
+def apply(root, home, args, changes):
+    authorize(root, args, changes)
+    # Preflight again before any writes. Keep Pi/settings writers idle.
+    if changes != inspect(root, home):
+        raise Conflict('inputs changed during review; rerun plan')
+    backup = None
+    if changes:
+        # Private durable recovery directory, outside the repository.
+        state = home / '.local/state/dotfiles/agent-config'
+        # Do not follow redirected state paths, including ancestors.
+        for parent in reversed((state, *state.parents)):
+            if parent == home or home in parent.parents:
+                if parent.is_symlink():
+                    raise Conflict('redirected backup directory')
+        state.mkdir(parents=True, exist_ok=True, mode=0o700)
+        backup = Path(tempfile.mkdtemp(prefix='before-', dir=state))
+        print(f'BACKUP: {backup}')
+    for index, (target, before, desired) in enumerate(changes):
+        parents(target, home)
+        if snapshot(target) != before:
+            raise Conflict('target changed; inspect partial work and backup')
+        record = {'target': str(target), 'kind': before[0]}
+        if before[0] == 'link':
+            record['link'] = before[1]
+        elif before[0] == 'file':
+            record['mode'] = before[2]
+            saved = backup / f'{index}.before'
+            saved.write_bytes(before[1])
+            saved.chmod(0o600)
+        metadata = backup / f'{index}.json'
+        metadata.write_text(json.dumps(record) + '\n')
+        metadata.chmod(0o600)
+        fd, name = tempfile.mkstemp(prefix='.agent-config-', dir=target.parent)
+        temp = Path(name)
+        try:
+            with os.fdopen(fd, 'wb') as file:
+                file.write(desired)
+            temp.chmod(before[2] if before[0] == 'file' else 0o600)
+            if snapshot(target) != before:
+                raise Conflict('target changed before replacement')
+            if before[0] == 'absent':
+                os.link(temp, target)  # No-clobber creation.
+            else:
+                os.replace(temp, target)  # Replace link, never write through.
+            if target.is_symlink() or target.read_bytes() != desired:
+                raise Conflict('read-back verification failed')
+            print(f'WROTE: ~/{target.relative_to(home)}')
+        finally:
+            temp.unlink(missing_ok=True)
+    if inspect(root, home):
+        raise Conflict('verification drift; inspect backup and partial work')
+
+
+def run(args, root, home):
+    try:
+        supported = platform.system() == 'Darwin' or (
+            platform.system() == 'Linux' and
+            platform.freedesktop_os_release().get('ID') == 'omarchy')
+        if not supported:
+            raise Conflict('supported only on macOS or Omarchy')
+        if os.environ.get('PI_CODING_AGENT_DIR'):
+            raise Conflict('custom PI_CODING_AGENT_DIR needs separate review')
+        changes = inspect(root, home)
+        if args.command != 'apply':
+            return 1 if changes else 0
+        apply(root, home, args, changes)
+        return 0
+    except (Conflict, OSError, ValueError, subprocess.SubprocessError) as exc:
+        print(f'ACTION_REQUIRED: {exc}', file=sys.stderr)
+        print('Stopped; preserve local state and inspect any partial work.',
+              file=sys.stderr)
+        return 3
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('command', choices=('check', 'plan', 'apply'))
+    parser.add_argument('--yes', action='store_true')
+    parser.add_argument('--migrate-links', action='store_true')
+    parser.add_argument('--restore-declared', action='store_true')
+    return run(parser.parse_args(), Path(__file__).resolve().parent,
+               Path.home())
+
+
+if __name__ == '__main__':
+    sys.exit(main())

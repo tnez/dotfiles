@@ -26,9 +26,12 @@ Stow links make primary-checkout edits live, even without running apply.
 
 ## What we own
 
-- Shared KB instructions and Codex configuration. Pi preferences are
-  agent-guided and per-setting; the complete application-managed
-  `~/.pi/agent/settings.json` remains machine-owned, not Stow-managed.
+- Shared KB instructions and Pi's declared three-model/high-reasoning setup,
+  materialized as regular files through the focused
+  [agent configuration runbook](docs/runbooks/agent-config.md). Merge owned
+  settings and keybindings while preserving unrelated machine-owned state;
+  Stow does not activate `agents`, `pi`, or `codex`. Codex retains its macOS
+  absent-only configuration seed.
 - Yazi preferences and a Shift+T preview-toggle binding for both platforms.
   Only its two configuration files are Stow-owned; plugins and package state
   remain machine-local. See [Yazi guidance](yazi/AGENT.md).
@@ -70,8 +73,8 @@ minimal dependency list. Do not uninstall software because its config is retired
 The KB owns policy and durable knowledge. Dotfiles provides only discovery:
 
 ```text
-Codex/Pi AGENTS.md → shared agents/AGENTS.md
-                  → TNEZDEV_KNOWLEDGE_BASE_ROOT → KB AGENTS.md + root/index.md
+agents/AGENTS.md → regular local home/Codex/Pi instruction files
+                → TNEZDEV_KNOWLEDGE_BASE_ROOT → KB entrypoints + relevant context
 ```
 
 Set that environment variable to the **actual absolute checkout path** on each
@@ -94,11 +97,12 @@ than replacing its upstream shell setup. An export in a terminal does not change
 already-running GUI applications; launch agents from that terminal until a
 separately reviewed desktop environment setup is in place.
 
-For missing agent instruction/keybinding links on Omarchy, use the read-only
-`./omarchy-agent-links check`. Approved `repair --yes` and optional update/boot
-hooks repair only three absent links, never local settings or whole directories.
-See [the Omarchy runbook](omarchy/AGENT.md#optional-agent-link-recovery-hooks-omarchy-only)
-for approval, checks, platform boundaries, and recovery. Darwin is unchanged.
+For agent setup and drift on either platform, run `./agent-config plan` and
+follow [the runbook](docs/runbooks/agent-config.md). Setup includes writing the
+declared regular files and actually reading the KB entrypoints and selected
+guidance; readable paths alone are not primed context. Existing known repo links
+need explicit migration approval. Legacy link-recovery hooks are retired and
+must be disabled after ownership review; they cannot recreate links.
 
 Optional `TNEZDEV_LOCAL_CONTEXT_ROOT` points to a private `AGENTS.md` router and is
 loaded only when the task needs it. Dottie and Herdr are not required to read the
@@ -132,8 +136,10 @@ For a new macOS machine, inspect `install.sh` and run it with an explicit
 canonical primary checkout path. Configure KB access and resolve conflicts
 before activation. `--yes` never grants formula trust or destructive consent.
 
-Omarchy Stow remains manual. Review each selected module's `AGENT.md`, the dry
-run, and existing target ownership before choosing which modules to activate.
+Omarchy Stow remains manual for Stow-owned modules. Review each selected
+module's `AGENT.md`, the dry run, and existing target ownership before choosing
+which modules to activate. Agent configuration uses its separate runbook on both
+platforms; bootstrap/apply do not automatically materialize those preferences.
 Never use `--adopt`, force overwrites, or the real home as a test fixture.
 Neovim, Bash, Zsh and the shared profile are **not** selected on Omarchy; the
 existing LazyVim and upstream shell stay untouched.

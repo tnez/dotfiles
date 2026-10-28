@@ -1,6 +1,13 @@
 # Simplification candidate
 
-Base: `97158b7`. Candidate only; no live activation, uninstall, or KB edits.
+Base: `97158b7`. Historical candidate record; no live activation, uninstall,
+or KB edits were performed in that cleanup.
+
+Later agent-delivery update: `agents`, `pi`, and `codex` now declare `stow none`.
+Use `docs/runbooks/agent-config.md` for separately approved regular-file
+materialization and known-link migration. Historical agent-link and Pi
+preferences-only guidance below is superseded by that runbook. No source links
+are deleted before live ownership review.
 
 Later scope update: Ghostty's small appearance configuration is restored on
 macOS only. Its font, decoration, padding, and automatic light/dark preferences

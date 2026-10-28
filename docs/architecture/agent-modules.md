@@ -78,14 +78,27 @@ check links/prerequisites, while this focused check reports preference drift;
 neither automatically chooses between a local change and the shared preference.
 See `omarchy/AGENT.md` for activation, hot-reload and recovery boundaries.
 
-Agent-link recovery is another focused, opt-in runbook:
-`./omarchy-agent-links` checks three home/Pi links, KB entrypoints, and three Pi
-preferences on Omarchy only. Explicit repair creates only absent links; it never
-rewrites application settings. Approved installation creates machine-local
-update/boot hook copies referencing the primary checkout and configured KB root.
-They are not Stow sources or a new lifecycle capability. Existing conflicts and
-preference drift stop for review, and Darwin skips all operations. See
-`omarchy/AGENT.md` for the exact allowlist, guards, installation and recovery.
+Agent configuration uses a focused, opt-in materialization runbook:
+`./agent-config` inspects and writes regular home/Codex/Pi instructions and
+merges declared Pi settings/keybindings on macOS and Omarchy. `agents`, `pi`, and
+`codex` declare `stow none`; the existing Darwin Codex seed and retirement
+capabilities are unchanged. Lifecycle discovery does not execute this runbook.
+
+```text
+Shared instructions + Pi partial declarations
+                    ↓ inspect / approved merge or known-link migration
+Regular machine-local files → harness discovery + agent-driven KB loading
+```
+
+The agent reads component guidance, reports the delta, obtains approval, then
+materializes and verifies the declared end state. It does not stop at linking
+files or describing unapplied preferences. Themes, unrelated settings, auth,
+sessions, skills and KB content stay machine-owned. KB path checks do not claim
+context loading; the consuming agent reads entrypoints and relevant guidance.
+Legacy `omarchy-agent-links check` delegates to this check, while old mutation
+commands fail closed so installed hooks cannot recreate links. No replacement
+background hooks or general configuration framework are introduced. See
+`docs/runbooks/agent-config.md` for ownership, migration, safety and recovery.
 
 Platform selection is conservative:
 
@@ -95,8 +108,9 @@ Platform selection is conservative:
   isolated layout validation; native macOS verification remains a delivery gate;
 - Yazi shares its configuration and preview-toggle keymap, while installed
   plugins and package inventory remain machine-owned; see `yazi/AGENT.md`;
-- shared declarations do not enable macOS-only copy or service capabilities
-  on Omarchy. Its Stow activation remains manual.
+- shared declarations do not enable macOS-only lifecycle copy or service
+  capabilities on Omarchy. Its Stow activation remains manual; agent
+  materialization is separately approved on either supported platform.
 
 This prevents a Linux plan from proposing macOS links and prevents macOS from
 activating Hyprland overrides.

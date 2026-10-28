@@ -80,10 +80,12 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
     pi_settings = home / '.pi/agent/settings.json'
     assert not pi_settings.is_symlink()
     assert pi_settings.read_text() == 'unmanaged\n'
-    for harness in ('.codex', '.pi/agent'):
-        instructions = home / harness / 'AGENTS.md'
-        assert instructions.resolve() == repo / 'agents/AGENTS.md'
-        assert 'TNEZDEV_KNOWLEDGE_BASE_ROOT' in instructions.read_text()
+    # Agent components are materialized separately, never Stow-activated.
+    for relative in ('AGENTS.md', '.codex/AGENTS.md', '.pi/agent/AGENTS.md',
+                     '.pi/agent/keybindings.json'):
+        assert not (home / relative).exists()
+    assert 'TNEZDEV_KNOWLEDGE_BASE_ROOT' in (
+        repo / 'agents/AGENTS.md').read_text()
     for path in (repo / 'pi/dot-pi/agent').glob('*.json'):
         json.loads(path.read_text())
     with (repo / 'codex/dot-codex/config.base.toml').open('rb') as file:
@@ -102,6 +104,8 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
     print('ok - Yazi TOML, preview keymap and unmanaged conflict safety')
     # Validate every retained Stow leaf's exact resolved target.
     for package in packages:
+        if 'stow none\n' in (repo / package / 'AGENT.md').read_text():
+            continue
         for source in (repo / package).rglob('*'):
             if source.is_dir() or source.name in (
                 'AGENT.md', 'README.md', '.gitignore',
@@ -115,7 +119,7 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
                 for part in relative.parts))
             assert target.resolve() == source.resolve(), (target, source)
     assert (home / '.codex/config.toml').read_text() == 'unmanaged\n'
-    print('ok - retained packages restow; targets and instructions resolve')
+    print('ok - retained packages restow; agent files are not Stow targets')
     for package in reversed(packages):
         if 'stow none\n' not in (repo / package / 'AGENT.md').read_text():
             stow(package, '--delete')

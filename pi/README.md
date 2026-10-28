@@ -1,64 +1,59 @@
 # Pi
 
-These are agent-guided settings preferences, not a canonical `settings.json`
-or a request to synchronize a machine. Apply only explicitly requested changes,
-key by key, preserving all other application-managed values:
+## Declared end state
 
-- `defaultProvider`: `openai`; `defaultModel`: `gpt-6.1-sol`.
-- `defaultThinkingLevel`: `high`.
-- `enabledModels` (cycle order): `openai/gpt-6-astra:high`,
+Setup means reading this guidance and materializing regular files, not merely
+linking the repo or leaving preferences unapplied. Use the focused
+[`agent-config` runbook](../docs/runbooks/agent-config.md) for approved writes.
+`preferences.json` is a partial declaration, not a complete `settings.json`.
+
+- Startup: `openai/gpt-6.1-sol`, high reasoning.
+- Ctrl+P cycle order: `openai/gpt-6-astra:high`,
   `openai/gpt-6-luna:high`, `openai/gpt-6.1-sol:high`.
-- `modelThinkingLevels`: `high` for each exact provider/model ID above
-  (without the `:high` suffix).
-- `theme`: `system`.
-- `enableInstallTelemetry`: `false`; `quietStartup`: `true`.
-- `treeFilterMode`: `no-tools`.
-- `defaultTools`: add `+codemode` to the existing selection (or use
-  `["+codemode"]` when unset), preserving all other tool choices.
+- Per-model thinking levels: high for each exact provider/model ID above.
+- Install telemetry off; quiet startup on; session tree filter `no-tools`.
+- Add `+codemode` to the existing tool selection, preserving other tool choices.
+- Preserve the machine theme, including Omarchy's `omarchy-system`. On a fresh
+  settings file Pi's upstream `system` default applies. No theme reset.
 
-Codemode is built into Pi 1.0.4; no package installation is needed. Keep its
-upstream `codemode.mode: "on"` default so tools remain callable directly as well
-as through JavaScript scripts. Run `/reload` after the approved edit or start a
-new session; CLI tool overrides and project settings can override this choice.
-To undo, restore only the changed `defaultTools` entries, removing the key if it
-was previously unset. Settings remain machine-owned, not Stow-managed.
+Use upstream retry, compaction, codemode mode and resource-discovery defaults.
+Do not normalize existing unrelated settings to those defaults.
+The lineup uses Sol 6.1 for everyday work, Luna for focused tasks, and Astra for
+demanding work. High reasoning is an explicit preference, not Pi's medium default.
+Verify exact IDs with `pi --offline --list-models` before approved activation;
+missing models require review, not an invented replacement. Catalog presence
+does not prove successful provider authentication or a live model request.
 
-Separately, Stow owns `keybindings.json`: Alt-h/j/k/l cursor navigation and
-`ctrl+shift+t` for the session tree.
+`dot-pi/agent/keybindings.json` declares owned actions: Alt-h/j/k/l navigation
+and Ctrl+Shift+T for the session tree. Merge these into a regular local file,
+preserving all other actions. The retained instruction source symlink is legacy
+migration provenance, not an installation source for Stow.
 
-The lineup uses Sol 6.1 for everyday work, Luna for focused tasks, and Astra
-for demanding work. High reasoning is an explicit preference, not Pi's upstream
-medium default. Keep the per-model levels and cycle suffixes consistent.
-Pi 1.3.0 lists these models under `openai`, not `openai-codex`. Verify exact
-provider/model IDs with `pi --offline --list-models` before applying preferences;
-unavailable defaults can cause Pi to fall back to a different model.
-After an approved settings edit, run `/reload`; start a fresh session to check
-startup selection, since resumed sessions restore their saved model and effort.
-To undo a model preference change, restore only the changed model keys from
-its before/after delta, preserving any unrelated settings changed since.
+## Instructions and knowledge base
 
-The installed Pi 0.87.1 settings/keybindings reference confirms the removed
-retry, compaction, external-editor, follow-up, dequeue and newline settings
-duplicate defaults. The old changelog version was runtime bookkeeping.
-The personal prompt/skill references and pi-docparser declaration are retired;
-no installed extension or skill is deleted by this change.
+Materialize `agents/AGENTS.md` into the regular Pi instruction file. KB content
+stays in its own checkout; configure `TNEZDEV_KNOWLEDGE_BASE_ROOT` in the launching
+environment as described in the root README. At runtime read that checkout's
+`AGENTS.md`, `root/index.md`, and `root/meta/agent-consumption.md`, then select
+relevant guidance. A readable-path check is not evidence the content was loaded.
+No bridge, copied KB, persistent personal prompts, or skill installation is needed.
 
-`AGENTS.md` links to `agents/AGENTS.md`. KB content stays in its own checkout.
-Configure `TNEZDEV_KNOWLEDGE_BASE_ROOT` in the launching environment as described
-in the root README; no Dottie or Herdr bridge is needed for direct KB access.
+## Verification and recovery
 
-On Omarchy, `./omarchy-agent-links check` checks the global instruction and
-keybinding links, KB entrypoints, and three preferences: install telemetry off,
-quiet startup on, and `no-tools` tree filtering. Its approved optional hooks
-repair only absent links; they never rewrite settings or reset the machine's
-Omarchy theme. These checks supplement root doctor/plan and do not apply to
-Darwin. See [activation and recovery](../omarchy/AGENT.md#optional-agent-link-recovery-hooks-omarchy-only).
+Run `python3 tests/agent-config.py`, `bash tests/portable.sh`, and
+`bash tests/lifecycle.sh`. Run `./agent-config check` for read-only host drift.
+The deprecated `./omarchy-agent-links check` delegates to it; old recovery hooks
+cannot recreate links. Disable those verified hooks before live migration.
 
-Pi itself is installed separately using the supported platform or mise provider.
-Credentials, sessions, caches, and package installations remain machine-owned.
-The no-folding Stow package owns only personal keybindings and the shared
-`AGENTS.md` link; it does not include `~/.pi/agent/settings.json`. Existing
-settings and the rest of the agent directory remain unmanaged. Never adopt or
-replace a local settings file. For an approved preference change, review the
-exact before/after delta and preserve unrelated keys, auth, sessions, packages,
-caches, and runtime state.
+After approved writes, `/reload` refreshes instructions, keybindings and tools.
+Start a fresh session to verify startup model and effort: resumed sessions keep
+their saved selection. Check Ctrl+P traverses exactly the three models at high
+reasoning, and confirm instruction discovery and actual KB reads. CLI options,
+custom agent directories and trusted project settings can override user config;
+inspect those rather than granting trust or editing project files automatically.
+
+Settings, auth, sessions, caches, installed packages and skills stay machine-owned.
+Keep settings writers idle during reconciliation. Recovery restores only the
+reviewed changed files/keys from private backups, preserving subsequent edits;
+see the runbook. Pi itself is installed separately; setup never installs software,
+requests a model response, or changes credentials.

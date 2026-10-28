@@ -4,16 +4,17 @@
 version 1
 platform darwin
 platform omarchy
-stow no-folding
+stow none
 -->
 
-Stow only personal navigation keybindings and the shared KB instruction link.
-Pi's `settings.json` is machine-owned application state; this component ships no
-whole-file settings template. Settings preferences in `README.md` are agent
-guidance, not a complete target configuration. Do not create, adopt, replace,
-or normalize settings during routine dotfiles work. For an explicitly requested
-preference change, preserve all unrelated values and obtain approval before
-editing live state.
+Materialize regular config files through `./agent-config`, following
+`docs/runbooks/agent-config.md`. `preferences.json` declares owned settings,
+not a whole-file template. Merge these keys and the declared keybindings into
+application-owned JSON, preserving unrelated values. Materialize shared
+instructions from `agents/AGENTS.md`. No Stow activation for this component.
+A setup request covers reviewing and preparing the declared end state; apply
+requires explicit approval. Restore drift and migrate known links only with
+the runbook's additional explicit choices.
 
 Use the model lineup and high reasoning preferences in `README.md`; use upstream
 retry, compaction, and resource-discovery defaults.
@@ -22,9 +23,9 @@ installations. On Omarchy, the separate `dev` command may pass a one-shot
 project-work context note through the CLI; it does not alter Pi settings,
 resources, or project-trust decisions.
 
-Run `bash tests/portable.sh`; validate tracked keybindings JSON and consult the
-installed Pi settings/keybindings documentation. Read `README.md` before
-activation. Stow only after approval; never adopt or overwrite a local settings
-file. On Omarchy activation is manual. Pi can rewrite its settings: review only
-approved key changes and preserve auth, sessions, packages, runtime state, and
-all unmanaged files.
+Run `python3 tests/agent-config.py`, `bash tests/portable.sh`, and
+`bash tests/lifecycle.sh`. Validate declared JSON and consult installed Pi
+settings/model/keybindings documentation. Read `README.md` before activation.
+Keep Pi settings writers idle during apply. Preserve auth, sessions, packages,
+runtime state, theme and unmanaged files. Fresh-session model cycling and
+instruction discovery remain native smoke checks, not fixture guarantees.

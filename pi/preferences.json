@@ -1,0 +1,19 @@
+{
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6.1-sol",
+  "defaultThinkingLevel": "high",
+  "enabledModels": [
+    "openai/gpt-6-astra:high",
+    "openai/gpt-6-luna:high",
+    "openai/gpt-6.1-sol:high"
+  ],
+  "modelThinkingLevels": {
+    "openai/gpt-6-astra": "high",
+    "openai/gpt-6-luna": "high",
+    "openai/gpt-6.1-sol": "high"
+  },
+  "enableInstallTelemetry": false,
+  "quietStartup": true,
+  "treeFilterMode": "no-tools",
+  "defaultTools": ["+codemode"]
+}
