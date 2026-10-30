@@ -14,6 +14,11 @@ macOS only. Its font, decoration, padding, and automatic light/dark preferences
 are personal settings, not workflow integrations. See `ghostty/AGENT.md`; the
 historical removal scope below no longer applies to that package.
 
+Later scope update: the reviewed `start-work` and `clean-up-work` activity
+skills are a narrow exception to personal skill removal. They are separately
+installed leaf links, not a revived lifecycle materializer or checkout manager.
+See `agents/README.md`; other skill/runtime ownership stays unchanged.
+
 ## Outcome and acceptance
 
 Keep personal preferences, not a workstation workflow platform. Support macOS

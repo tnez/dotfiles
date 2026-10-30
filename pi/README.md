@@ -36,7 +36,10 @@ stays in its own checkout; configure `TNEZDEV_KNOWLEDGE_BASE_ROOT` in the launch
 environment as described in the root README. At runtime read that checkout's
 `AGENTS.md`, `root/index.md`, and `root/meta/agent-consumption.md`, then select
 relevant guidance. A readable-path check is not evidence the content was loaded.
-No bridge, copied KB, persistent personal prompts, or skill installation is needed.
+No bridge, copied KB, persistent personal prompts, or KB skill installation is
+needed. The separate optional `start-work` and `clean-up-work` activity skills
+are declared in [`agents/README.md`](../agents/README.md); install/check them
+through `./agent-skills`, not `agent-config` or Pi settings reconciliation.
 
 ## Verification and recovery
 
@@ -52,7 +55,9 @@ reasoning, and confirm instruction discovery and actual KB reads. CLI options,
 custom agent directories and trusted project settings can override user config;
 inspect those rather than granting trust or editing project files automatically.
 
-Settings, auth, sessions, caches, installed packages and skills stay machine-owned.
+Settings, auth, sessions, caches, installed packages and all unrelated skills
+stay machine-owned. Only the two activity skill source packages and their
+explicitly installed leaf links are dotfiles-owned.
 Keep settings writers idle during reconciliation. Recovery restores only the
 reviewed changed files/keys from private backups, preserving subsequent edits;
 see the runbook. Pi itself is installed separately; setup never installs software,

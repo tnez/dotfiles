@@ -32,6 +32,10 @@ Stow links make primary-checkout edits live, even without running apply.
   settings and keybindings while preserving unrelated machine-owned state;
   Stow does not activate `agents`, `pi`, or `codex`. Codex retains its macOS
   absent-only configuration seed.
+- Two optional shared activity skills: `start-work` acquires/resumes a clone
+  and opens tmux without a task handoff; `clean-up-work` checks preservation
+  before approved removal. Install only their individual entries using
+  `./agent-skills`; see [skill usage and recovery](agents/README.md).
 - Yazi preferences and a Shift+T preview-toggle binding for both platforms.
   Only its two configuration files are Stow-owned; plugins and package state
   remain machine-local. See [Yazi guidance](yazi/AGENT.md).

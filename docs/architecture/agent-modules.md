@@ -93,12 +93,30 @@ Regular machine-local files → harness discovery + agent-driven KB loading
 The agent reads component guidance, reports the delta, obtains approval, then
 materializes and verifies the declared end state. It does not stop at linking
 files or describing unapplied preferences. Themes, unrelated settings, auth,
-sessions, skills and KB content stay machine-owned. KB path checks do not claim
-context loading; the consuming agent reads entrypoints and relevant guidance.
+sessions, unrelated skills and KB content stay machine-owned. KB path checks
+do not claim context loading; the consuming agent reads entrypoints and relevant
+guidance.
 Legacy `omarchy-agent-links check` delegates to this check, while old mutation
 commands fail closed so installed hooks cannot recreate links. No replacement
 background hooks or general configuration framework are introduced. See
 `docs/runbooks/agent-config.md` for ownership, migration, safety and recovery.
+
+Two activity skills have separate, explicit ownership and delivery:
+
+```text
+agents/skills/{start-work,clean-up-work}
+                    ↓ agent-skills plan / approved apply
+~/.agents/skills/<name> leaf directory links → compatible agent discovery
+                    ↓ skill-guided native Git/tmux operations
+Activity clone + development session / preservation-checked approved cleanup
+```
+
+`./agent-skills` does not alter settings, install packages, or run from lifecycle
+hooks. Shared parent directories and externally installed skills remain local.
+The source checkout becomes a live-link anchor, not a disposable activity clone.
+There is no checkout registry, task-context handoff, or new checkout manager.
+Skill instructions guide agent judgment; they are not enforcement boundaries.
+See `agents/README.md` and `specs/work-sessions.feature` for behavior and recovery.
 
 Platform selection is conservative:
 

@@ -18,10 +18,12 @@ the runbook's additional explicit choices.
 
 Use the model lineup and high reasoning preferences in `README.md`; use upstream
 retry, compaction, and resource-discovery defaults.
-No persistent personal workflow prompts, skills, or automatic extension
-installations. On Omarchy, the separate `dev` command may pass a one-shot
-project-work context note through the CLI; it does not alter Pi settings,
-resources, or project-trust decisions.
+No persistent personal workflow prompts or automatic extension installations.
+The two shared activity skills are an explicit exception, installed separately
+through `./agent-skills` as documented in `agents/README.md`; preserve every
+other installed skill. `agent-config` does not install skills. On Omarchy, the
+separate `dev` command may pass a one-shot project-work context note through the
+CLI; it does not alter Pi settings, resources, or project-trust decisions.
 
 Run `python3 tests/agent-config.py`, `bash tests/portable.sh`, and
 `bash tests/lifecycle.sh`. Validate declared JSON and consult installed Pi

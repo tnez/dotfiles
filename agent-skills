@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Inspect or install only the two reviewed activity skill directory links."""
+
+import argparse
+import hashlib
+import os
+from pathlib import Path
+import platform
+import stat
+import subprocess
+import sys
+
+SKILLS = ('start-work', 'clean-up-work')
+
+
+class Conflict(Exception):
+    pass
+
+
+def sources(root):
+    """Reject redirected sources; fingerprint the complete skill packages."""
+    result = []
+    for name in SKILLS:
+        source = root / 'agents/skills' / name
+        for path in (root / 'agents', root / 'agents/skills', source):
+            if path.is_symlink() or not path.is_dir():
+                raise Conflict(f'inspect skill source directory: {path}')
+        if not (source / 'SKILL.md').is_file():
+            raise Conflict(f'missing SKILL.md: {name}')
+        digest = hashlib.sha256()
+        for path in sorted(source.rglob('*')):
+            if path.is_symlink():
+                raise Conflict(f'redirected skill resource: {path}')
+            if path.is_dir():
+                continue
+            if not path.is_file():
+                raise Conflict(f'not a regular skill resource: {path}')
+            digest.update(str(path.relative_to(source)).encode() + b'\0')
+            digest.update(path.read_bytes() + b'\0')
+        result.append((source, digest.hexdigest()))
+    return tuple(result)
+
+
+def directories(home):
+    """Missing .agents directories are allowed; redirected ones never are."""
+    result = []
+    for path in (home, home / '.agents', home / '.agents/skills'):
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            if path == home:
+                raise Conflict('HOME must already exist') from None
+            result.append((path, None))
+            continue
+        if not stat.S_ISDIR(info.st_mode):
+            raise Conflict(f'preserve redirected/non-directory parent: {path}')
+        result.append((path, (info.st_dev, info.st_ino)))
+    return tuple(result)
+
+
+def inspect(root, home):
+    package_state = sources(root)
+    parent_state = directories(home)
+    missing = []
+    for source, _ in package_state:
+        target = home / '.agents/skills' / source.name
+        if target.is_symlink():
+            # Exact generated link only, not an alias to the same destination.
+            if os.readlink(target) != str(source):
+                raise Conflict(f'preserve foreign skill link: {target}')
+            print(f'OK: ~/.agents/skills/{source.name}')
+        elif target.exists():
+            raise Conflict(f'preserve existing skill entry: {target}')
+        else:
+            missing.append((source, target))
+            print(f'LINK: ~/.agents/skills/{source.name}')
+    for path, identity in parent_state:
+        if identity is None:
+            print(f'MKDIR: ~/{path.relative_to(home)}')
+    return package_state, parent_state, tuple(missing)
+
+
+def authorize(root, args):
+    if not args.yes:
+        raise Conflict('apply requires explicit approval and --yes')
+    if (root / '.git').is_symlink() or not (root / '.git').is_dir():
+        raise Conflict('use the canonical primary checkout (.git directory)')
+    for command in ('doctor', 'plan'):
+        result = subprocess.run([str(root / 'dotfiles'), command],
+                                capture_output=True, text=True, timeout=60)
+        output = result.stdout + result.stderr
+        if result.returncode or 'ACTION_REQUIRED' in output:
+            print(output, end='')
+            raise Conflict(f'resolve dotfiles {command} findings first')
+        print(f'OK: dotfiles {command}')
+
+
+def apply(root, home, args, reviewed):
+    authorize(root, args)
+    if inspect(root, home) != reviewed:
+        raise Conflict('inputs changed during review; rerun plan')
+    package_state, parent_state, missing = reviewed
+    for path, identity in parent_state:
+        if directories(home) != parent_state:
+            raise Conflict('parents changed; inspect partial work')
+        if identity is None:
+            path.mkdir(mode=0o700)  # No-clobber; preserve foreign parents.
+            parent_state = directories(home)
+    for source, target in missing:
+        if (directories(home) != parent_state
+                or sources(root) != package_state):
+            raise Conflict('inputs changed before link; inspect partial work')
+        target.symlink_to(source, target_is_directory=True)  # No-clobber.
+        if not target.is_symlink() or os.readlink(target) != str(source):
+            raise Conflict('link read-back failed; inspect partial work')
+        print(f'LINKED: ~/.agents/skills/{source.name}')
+    verified = inspect(root, home)
+    if verified != (package_state, parent_state, ()):
+        raise Conflict('verification drift; inspect partial work')
+
+
+def run(args, root, home):
+    try:
+        supported = platform.system() == 'Darwin' or (
+            platform.system() == 'Linux' and
+            platform.freedesktop_os_release().get('ID') == 'omarchy')
+        if not supported:
+            raise Conflict('supported only on macOS or Omarchy')
+        if os.environ.get('PI_CODING_AGENT_DIR'):
+            raise Conflict('custom PI_CODING_AGENT_DIR needs separate review')
+        if not home.is_absolute() or home == Path('/'):
+            raise Conflict('HOME must be an absolute, non-root directory')
+        reviewed = inspect(root, home)
+        if args.command != 'apply':
+            return 1 if reviewed[2] else 0
+        apply(root, home, args, reviewed)
+        return 0
+    except (Conflict, OSError, ValueError, subprocess.SubprocessError) as exc:
+        print(f'ACTION_REQUIRED: {exc}', file=sys.stderr)
+        print('Stopped; retain and inspect any partial links/directories.',
+              file=sys.stderr)
+        return 3
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('command', choices=('plan', 'check', 'apply'))
+    parser.add_argument('--yes', action='store_true')
+    return run(parser.parse_args(), Path(__file__).resolve().parent,
+               Path.home())
+
+
+if __name__ == '__main__':
+    sys.exit(main())
