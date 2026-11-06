@@ -44,10 +44,11 @@ For this runbook, "all tmux sessions" means all verified `dev-*` sessions only.
 Ignore every non-`dev-*` session, including utility sessions. Do not apply the
 project layout to them.
 
-Read [Omarchy guidance](../../omarchy/AGENT.md) and the installed `dev` source
+Read [shared dev guidance](../../dev/AGENT.md) and the installed `dev` source
 (resolve `command -v dev`) before acting. The reviewed reference is
-[`omarchy/dot-local/bin/dev`](../../omarchy/dot-local/bin/dev). If the installed
-policy differs, report it and resolve which policy to use before mutation.
+[`dev/dot-local/bin/dev`](../../dev/dot-local/bin/dev). Existing Omarchy links
+may traverse the retained forwarding wrapper; inspect its shared destination too.
+If the installed policy differs, report it and resolve which policy to use before mutation.
 Do not change launcher defaults as part of a refit.
 
 Preserve process state, pane IDs, working directories, scrollback, ownership
@@ -58,7 +59,7 @@ operations, Stow, config reloads or package installation are needed.
 ## 1. Inspect and establish scope (read-only)
 
 - Work from the canonical primary dotfiles checkout with a `.git` directory,
-  on Omarchy. Do not perform the live operation from a disposable checkout.
+  on macOS or Omarchy. Do not perform the live operation from a disposable checkout.
   Run `./dotfiles doctor` and `./dotfiles plan`. Stop on `ACTION_REQUIRED` and
   report its exact requested decision; approval is not permission to bypass it.
 - Inspect clients, sessions, windows and panes. Useful starting commands:

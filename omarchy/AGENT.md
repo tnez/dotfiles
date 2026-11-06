@@ -23,9 +23,6 @@ Own only these preference files and focused entry commands:
   navigation across LazyVim splits and tmux panes, paired with the tmux package.
   Load smart-splits eagerly so it marks Neovim panes before navigation. Keep
   wrapping at outer edges, matching macOS. No resizing overrides on Omarchy.
-- `~/.local/bin/dev`: start or resume the project layout from the current
-  directory. Bare entry does not inspect Git or create branches/worktrees.
-  `dev resize` is an explicit headless-Pi refit of owned `dev-*` sessions.
 - `~/.local/bin/mux`: explicitly ensure independent HUD/cliamp sessions and
   enter the most recently attached non-utility session. Plain tmux stays vanilla.
 - `~/.config/mux/hud.toml` and `hud-revision`: reviewed placeholder dashboard and
@@ -46,51 +43,20 @@ separate Dottie project. This package must neither install nor remove them.
 Machine-local integration can load `require("hypr.dottie")` from the user's
 `hyprland.lua`; it must not depend on our managed `bindings.lua`.
 
+The project launcher is now owned by the shared [dev component](../dev/AGENT.md)
+on macOS and Omarchy. `dot-local/bin/dev` remains only as an ignored compatibility
+wrapper for existing live links. Follow that component's exact-link migration
+before transferring ownership; updating Git alone does not retire the old link.
+
 ## Operations
 
 - Check declaration, prerequisite, and target health with `dotfiles doctor`
   and `dotfiles plan`; both are read-only on Omarchy.
 - Activation is deliberately manual. After explicit approval, use GNU Stow
   with `--dotfiles --restow omarchy` from the canonical checkout.
-- Run `dev` from the chosen project directory. It treats the physical current
-  directory as the project root and creates one owned tmux session. The `dev`
-  window holds Neovim, initially focused. At creation, reserve 120 columns and
-  50 rows for editing; choose the agent and shell placements independently:
-  - At 201–220 columns, Pi takes the remaining 80–99 columns on the right.
-    At 221+ columns, Pi takes 100; below 201 it gets an `agent` window.
-  - At 66+ usable rows, create a full-width bottom shell 15 rows high;
-    otherwise create a `shell` window. Status rows are not usable rows.
-  - All panes/windows start in the chosen directory. Automatic rename is
-    disabled locally on the created `dev`, `agent` and `shell` windows.
-  Use the unique invoking client's full dimensions inside tmux, not the shell
-  pane's dimensions. Outside tmux, read the terminal on stdin with `stty size`;
-  missing/invalid size fails before new-session creation. Re-entry needs no new
-  size measurement. Preserve the normal tmux window-sizing policy.
-- Re-entry resumes a session only when its tmux ownership metadata matches the
-  canonical directory. Existing panes/windows are left as-is. Unowned name
-  collisions and incomplete sessions are reported, not adopted or repaired.
-  Inside tmux, `dev` switches only the unique client displaying the invoking
-  pane; it refuses ambiguous or detached-pane targets. No resize watcher,
-  layout hook or automatic pane/window migration is installed. Normal tmux
-  resizing still operates, but creation sizes are not continually enforced.
-  If the layout no longer fits after changing screens, run `dev resize` from
-  an attached tmux shell. Invocation approves automatic application of
-  [the dev layout runbook](../docs/runbooks/dev-layout.md) to all verified
-  `dev-*` sessions only. `dev resize --check` requests preview without mutation.
-  The thin wrapper runs default headless Pi from the primary checkout; it
-  preserves invoking-client context and does not install prompts, edit Pi
-  settings or grant project trust. It needs tmux, Pi and realpath, not Neovim.
-  Ambiguous clients, non-primary checkouts and non-Omarchy hosts fail before Pi.
-  The agent must stop/report unexpected state or `ACTION_REQUIRED`, not ask
-  questions in headless mode. Inspect its final summary: Pi exit status alone
-  does not prove layout success. Preserve processes, non-dev sessions and normal
-  sizing; no new layout engine, fixed ratio or automatic re-entry reset.
-- Pi receives a one-shot context note. The launcher does not search for or
-  configure the tnezdev knowledge base; its normal root environment variable
-  must be configured separately for Pi to read that guidance.
-- `dev` does not run repository startup scripts or Git/worktree operations.
-  Project instructions and user guidance remain conditional on the project and
-  task; no project-specific settings table is created.
+- Run `dev` from the chosen project directory; see [shared launcher guidance](../dev/AGENT.md)
+  for the unchanged adaptive layout, safe re-entry and explicit `dev resize`
+  behavior. Installing or retiring that command is separate from this package.
 - `mux` is Omarchy-only and manages only the normal `/tmp/tmux-$UID/default`
   server. Custom sockets/TMUX_TMPDIR are refused; use plain tmux for tests.
   It does not change `t`, `dev`, tmux config, shell startup or client hooks.
@@ -137,12 +103,8 @@ Machine-local integration can load `require("hypr.dottie")` from the user's
 - For navigation activation, install only `smart-splits.nvim` through Lazy,
   restart Neovim, then source the tmux overlay. Do not update all plugins.
   Existing Neovim processes need restarting to acquire the pane marker.
-- Launcher rollback: verify `~/.local/bin/dev` points to this package, then
-  remove only that symlink; do not un-stow the whole Omarchy package just to
-  remove the command. This does not kill or alter tmux sessions created by
-  `dev`. To undo only the adaptive layout policy, restore the reviewed launcher
-  revision; an already stowed source is live for subsequent invocations. Do not
-  rebuild existing sessions or remove user-created windows as rollback.
+- Launcher ownership/migration and rollback are in [dev guidance](../dev/AGENT.md).
+  Never un-stow the whole desktop or stop sessions just to retire that command.
 - Utility-entry rollback: remove only verified new `mux` and HUD-input links.
   Stow may fold `~/.config/mux` into one directory symlink: remove that verified
   link, never files through it. If it is a real directory, remove only verified

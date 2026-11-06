@@ -5,6 +5,7 @@ set -euo pipefail
 
 PROJECT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 TEST_ROOT=$(mktemp -d -t dotfiles-omarchy.XXXXXX)
+TEST_ROOT=$(cd -P "$TEST_ROOT" && pwd)
 trap 'rm -rf "$TEST_ROOT"' EXIT
 export HOME="$TEST_ROOT/home"
 mkdir -p "$HOME/.config/hypr" "$HOME/.config/omarchy/plugins/local.plugin"
@@ -55,15 +56,10 @@ grep -q '^local navigation$' "$navigation"
 rm "$navigation"
 printf 'ok - activation refuses unmanaged navigation config\n'
 
+# The shared dev component owns this command now. Omarchy must ignore its
+# legacy source and preserve an unrelated local command at the same path.
 launcher="$HOME/.local/bin/dev"
 printf 'unmanaged launcher\n' > "$launcher"
-if stow_package --simulate --restow > "$TEST_ROOT/conflict.log" 2>&1; then
-  printf 'FAIL: unmanaged dev command was not reported as a conflict\n' >&2
-  exit 1
-fi
-grep -q '^unmanaged launcher$' "$launcher"
-rm "$launcher"
-printf 'ok - activation refuses an unmanaged dev command\n'
 
 mux="$HOME/.local/bin/mux"
 for target in "$mux" "$HOME/.config/mux/hud.toml" \
@@ -88,9 +84,8 @@ for path in hypr/bindings.lua hypr/preferences.lua \
   expected="$TEST_ROOT/repo/omarchy/dot-config/$path"
   test "$(readlink -f "$HOME/.config/$path")" = "$expected"
 done
-test "$(readlink -f "$launcher")" = \
-  "$TEST_ROOT/repo/omarchy/dot-local/bin/dev"
-test -x "$launcher"
+grep -q '^unmanaged launcher$' "$launcher"
+test ! -L "$launcher"
 test "$(readlink -f "$mux")" = \
   "$TEST_ROOT/repo/omarchy/dot-local/bin/mux"
 test -x "$mux"
@@ -102,7 +97,7 @@ grep -q '^pi$' "$HOME/.config/omarchy/defaults/agent"
 grep -q "kb_options = 'ctrl:swapcaps'" "$HOME/.config/hypr/bindings.lua"
 test ! -e "$HOME/AGENT.md"
 test ! -e "$HOME/.config/omarchy/plugins/tnez.menu"
-printf 'ok - preferences, HUD inputs, dev and mux links are repeatable\n'
+printf 'ok - preferences, HUD inputs and mux repeat; legacy dev is ignored\n'
 
 stow_package --delete
 test ! -e "$HOME/.config/hypr/bindings.lua"
@@ -111,8 +106,9 @@ test ! -e "$HOME/.config/omarchy/defaults/agent"
 test ! -L "$HOME/.config/omarchy/defaults/agent"
 test ! -e "$navigation"
 test ! -L "$navigation"
-test ! -e "$launcher"
+grep -q '^unmanaged launcher$' "$launcher"
 test ! -L "$launcher"
+rm "$launcher"  # Fixture-only entry, absent from the original home.
 for target in "$mux" "$HOME/.config/mux/hud.toml" \
   "$HOME/.config/mux/hud-revision" \
   "$HOME/.config/hypr/preferences.lua" \

@@ -50,10 +50,14 @@ Stow links make primary-checkout edits live, even without running apply.
   one-time reload of the new path require approval, never a server restart.
 - Omarchy: Caps Lock/Ctrl swap, default coding agent `pi`, and a small LazyVim
   smart-splits extension for `Ctrl+h/j/k/l` navigation across Neovim and tmux.
-  The explicit `dev` project entry and `mux` utility entry are described in
-  [Omarchy guidance](omarchy/AGENT.md); neither changes vanilla tmux startup.
-  After switching screens, `dev resize` refits all owned `dev-*` sessions using
-  default headless Pi; `dev resize --check` previews without approving changes.
+  The `mux` utility entry is described in [Omarchy guidance](omarchy/AGENT.md);
+  it does not change vanilla tmux startup.
+- Shared macOS/Omarchy [`dev`](dev/AGENT.md): create/resume the current
+  directory's tmux session with Neovim, Pi and a shell, adapting pane/window
+  placement to screen size. After switching screens, `dev resize` refits owned
+  `dev-*` sessions using default headless Pi; `dev resize --check` previews only.
+  Existing Omarchy command links require the documented ownership migration;
+  their old source remains a forwarding wrapper until they are retired.
 - A separate Omarchy `mux` music profile, managed by the focused
   [cliamp runbook](cliamp/AGENT.md), not whole-file Stow ownership of app settings.
   General music preferences, credentials and runtime state remain machine-local.

@@ -15,13 +15,13 @@ import termios
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-DEV = ROOT / 'omarchy/dot-local/bin/dev'
+DEV = ROOT / 'dev/dot-local/bin/dev'
 TMUX = shutil.which('tmux')
 if not TMUX:
     raise SystemExit('BLOCKED: tmux is unavailable')
 
 with tempfile.TemporaryDirectory(prefix='dotfiles-dev-layout-') as temporary:
-    base = Path(temporary)
+    base = Path(temporary).resolve()
     home, binary = base / 'home', base / 'bin'
     home.mkdir()
     binary.mkdir()
@@ -191,6 +191,7 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-dev-layout-') as temporary:
             status_rows = {'on': 1, 'off': 0, '2': 2}[status]
             check_layout(project, sid, cols, rows - status_rows, agent, shell)
             tm('kill-session', '-t', sid)
+            wait(lambda: process.poll() is not None, 'fixture client exit')
             process.wait(timeout=5)
         print('ok - native outside attach: layouts, thresholds, status rows')
 
@@ -218,9 +219,14 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-dev-layout-') as temporary:
 
         agent = next(p for p in panes(sid) if int(p[2]) > 0)
         tm('resize-pane', '-t', agent[1], '-x', '91')
+        # Entering from a shell necessarily focuses it first. Newer tmux
+        # serializes focus/history into window_layout; take the preimage after
+        # that deliberate caller action, not while the editor is still active.
+        shell = next(p for p in panes(sid) if int(p[3]) > 0)
+        tm('select-pane', '-t', shell[1])
         before = snapshot(sid)
         shell = enter_from_shell(sid, inside)
-        assert snapshot(sid) == before
+        assert snapshot(sid) == before, (before, snapshot(sid))
         print('ok - native re-entry preserves custom layout and pane processes')
 
         fcntl.ioctl(master, termios.TIOCSWINSZ,
@@ -233,16 +239,25 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-dev-layout-') as temporary:
         before = snapshot(sid)
         tm('clear-history', '-t', shell)
         enter_from_shell(sid, inside)
-        assert snapshot(sid) == before
+        assert snapshot(sid) == before, (before, snapshot(sid))
         assert tm('list-windows', '-t', sid, '-F', '#{window_name}') == 'dev'
         print('ok - resize and re-entry do not migrate panes into windows')
     finally:
         subprocess.run(command + ['kill-server'], env=env,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for _ in range(100):
+            drain()
+            if all(p.poll() is not None for p, _ in clients):
+                break
+            time.sleep(0.01)
         for process, master in clients:
             try:
                 process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 process.terminate()
-                process.wait(timeout=5)
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=5)
             os.close(master)

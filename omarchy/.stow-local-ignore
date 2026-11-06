@@ -1,0 +1,2 @@
+# Legacy source remains readable for old links, but dev/ owns new installs.
+^/[.]local/bin/dev$

@@ -4,21 +4,28 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 TEST_ROOT=$(mktemp -d -t dotfiles-dev-resize.XXXXXX)
+TEST_ROOT=$(cd -P "$TEST_ROOT" && pwd)
 trap 'rm -rf "$TEST_ROOT"' EXIT
 REPO="$TEST_ROOT/repo space"
 BIN="$TEST_ROOT/bin"
 HOME="$TEST_ROOT/home"
 CALLS="$TEST_ROOT/pi.log"
 TMUX_CALLS="$TEST_ROOT/tmux.log"
-mkdir -p "$REPO/omarchy/dot-local/bin" "$REPO/lib/dotfiles" \
+mkdir -p "$REPO/dev/dot-local/bin" "$REPO/lib/dotfiles" \
   "$REPO/docs/runbooks" "$REPO/.git" "$BIN" "$HOME" \
   "$TEST_ROOT/unrelated project"
-cp "$ROOT/omarchy/dot-local/bin/dev" "$REPO/omarchy/dot-local/bin/dev"
-cp "$ROOT/lib/dotfiles/modules.sh" "$REPO/lib/dotfiles/modules.sh"
+cp "$ROOT/dev/dot-local/bin/dev" "$REPO/dev/dot-local/bin/dev"
+# Platform detection has its own module tests; isolate this handoff from the
+# host's /etc/os-release (which is absent on macOS).
+cat > "$REPO/lib/dotfiles/modules.sh" <<'EOF'
+detect_host_platform() {
+  printf '%s\n' "${RESIZE_TEST_PLATFORM:-omarchy}"
+}
+EOF
 cp "$ROOT/docs/runbooks/dev-layout.md" "$REPO/docs/runbooks/dev-layout.md"
 printf '#!/bin/bash\nexit 99\n' > "$REPO/dotfiles"
 chmod +x "$REPO/dotfiles"
-ln -s "$REPO/omarchy/dot-local/bin/dev" "$BIN/dev"
+ln -s "$REPO/dev/dot-local/bin/dev" "$BIN/dev"
 # Minimal PATH deliberately has no nvim, Git or Stow.
 for program in bash realpath dirname; do
   ln -s "$(command -v "$program")" "$BIN/$program"
@@ -48,15 +55,7 @@ printf '%s\n' "$1" >> "$RESIZE_TEST_TMUX_CALLS"
 [[ ${RESIZE_TEST_TMUX_FAIL:-0} == 0 ]] || exit 1
 printf '%s\n' "${RESIZE_TEST_CLIENTS:-/dev/pts/fixture|%99}"
 EOF
-cat > "$BIN/uname" <<'EOF'
-#!/usr/bin/env bash
-printf '%s\n' "${RESIZE_TEST_OS:-Linux}"
-EOF
-cat > "$BIN/awk" <<'EOF'
-#!/usr/bin/env bash
-printf '%s\n' "${RESIZE_TEST_RELEASE:-omarchy}"
-EOF
-chmod +x "$BIN/pi" "$BIN/tmux" "$BIN/uname" "$BIN/awk"
+chmod +x "$BIN/pi" "$BIN/tmux"
 export RESIZE_TEST_CALLS="$CALLS" RESIZE_TEST_TMUX_CALLS="$TMUX_CALLS"
 
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
@@ -98,6 +97,8 @@ contains "$CALLS" 'approving preview then automatic' \
 contains "$CALLS" 'Target only verified dev-* sessions' 'scope is missing'
 contains "$CALLS" 'Run doctor and plan; stop on ACTION_REQUIRED' \
   'lifecycle safety checks are missing from handoff'
+contains "$CALLS" 'Read AGENTS.md and dev/AGENT.md' \
+  'shared component guidance is missing from handoff'
 contains "$CALLS" 'Do not ask for another confirmation' \
   'headless approval semantics are missing'
 contains "$CALLS" 'Invoking client: /dev/pts/fixture' \
@@ -154,8 +155,16 @@ fi
 [[ ! -e $CALLS ]] || fail 'unknown-pane resize ran Pi'
 printf 'ok - absent, ambiguous and failed client inspection refuse handoff\n'
 
-RESIZE_TEST_OS=Darwin refused resize
-RESIZE_TEST_RELEASE=arch refused resize
+RESIZE_TEST_PLATFORM=darwin run resize > "$TEST_ROOT/darwin.log"
+contains "$CALLS" "cwd=$REPO" 'Darwin handoff lost the primary checkout'
+contains "$CALLS" 'approving preview then automatic' \
+  'Darwin handoff lost approval semantics'
+RESIZE_TEST_PLATFORM=darwin run resize --check > "$TEST_ROOT/darwin.log"
+contains "$CALLS" 'PREVIEW ONLY' 'Darwin preview authorizes mutation'
+printf 'ok - Darwin supports approved resize and preview-only handoffs\n'
+RESIZE_TEST_PLATFORM=unsupported refused resize
+contains "$TEST_ROOT/refusal.log" 'requires macOS or Omarchy' \
+  'unsupported platform diagnostic is missing'
 mv "$REPO/.git" "$REPO/git-directory"
 printf 'gitdir: disposable\n' > "$REPO/.git"
 refused resize
@@ -174,6 +183,15 @@ contains "$TEST_ROOT/refusal.log" 'required program not found: pi' \
   'missing-Pi diagnostic is absent'
 mv "$TEST_ROOT/pi" "$BIN/pi"
 printf 'ok - missing runbook/Pi fail without mutation\n'
+
+# Also exercise this host's real detector with only Pi/client effects faked.
+cp "$ROOT/lib/dotfiles/modules.sh" "$REPO/lib/dotfiles/modules.sh"
+for program in uname awk; do
+  ln -s "$(command -v "$program")" "$BIN/$program"
+done
+run resize --check > "$TEST_ROOT/native.log"
+contains "$CALLS" 'PREVIEW ONLY' 'native platform did not reach preview handoff'
+printf 'ok - native supported-host detection reaches the scoped handoff\n'
 
 [[ $(sort -u "$TMUX_CALLS") == list-clients ]] || \
   fail 'wrapper issued tmux commands beyond read-only client inspection'

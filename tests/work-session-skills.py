@@ -181,6 +181,9 @@ class WorkSessionCommands(unittest.TestCase):
                           '"exec /bin/bash --noprofile --norc"\n')
         socket = str(self.base / 'socket')
         command = [TMUX, '-S', socket, '-f', str(config)]
+        wrapper = binary / 'tmux'
+        wrapper.write_text('#!/bin/sh\nexec ' + shlex.join(command) + ' "$@"\n')
+        wrapper.chmod(0o755)
         env = {**self.env, 'PATH': f'{binary}:/usr/bin:/bin',
                'TERM': 'xterm-256color', 'SHELL': '/bin/bash'}
         clients = []
@@ -193,9 +196,22 @@ class WorkSessionCommands(unittest.TestCase):
         def cleanup():
             subprocess.run(command + ['kill-server'], env=env,
                            capture_output=True, timeout=5)
+            # macOS PTYs may still hold a screenful of output at shutdown.
+            for _ in range(100):
+                drain()
+                if all(p.poll() is not None for p, _ in clients):
+                    break
+                time.sleep(0.01)
             for process, master in clients:
-                process.wait(timeout=5)
-                os.close(master)
+                if process.poll() is None:
+                    process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=5)
+                finally:
+                    os.close(master)
 
         self.addCleanup(cleanup)
 
@@ -242,7 +258,7 @@ class WorkSessionCommands(unittest.TestCase):
         # The documented override selects the outer pane, without send-keys.
         tmux_env = f'{socket},{tm("display-message", "-p", "#{pid}")},0'
         result = subprocess.run(
-            [str(ROOT / 'omarchy/dot-local/bin/dev')], cwd=self.checkout,
+            [str(ROOT / 'dev/dot-local/bin/dev')], cwd=self.checkout,
             env={**env, 'TMUX': tmux_env, 'TMUX_PANE': pane},
             capture_output=True, text=True, timeout=10)
         self.assertEqual(result.returncode, 0, result.stderr)

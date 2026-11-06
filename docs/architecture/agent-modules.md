@@ -118,11 +118,25 @@ There is no checkout registry, task-context handoff, or new checkout manager.
 Skill instructions guide agent judgment; they are not enforcement boundaries.
 See `agents/README.md` and `specs/work-sessions.feature` for behavior and recovery.
 
+The shared `dev` component owns only the project launcher leaf on both hosts:
+
+```text
+dev/dot-local/bin/dev → ~/.local/bin/dev
+                     → owned project tmux session (Neovim / Pi / shell)
+                     → explicit resize handoff to the layout runbook
+```
+
+Omarchy retains an ignored forwarding source for existing command links, not a
+second launcher policy. New installations use the shared no-folding component;
+legacy leaf migration is separately approved. Desktop and `mux` ownership stay
+in Omarchy, and no lifecycle capability, watcher or layout engine is added.
+See [dev guidance](../../dev/AGENT.md) for migration, checks and recovery.
+
 Platform selection is conservative:
 
 - existing configuration remains `darwin` until it is reviewed for portability;
 - the `omarchy` and `cliamp` components are `omarchy` only;
-- `agents`, `codex`, `pi`, `git`, `tmux`, and `yazi` list both platforms after
+- `agents`, `codex`, `dev`, `pi`, `git`, `tmux`, and `yazi` list both platforms after
   isolated layout validation; native macOS verification remains a delivery gate;
 - Yazi shares its configuration and preview-toggle keymap, while installed
   plugins and package inventory remain machine-owned; see `yazi/AGENT.md`;

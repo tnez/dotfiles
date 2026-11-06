@@ -7,12 +7,14 @@ REPO_ROOT=$ROOT
 # shellcheck source=../lib/dotfiles/modules.sh
 . "$ROOT/lib/dotfiles/modules.sh"
 selected=$(list_modules omarchy | cut -d '|' -f 1 | paste -sd ' ' -)
-test "$selected" = 'agents cliamp codex git omarchy pi tmux yazi'
+test "$selected" = 'agents cliamp codex dev git omarchy pi tmux yazi'
 for platform in darwin omarchy; do
   list_modules "$platform" | grep '^yazi|no-folding|darwin omarchy|' \
     >/dev/null
+  list_modules "$platform" | grep '^dev|no-folding|darwin omarchy|' \
+    >/dev/null
 done
-printf 'ok - Yazi is shared; Omarchy excludes macOS shells and Neovim\n'
+printf 'ok - Yazi/dev are shared; Omarchy excludes macOS shells and Neovim\n'
 python3 - "$ROOT" <<'PY'
 import json
 import os
@@ -49,7 +51,7 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
         args = ['stow', '--dir=' + str(repo), '--target=' + str(home),
                 '--dotfiles', '--ignore=^(AGENT[.]md|README.*|[.]gitignore|'
                 'knowledge-base-skill-adapter)$', action]
-        if package in ('agents', 'codex', 'pi', 'yazi'):
+        if package in ('agents', 'codex', 'dev', 'pi', 'yazi'):
             args.append('--no-folding')
         result = subprocess.run(args + [package], env=environment,
                                 capture_output=True, text=True)
@@ -112,6 +114,8 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
                 'knowledge-base-skill-adapter'):
                 continue
             relative = source.relative_to(repo / package)
+            if package == 'omarchy' and str(relative) == 'dot-local/bin/dev':
+                continue  # retained compatibility source, ignored by Stow
             if not relative.parts[0].startswith('dot-'):
                 continue
             target = home.joinpath(*(
@@ -119,6 +123,9 @@ with tempfile.TemporaryDirectory(prefix='dotfiles-portable-') as temp:
                 for part in relative.parts))
             assert target.resolve() == source.resolve(), (target, source)
     assert (home / '.codex/config.toml').read_text() == 'unmanaged\n'
+    assert (home / '.local/bin/dev').resolve() == (
+        repo / 'dev/dot-local/bin/dev').resolve()
+    assert not (home / '.local/bin').is_symlink()
     print('ok - retained packages restow; agent files are not Stow targets')
     for package in reversed(packages):
         if 'stow none\n' not in (repo / package / 'AGENT.md').read_text():

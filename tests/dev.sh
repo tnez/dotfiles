@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Exercise the Omarchy project launcher against an isolated tmux server.
+# Exercise the shared project launcher against an isolated tmux server.
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-DEV="$ROOT/omarchy/dot-local/bin/dev"
+DEV="$ROOT/dev/dot-local/bin/dev"
 REAL_TMUX=$(command -v tmux) || {
   printf 'BLOCKED: tmux is unavailable\n' >&2
   exit 2
 }
 TEST_ROOT=$(mktemp -d -t dotfiles-dev.XXXXXX)
+# macOS /var is a symlink; assertions must use the launcher's physical cwd.
+TEST_ROOT=$(cd -P "$TEST_ROOT" && pwd)
 SOCKET="dotfiles-dev-$$"
 BIN="$TEST_ROOT/bin"
 HOME="$TEST_ROOT/home"
@@ -18,6 +20,14 @@ export HOME PATH="$BIN:/usr/bin:/bin" SHELL=/bin/bash
 export DEV_TEST_REAL_TMUX="$REAL_TMUX" DEV_TEST_SOCKET="$SOCKET"
 export DEV_TEST_CALLS="$CALLS"
 : > "$CALLS"
+
+hash_path() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s' "$1" | sha256sum
+  else
+    printf '%s' "$1" | shasum -a 256
+  fi
+}
 
 cleanup() {
   env -u TMUX "$REAL_TMUX" -L "$SOCKET" kill-server \
@@ -276,7 +286,7 @@ printf 'ok - ambiguous client selection is rejected without creating state\n'
 
 collision="$TEST_ROOT/collision"
 mkdir -p "$collision"
-hash=$(printf '%s' "$collision" | sha256sum)
+hash=$(hash_path "$collision")
 hash=${hash%% *}
 collision_session="dev-collision-${hash:0:12}"
 "$REAL_TMUX" -L "$SOCKET" -f /dev/null new-session -d \
@@ -291,7 +301,7 @@ printf 'ok - unowned session collision is reported without takeover\n'
 
 incomplete="$TEST_ROOT/incomplete"
 mkdir -p "$incomplete"
-hash=$(printf '%s' "$incomplete" | sha256sum)
+hash=$(hash_path "$incomplete")
 hash=${hash%% *}
 incomplete_session="dev-incomplete-${hash:0:12}"
 "$REAL_TMUX" -L "$SOCKET" -f /dev/null new-session -d \
@@ -331,11 +341,11 @@ for spec in '200 67 on 0 1' '201 67 on 80 1' '220 67 on 99 1' \
     awk -F '|' -v root="$directory" '$2 == root {print $1}')
   pane_count=$("$REAL_TMUX" -L "$SOCKET" list-panes \
     -t "$target:dev" -F '#{pane_id}' | wc -l)
-  [[ $pane_count == $((1 + (agent_width > 0) + shell_pane)) ]] || \
+  (( pane_count == 1 + (agent_width > 0) + shell_pane )) || \
     fail "wrong primary pane count for $spec"
   window_count=$("$REAL_TMUX" -L "$SOCKET" list-windows \
     -t "$target" -F '#{window_id}' | wc -l)
-  [[ $window_count == $((3 - (agent_width > 0) - shell_pane)) ]] || \
+  (( window_count == 3 - (agent_width > 0) - shell_pane )) || \
     fail "wrong fallback window count for $spec"
   sizes=$("$REAL_TMUX" -L "$SOCKET" list-panes -t "$target:dev" \
     -F '#{pane_left}|#{pane_top}|#{pane_width}|#{pane_height}')
