@@ -54,6 +54,14 @@ assert_shared_workflow_bindings() {
   assert_option "$(prefix_binding n)" 'n|next-window' 'next window'
   assert_option "$(prefix_binding c)" \
     'c|new-window -c "#{pane_current_path}"' 'new window directory'
+  assert_option "$(prefix_binding k)" 'k|kill-window' 'kill window'
+  assert_option "$(prefix_binding K)" 'K|kill-session' 'kill session'
+  assert_option "$(prefix_binding C)" \
+    'C|new-session -c "#{pane_current_path}"' 'new session directory'
+  assert_option "$(prefix_binding P)" 'P|switch-client -p' 'previous session'
+  assert_option "$(prefix_binding N)" 'N|switch-client -n' 'next session'
+  assert_option "$(tmux_cmd show-options -gqv history-limit)" 50000 \
+    'new-pane scrollback'
   local agent_binding
   agent_binding=$(prefix_binding a)
   assert_binding "$agent_binding" 'detach-client' 'agent popup hide'
@@ -112,6 +120,12 @@ bind v split-window -h -c "#{pane_current_path}"
 bind r command-prompt -I "#W" "rename-window -- '%%'"
 bind R command-prompt -I "#S" "rename-session -- '%%'"
 bind x kill-pane
+bind k kill-window
+bind K kill-session
+bind C new-session -c "#{pane_current_path}"
+bind P switch-client -p
+bind N switch-client -n
+set -g history-limit 50000
 bind ? display-message "Omarchy help"
 bind q source-file ~/.config/tmux/tmux.conf \; display "Configuration reloaded"
 # Stock Omarchy status layout; colors come from the terminal palette.

@@ -38,6 +38,23 @@ the last-used window (and toggles back), while `prefix+n` remains next window.
 paths with spaces. Explicit shared bindings also replace stale macOS overrides
 on reload.
 
+On macOS, carry over Omarchy's case-sensitive window/session controls:
+
+| Binding | Action |
+| --- | --- |
+| `prefix+k` | Kill the current window, including all its panes |
+| `prefix+K` | Kill the current session, including all its windows |
+| `prefix+C` | Create and enter a session in the active pane's directory |
+| `prefix+P` / `prefix+N` | Previous / next session |
+
+Both kill actions are immediate, **without confirmation**, matching Omarchy.
+`prefix+C` replaces tmux's default customization screen. Set scrollback capacity
+with `history-limit` set to `50000`, without clearing retained history or restarting
+sessions; already discarded lines are not recovered. Omarchy continues to own
+these bindings and history settings through its shipped config. No Option/arrow
+shortcuts, clipboard settings, naming policy or automatic resize behavior is
+ported with these controls.
+
 On macOS, `prefix+h` is explicitly unbound, retiring the old previous-window
 shortcut even on reload. The old `prefix+R` reload override is removed; the
 shared rename binding replaces it. Keep session behavior, low escape-time,
@@ -259,7 +276,12 @@ Native Omarchy terminal integration remains a separate host smoke check.
   `dev-*` pane layouts, not tmux configuration; `--check` previews.
 - Run `bash tests/tmux.sh`, `bash tests/portable.sh`,
   `bash tests/lifecycle.sh`, and `python3 tests/tmux-navigation.py`
-  (installed smart-splits required). Run the popup suite in all XDG modes:
+  (installed smart-splits required). Also run
+  `python3 tests/tmux-session-controls.py`: real prefix keypresses on a private
+  server prove immediate window/session termination, new-session directory,
+  session cycling, scrollback preservation and survival of unrelated fixture
+  sessions/clients. Never test the kill keys against live user sessions.
+  Run the popup suite in all XDG modes:
 
   ```sh
   python3 tests/tmux-agent-popup.py
@@ -275,6 +297,14 @@ Native Omarchy terminal integration remains a separate host smoke check.
   or native Omarchy behavior. Never use the user's server as a test fixture.
 
 ## Recovery
+
+To roll back the macOS window/session controls, revert their Darwin declarations
+and, after approval, restore the reviewed prior live bindings. Before this port,
+`k`, `K`, `P` and `N` were unbound, while `C` used `customize-mode -Z`. Removing
+source lines does not unbind existing servers. Restore only the previous
+`history-limit` after reviewing its impact: lowering the limit can discard
+scrollback on current tmux. Do not restart sessions or clear history as rollback.
+Omarchy's native bindings and history settings are unaffected by this port.
 
 To undo only the popup-background preference, remove the helper's `-s` and `-S`
 background flags. The next summon will inherit the host popup body/border
