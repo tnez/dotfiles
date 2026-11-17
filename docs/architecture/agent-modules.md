@@ -95,7 +95,11 @@ materializes and verifies the declared end state. It does not stop at linking
 files or describing unapplied preferences. Themes, unrelated settings, auth,
 sessions, unrelated skills and KB content stay machine-owned. KB path checks
 do not claim context loading; the consuming agent reads entrypoints and relevant
-guidance.
+guidance. The runbook enforces its own platform, primary-checkout, KB, path,
+JSON and approval checks; it does not invoke host-wide lifecycle commands or
+require package, Stow or GUI-environment convergence. Unrelated host drift is
+reported separately, and the runbook retains its backup/reinspection/read-back
+safeguards. An emitted `ACTION_REQUIRED` still stops for human review.
 Legacy `omarchy-agent-links check` delegates to this check, while old mutation
 commands fail closed so installed hooks cannot recreate links. No replacement
 background hooks or general configuration framework are introduced. See

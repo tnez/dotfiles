@@ -14,7 +14,18 @@ application-owned JSON, preserving unrelated values. Materialize shared
 instructions from `agents/AGENTS.md`. No Stow activation for this component.
 A setup request covers reviewing and preparing the declared end state; apply
 requires explicit approval. Restore drift and migrate known links only with
-the runbook's additional explicit choices.
+the runbook's additional explicit choices. The runbook enforces agent-file
+preflight without invoking the host lifecycle; unrelated package, Stow or GUI
+drift is reported separately, not repaired as part of Pi preference updates.
+Stop for `ACTION_REQUIRED`; this is not permission to bypass safety findings.
+
+For requested model or preference changes, update the checked-in declaration,
+README and tests first, then review and apply the declared delta through
+`./agent-config` from the canonical checkout after explicit approval. Pi's live
+settings remain machine-local; do not check them in, replace the whole file,
+or substitute UI-only edits for declarative delivery. Verify live convergence
+and native startup/cycling; report blocked activation or smoke checks rather
+than describing a declaration-only change as applied.
 
 Use the model lineup and high reasoning preferences in `README.md`; use upstream
 retry, compaction, and resource-discovery defaults.

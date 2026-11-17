@@ -7,9 +7,9 @@ linking the repo or leaving preferences unapplied. Use the focused
 [`agent-config` runbook](../docs/runbooks/agent-config.md) for approved writes.
 `preferences.json` is a partial declaration, not a complete `settings.json`.
 
-- Startup: `openai/gpt-6.1-sol`, high reasoning.
-- Ctrl+P cycle order: `openai/gpt-6-astra:high`,
-  `openai/gpt-6-luna:high`, `openai/gpt-6.1-sol:high`.
+- Startup: `openai/gpt-6.2-sol`, high reasoning.
+- Ctrl+P cycle order: `openai/gpt-6.2-astra:high`,
+  `openai/gpt-6-luna:high`, `openai/gpt-6.2-sol:high`.
 - Per-model thinking levels: high for each exact provider/model ID above.
 - Install telemetry off; quiet startup on; session tree filter `no-tools`.
 - Add `+codemode` to the existing tool selection, preserving other tool choices.
@@ -18,8 +18,9 @@ linking the repo or leaving preferences unapplied. Use the focused
 
 Use upstream retry, compaction, codemode mode and resource-discovery defaults.
 Do not normalize existing unrelated settings to those defaults.
-The lineup uses Sol 6.1 for everyday work, Luna for focused tasks, and Astra for
-demanding work. High reasoning is an explicit preference, not Pi's medium default.
+The lineup uses Sol 6.2 for everyday work, Luna for focused tasks, and Astra 6.2
+for demanding work. High reasoning is an explicit preference, not Pi's medium
+default.
 Verify exact IDs with `pi --offline --list-models` before approved activation;
 missing models require review, not an invented replacement. Catalog presence
 does not prove successful provider authentication or a live model request.
@@ -28,6 +29,31 @@ does not prove successful provider authentication or a live model request.
 and Ctrl+Shift+T for the session tree. Merge these into a regular local file,
 preserving all other actions. The retained instruction source symlink is legacy
 migration provenance, not an installation source for Stow.
+
+## Changing declared preferences
+
+Use the declaration-first workflow for model lineup and other owned settings:
+
+1. Edit `preferences.json`, update this guidance and regression expectations,
+   and verify exact model IDs in Pi's catalog. Do not copy live settings into Git.
+2. Run the component tests. From the reviewed canonical checkout, run
+   `./dotfiles doctor`, `./dotfiles plan` and `./agent-config plan`. Review the
+   proposed owned-key changes. Record unrelated host drift separately; it does
+   not gate agent-file reconciliation. Stop for agent-config preflight failures
+   or any emitted `ACTION_REQUIRED` and obtain review.
+3. After explicit approval to restore the declaration, keep Pi settings writers
+   idle and run `./agent-config apply --yes --restore-declared`. This merges the
+   declaration into the regular, machine-local `~/.pi/agent/settings.json`;
+   unrelated settings and old per-model thinking entries are preserved.
+4. Run `./agent-config check`, verify the live values and preservation of
+   unrelated settings, then test startup and Ctrl+P in a fresh Pi session.
+   A resumed session keeps its saved selection. Report any untested native
+   behavior separately from successful configuration read-back.
+
+Pi's settings UI can make local changes, but UI-only edits do not update the
+shared declaration. Do not use them as a substitute for this workflow. A
+repository edit alone is not live activation. See the
+[runbook](../docs/runbooks/agent-config.md) for backups and recovery.
 
 ## Instructions and knowledge base
 

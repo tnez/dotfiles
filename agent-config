@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 import platform
 import stat
-import subprocess
 import sys
 import tempfile
 
@@ -155,14 +154,8 @@ def authorize(root, args, changes):
     if any(before[0] == 'file' for _, before, _ in changes):
         if not args.restore_declared:
             raise Conflict('choose declared state with --restore-declared')
-    for command in ('doctor', 'plan'):
-        result = subprocess.run([str(root / 'dotfiles'), command],
-                                capture_output=True, text=True, timeout=60)
-        output = result.stdout + result.stderr
-        if result.returncode or 'ACTION_REQUIRED' in output:
-            print(output, end='')
-            raise Conflict(f'resolve dotfiles {command} findings first')
-        print(f'OK: dotfiles {command}')
+    # inspect()/run() enforce this runbook's safety boundary. Unrelated
+    # package, Stow and GUI drift must not gate agent-file reconciliation.
 
 
 def apply(root, home, args, changes):
@@ -232,7 +225,7 @@ def run(args, root, home):
             return 1 if changes else 0
         apply(root, home, args, changes)
         return 0
-    except (Conflict, OSError, ValueError, subprocess.SubprocessError) as exc:
+    except (Conflict, OSError, ValueError) as exc:
         print(f'ACTION_REQUIRED: {exc}', file=sys.stderr)
         print('Stopped; preserve local state and inspect any partial work.',
               file=sys.stderr)

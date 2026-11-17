@@ -27,6 +27,14 @@ other setting. The repo's internal legacy instruction source links are retained
 for provenance, not installed. Codex config/preferences are outside this runbook.
 A custom `PI_CODING_AGENT_DIR` needs separate review and is refused.
 
+For preference updates, change the checked-in declaration, component guidance
+and regression expectations first; do not adopt the live settings file into
+Git. The agent then reviews and, after approval, reconciles the declared delta
+through this runbook. Pi UI-only edits are not declarative delivery. See
+[`pi/README.md`](../../pi/README.md#changing-declared-preferences) for the update
+sequence and native checks. Report declaration changes, live application and
+interactive verification as separate outcomes.
+
 ## Inspect and approve
 
 From the supplied canonical checkout:
@@ -38,10 +46,22 @@ From the supplied canonical checkout:
 pi --offline --list-models
 ```
 
-`plan` and `check` never write; 0 means matching state, 1 means a proposed delta,
-and 3 with `ACTION_REQUIRED` means stop for review. Root doctor/plan do not run
-this focused check and cannot certify its end state. Model catalog presence
-must be checked separately; the runbook does not make network/model requests.
+For `agent-config`, `plan` and `check` never write; 0 means matching state,
+1 means a proposed delta, and 3 with `ACTION_REQUIRED` means stop for review.
+Root doctor/plan remain read-only host observations: record unrelated package,
+Stow and GUI-environment drift separately, not as prerequisites for these
+agent-file writes. An emitted `ACTION_REQUIRED` still requires human review;
+do not ignore it. Root checks do not run this focused check or certify its end
+state. Model catalog presence must be checked separately; the runbook does not
+make network/model requests.
+
+Apply does not invoke the host lifecycle. Its preflight enforces the supported
+platform, canonical primary checkout, default agent directory, readable KB
+entrypoints, safe source/target paths, valid JSON and explicit approval choices.
+It reinspects inputs before writing, preserves unrelated settings, and retains
+private backups, atomic replacement and read-back verification. Missing or
+outdated Brewfile entries and a stale GUI environment are outside this runbook's
+write scope; resolving them is a separate approved operation.
 
 Configure the absolute `TNEZDEV_KNOWLEDGE_BASE_ROOT` in the launching environment;
 do not guess another checkout. The runbook checks the three required entrypoints.
@@ -88,8 +108,9 @@ Approved migration plus preference restoration uses:
 
 This replaces the verified link itself with a regular file; it never writes
 through the link. Existing regular configs are merged, not adopted into Git.
-Apply requires the primary checkout's real `.git` directory and successful root
-doctor/plan. Approval for candidate work is not approval for this live migration.
+Apply requires the primary checkout's real `.git` directory and successful
+agent-config preflight, not host-wide package or GUI convergence. Approval for
+candidate work is not approval for this live migration.
 
 ## Failure, verification and recovery
 
@@ -108,10 +129,11 @@ files updated; the runbook stops and reports partial work instead of attempting
 a destructive automatic rollback. Inspect the backup before retrying.
 
 Run `./agent-config check` afterward. In Pi run `/reload`, then use a fresh
-session to verify Sol 6.1/high startup and Ctrl+P cycling Astra → Luna → Sol at
-high reasoning. Resumed sessions and CLI/project overrides can retain different
-selections. Confirm instruction discovery and actual KB reads, not just readable
-files. Never grant project trust or make paid model calls merely to pass setup.
+session to verify Sol 6.2/high startup and Ctrl+P cycling Astra 6.2 → Luna →
+Sol 6.2 at high reasoning. Resumed sessions and CLI/project overrides can retain
+different selections. Confirm instruction discovery and actual KB reads, not
+just readable files. Never grant project trust or make paid model calls merely
+to pass setup.
 Native macOS environment inheritance and interactive key behavior require native
 smoke checks; fixture tests do not prove them.
 

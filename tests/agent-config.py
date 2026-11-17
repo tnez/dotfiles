@@ -29,7 +29,7 @@ class AgentConfig(unittest.TestCase):
     def setUp(self):
         temp = tempfile.TemporaryDirectory(prefix='agent-config-test-')
         self.addCleanup(temp.cleanup)
-        self.base = Path(temp.name)
+        self.base = Path(temp.name).resolve()
         self.root, self.home, self.kb = (self.base / name for name in (
             'repo', 'home', 'kb'))
         for path in (self.root / '.git', self.home / '.pi/agent',
@@ -98,11 +98,14 @@ class AgentConfig(unittest.TestCase):
         settings = json.loads(self.settings.read_text())
         self.assertEqual(settings['theme'], 'keep-local')
         self.assertEqual(settings['packages'], ['keep-package'])
-        self.assertEqual(settings['defaultModel'], 'gpt-6.1-sol')
+        self.assertEqual(settings['defaultModel'], 'gpt-6.2-sol')
         self.assertEqual(settings['defaultThinkingLevel'], 'high')
         self.assertEqual(settings['enabledModels'], [
-            'openai/gpt-6-astra:high', 'openai/gpt-6-luna:high',
-            'openai/gpt-6.1-sol:high'])
+            'openai/gpt-6.2-astra:high', 'openai/gpt-6-luna:high',
+            'openai/gpt-6.2-sol:high'])
+        for model in ('gpt-6.2-astra', 'gpt-6-luna', 'gpt-6.2-sol'):
+            self.assertEqual(
+                settings['modelThinkingLevels'][f'openai/{model}'], 'high')
         self.assertEqual(settings['modelThinkingLevels']['other/model'],
                          'low')
         self.assertEqual(settings['defaultTools'],
@@ -183,21 +186,48 @@ class AgentConfig(unittest.TestCase):
         self.assertEqual(json.loads(target.read_text())['custom.action'],
                          ['ctrl+q'])
 
-    def test_primary_lifecycle_kb_and_platform_guards(self):
-        for env in ({'TEST_STATUS': '1'},
-                    {'TEST_OUTPUT': 'ACTION_REQUIRED: fixture'},
-                    {'TNEZDEV_KNOWLEDGE_BASE_ROOT': ''},
+    def test_apply_does_not_run_host_lifecycle(self):
+        with patch.dict(os.environ, {
+                'TEST_STATUS': '1',
+                'TEST_OUTPUT': '[NEEDS_PROVISION] packages; stale GUI env'}):
+            self.assertEqual(self.apply(), 0, self.output.getvalue())
+        self.assertFalse((self.base / 'lifecycle.log').exists())
+        self.assertEqual(self.call('check'), 0)
+        # No host lifecycle executable is needed for subsequent updates either.
+        (self.root / 'dotfiles').unlink()
+        self.settings.write_text('{"theme":"keep-local"}')
+        self.assertEqual(self.apply(), 0, self.output.getvalue())
+        settings = json.loads(self.settings.read_text())
+        self.assertEqual(settings['defaultModel'], 'gpt-6.2-sol')
+        self.assertEqual(settings['theme'], 'keep-local')
+
+    def test_primary_kb_and_platform_guards(self):
+        for env in ({'TNEZDEV_KNOWLEDGE_BASE_ROOT': ''},
+                    {'TNEZDEV_KNOWLEDGE_BASE_ROOT': str(self.base)},
                     {'PI_CODING_AGENT_DIR': '/custom'}):
             with patch.dict(os.environ, env):
                 self.assertEqual(self.apply(), 3)
+            self.assertIn('ACTION_REQUIRED:', self.output.getvalue())
             self.assertFalse((self.home / 'AGENTS.md').exists())
-        (self.root / '.git').rmdir()
-        (self.root / '.git').write_text('gitdir: fixture')
-        self.assertEqual(self.apply(), 3)
+        git = self.root / '.git'
+        git.rmdir()
+        for kind in ('absent', 'file', 'link'):
+            if kind == 'file':
+                git.write_text('gitdir: fixture')
+            elif kind == 'link':
+                git.symlink_to(self.kb, target_is_directory=True)
+            self.assertEqual(self.apply(), 3)
+            self.assertIn('canonical primary', self.output.getvalue())
+            self.assertFalse((self.home / 'AGENTS.md').exists())
+            if kind != 'absent':
+                git.unlink()
+        git.mkdir()
         with patch.object(m.platform, 'system', return_value='Linux'), \
                 patch.object(m.platform, 'freedesktop_os_release',
                              return_value={'ID': 'arch'}):
             self.assertEqual(self.apply(), 3)
+            self.assertIn('supported only', self.output.getvalue())
+            self.assertFalse((self.home / 'AGENTS.md').exists())
 
     def test_concurrent_creation_is_not_clobbered(self):
         original = os.link
